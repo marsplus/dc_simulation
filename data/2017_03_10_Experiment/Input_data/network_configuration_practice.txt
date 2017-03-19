@@ -1,0 +1,5 @@
+Barabasi-Albert none local unstructured NA
+Erdos-Renyi-dense none none NA NA
+Barabasi-Albert none none NA NA
+Barabasi-Albert none local unstructured NA
+Barabasi-Albert none none NA NA

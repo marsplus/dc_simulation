@@ -1,0 +1,3 @@
+Polling was done on unused workers from the previous session (03.08.2017), some of which have been recruited in earlier sessions (all in March 2017).
+
+Worker A2HNL20X0Q9BP0 tried to complete the poll, even though they were not invited and have already participated in an adversarial experiment session. They were removed from the list of respondents.

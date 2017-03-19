@@ -1,0 +1,14 @@
+Decentralized Coordination Experiment [Wednesday, March 8]
+
+We are trying to schedule a new experiment session for Wednesday, March 8. If you are interested in participating, please indicate the times at which you are available by completing the following poll
+
+http://doodle.com/poll/sczv396munhbru93
+
+IMPORTANT:
+1. Please enter your MTurk worker ID in the 'Name' field (NOT your actual name).
+2. All times are given in CT (US Central Time).
+3. In case there is a change in your availability after you submit your initial poll response, please email us as soon as possible, so that we can choose a time slot for which enough people are available, or postpone the session if needed.
+4. Please give your response by 6:00 PM CT today, Tuesday, March 7. We will inform you of the selected experiment start time no later than 10:00 PM CT.
+
+The experiment will consist of a sequence of 5 practice 60-second games for which you will not receive any additional reward, followed by a sequence of 65 60-second regular games. Games will be organized in batches of size 1 (65 batches of regular games in total). For each of the regular games, you will receive a base payment of $0.15 (this per-game base payment is already calculated into the HIT reward of $9.75, and is not an additional bonus payment). On top of the base payment, for each game, depending on the particular game incentives and your performance you can earn a bonus payment of up to $0.40. (Note that in some games the maximum bonus payment you can earn could be as low as $0.20.) The estimated task completion time is 1 hour and 20 
+minutes.

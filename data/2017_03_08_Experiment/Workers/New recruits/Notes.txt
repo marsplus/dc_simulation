@@ -1,0 +1,16 @@
+//
+
+Changed selected times:
+
+1:00 PM CT
+2:00 PM CT
+
+to
+
+11:00 PM CT
+
+
+//
+
+Cannot be paid through TurkServer (internal server error)
+Automatically approved through MTurk

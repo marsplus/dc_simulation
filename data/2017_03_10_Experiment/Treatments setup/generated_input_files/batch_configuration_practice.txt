@@ -1,0 +1,5 @@
+1 adversarial random 2 balanced noConsensusOnly visibleConsensusNodes 5 random
+1 adversarial random 5 balanced noConsensusOnly visibleConsensusNodes 5 random
+1 adversarial random 2 balanced noConsensusOnly visibleConsensusNodes 1 random
+1 adversarial random 5 balanced noConsensusOnly visibleConsensusNodes 0 random
+1 adversarial random 0 balanced noConsensusOnly visibleConsensusNodes 1 random
