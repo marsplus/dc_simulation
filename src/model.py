@@ -7,12 +7,12 @@ from utils import *
 # random.seed(123)
 
 class GameAgent(Agent):
-    def __init__(self, unique_id, visibleNode, adversarial, neighbors, visibleColorNodes, inertia, model):
+    def __init__(self, unique_id, isVisibleNode, isAdversarial, neighbors, visibleColorNodes, inertia, model):
         super().__init__(unique_id, model)
         # whether this node is a visible node
-        self.visibleNode = visibleNode
+        self.isVisibleNode = isVisibleNode
         # whether this node is an adversarial
-        self.adversarial = adversarial
+        self.isAdversarial = isAdversarial
         self.neighbors = [agent for agent in model.schedule.agents if
                                                  agent.unique_id in neighbors]
         # for each agent initial color is white
@@ -34,7 +34,7 @@ class GameAgent(Agent):
     # return current majority color
     def majorityColor(self):
         # regular node
-        if not self.adversarial and not self.visibleNode:
+        if not self.isAdversarial and not self.isVisibleNode:
             # if there is any visible color node in the neighbor
             if self.hasVisibleColorNode():
                 visibleColor = [agent.color for agent in self.visibleColorNodes if agent.color != "white"]
@@ -87,12 +87,12 @@ class GameAgent(Agent):
                 else:
                     pass
             if red > green:
-                if self.visibleNode:
+                if self.isVisibleNode:
                     return "red"
                 else:
                     return "green"
             elif green > red:
-                if self.visibleNode:
+                if self.isVisibleNode:
                     return "green"
                 else:
                     return "red"
@@ -101,8 +101,8 @@ class GameAgent(Agent):
 
     # make a decision
     def step(self):
-        # if self.visibleNode:
-        #     print((self.visibleNode, self.color))
+        # if self.isVisibleNode:
+        #     print((self.isVisibleNode, self.color))
         major_color = self.majorityColor()
         if major_color == "white":
             # agents cannot go back to white once they
@@ -134,12 +134,12 @@ def getCurrentColor(model):
 
 
 class DCGame(Model):
-    def __init__(self, adjMat, numVisibleNodes, numAdversarialNodes, inertia):
+    def __init__(self, adjMat, numVisibleColorNodes, numAdversarialNodes, inertia):
         self.adjMat = adjMat
-        self.numVisibleNodes = numVisibleNodes
+        self.numVisibleColorNodes = numVisibleColorNodes
         self.numAdversarialNodes = numAdversarialNodes
         self.adversarialNodes = []
-        self.visibleNodes = []
+        self.visibleColorNodes = []
         self.schedule = RandomActivation(self)
         self.numAgents = len(adjMat)
         self.inertia = inertia
@@ -165,28 +165,28 @@ class DCGame(Model):
 
         ############# designate visible nodes #############
         availableNodes = shuffled(node_deg[numAdversarialNodes:])
-        self.visibleNodes = [item[0] for item in availableNodes[:self.numVisibleNodes]]
+        self.visibleColorNodes = [item[0] for item in availableNodes[:self.numVisibleColorNodes]]
 
-        self.regularNodes = [n for n in range(self.numAgents) if n not in self.visibleNodes
+        self.regularNodes = [n for n in range(self.numAgents) if n not in self.visibleColorNodes
                             and n not in self.adversarialNodes]
 
 
         ############# initialize all agents #############
         for i in range(self.numAgents):
             # if i is a visible node
-            visibleNode = i in self.visibleNodes
+            isVisibleNode = i in self.visibleColorNodes
             # if i is an adversarial
-            adversarial = i in self.adversarialNodes
+            isAdversarial = i in self.adversarialNodes
 
             neighbors = self.adjList[i]
             # visible color nodes in i's neighbors
-            visibleColorNodes = list(set(neighbors) & set(self.visibleNodes))
+            visibleColorNodes = list(set(neighbors) & set(self.visibleColorNodes))
             inertia = self.inertia
 
             # def __init__(self, unique_id, visibleNode, adversarial, neighbors, visibleColorNodes, inertia, model):
 
             # print("Add agent:", (i, visibleNode, adversarial, neighbors, visibleColorNodes))
-            a = GameAgent(i, visibleNode, adversarial, neighbors, visibleColorNodes, inertia, self)
+            a = GameAgent(i, isVisibleNode, isAdversarial, neighbors, visibleColorNodes, inertia, self)
             self.schedule.add(a)
 
         self.datacollector = DataCollector(
