@@ -2,6 +2,7 @@
 
 ####
 To run the code, you need python3.x and a multi-agent simulation platform named Mesa. Type: python src/model.py
+It is highly recommended to use virtualenv to create a folder and then git clone this project into the folder.
 
 ####
 Notice: 

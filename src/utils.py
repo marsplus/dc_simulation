@@ -5,6 +5,8 @@ from copy import deepcopy
 def count(seq):
 	return sum(x == 'True' for x in seq)
 
+def count_True(seq):
+	return sum(x == True for x in seq)
 
 def shuffled(iterable):
     # randomly shuffle a copy of iterable
