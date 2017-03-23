@@ -103,14 +103,14 @@ def generateAdjacencyMatrix(graph):
 
 
 # Generate Albert-Barabasi graph
-def AlbertBarabasi(n, m0, m, d, display=None, seed=None):
+def AlbertBarabasi(n, m, d, display=None, seed=None):
 	"""
 	n: Albert-Barabasi graph on n vertices
 	m: number of edges to attach from a new node to existing nodes
 	"""
-	if m > m0:
-		print("Error: m must be less or equal to m0")
-		return
+	# if m > m0:
+	# 	print("Error: m must be less or equal to m0")
+	# 	return
 
 	# counter = 0
 	while True:

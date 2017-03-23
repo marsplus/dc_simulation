@@ -1,6 +1,7 @@
 from __future__ import division
 import random
 import time
+import math
 import pandas as pd
 import numpy as np
 from utils import *
@@ -235,198 +236,100 @@ class DCGame(Model):
 
 
 def main():
-
-	#define a wrapper function for multi-processing
-	def simulationFunc(args):
-		# ret contains simulated results
-		ret = []
-		for j in range(numSimulation):
-		    m = DCGame(adjMat, numVisibleNodes, numAdversarialNodes, inertia)
-		    for i in range(gameTime):
-		        m.step()
-		    ret.append(m.datacollector.get_model_vars_dataframe())
-
-		# determine success ratio
-		# if a game reaches consensus under 60s, then it's successful
-		ratio = count([len(item) < gameTime for item in ret]) / numSimulation
-		# result.append([numVisibleNodes, numAdversarialNodes, networkType, ratio])
-		return ratio
+	# iterate over all inertia values
+	for inertia in np.arange(0.1, 1.0, 0.1):
+		print("Current inertia: ", inertia)
 
 
-	# allExpDate = ['2017_03_10']
+		#define a wrapper function for multi-processing
+		def simulationFunc(args):
+			# ret contains simulated results
+			ret = []
+			for j in range(numSimulation):
+			    m = DCGame(adjMat, numVisibleNodes, numAdversarialNodes, inertia)
+			    for i in range(gameTime):
+			        m.step()
+			    ret.append(m.datacollector.get_model_vars_dataframe())
 
-	# experimental parameters
-	################################
-	numSimulation = 20000
-	gameTime = 60
-	inertia = 0.5
-	numRegularPlayers = 20
-	################################
+			# determine success ratio
+			# if a game reaches consensus under 60s, then it's successful
+			ratio = count([len(item) < gameTime for item in ret]) / numSimulation
+			# result.append([numVisibleNodes, numAdversarialNodes, networkType, ratio])
+			return ratio
 
 
-	# network parameters
-	################################
-	# each new node is connected to m new nodes
-	m = 3
-    # number of edges of sparse erdos-renyi graph
-	numOfEdgesSparse = 23
-    # number of edges of dense erdos-renyi graph
-	numOfEdgesDense  = 45
-    # max degrees
-	maxDegreeOfBarabasiAlbert = 15
-	maxDegreeOfErdosRenyiSparse = 15
-	maxDegreeOfErdosRenyiDense = 15
-	################################
+		# allExpDate = ['2017_03_10']
 
-	args = []
-	networks = ['Erdos-Renyi-dense', 'Erdos-Renyi-sparse', 'Barabasi-Albert']
-	numVisibleNodes = [0, 1, 2, 5]
-	numAdversarialNodes = [0, 2, 5]
+		# experimental parameters
+		################################
+		numSimulation = 20000
+		gameTime = 60
+		inertia = 0.5
+		numRegularPlayers = 20
+		################################
 
-	# get all combinations of parameters
-	for net in networks:
-		for numVisible in numVisibleNodes:
-			for numAdv in numAdversarialNodes:
-				print("Generate parameters combinations: ", (net, numVisible, numAdv))
-				# calculate how many players we have
-				numPlayers = numRegularPlayers + numAdv
 
-				start_time = time.time()
-				# generate adjMat according to network type
-				if net == 'Erdos-Renyi-dense':
-					adjMat = ErdosRenyi(numPlayers, numOfEdgesDense, maxDegreeOfErdosRenyiDense)
-				elif net == 'Erdos-Renyi-sparse':
-					adjMat = ErdosRenyi(numPlayers, numOfEdgesSparse, maxDegreeOfErdosRenyiSparse)
-				else:
-					adjMat = AlbertBarabasi(numPlayers, 5, m, maxDegreeOfBarabasiAlbert)
-				end_time = time.time()
+		# network parameters
+		################################
+		### CODE FROM Zlatko ###
+		# each new node is connected to m new nodes
+		m = 3
+		no_consensus_nodes_range = range(11)
+	    # max degrees
+		maxDegree = 17
+		BA_edges = [(numRegularPlayers + no_consensus_nodes - 3) * m for \
+	    				no_consensus_nodes in no_consensus_nodes_range]
+		ERD_edges = [edges_no for edges_no in BA_edges]
+		ERS_edges = [int(math.ceil(edges_no/2.0)) for edges_no in ERD_edges]
 
-				print("Elapsed time to generate graph structure: %.2f" % (end_time - start_time))
+		################################
 
-				args.append((numSimulation, gameTime, numVisible, 
-						 numAdv, net, adjMat, inertia))
+		args = []
+		networks = ['Erdos-Renyi-dense', 'Erdos-Renyi-sparse', 'Barabasi-Albert']
+		numVisibleNodes = [0, 1, 2, 5]
+		numAdversarialNodes = [0, 2, 5]
 
-	# initialize processes pool
-	pool = Pool(processes=8)
-	result = pool.map(simulationFunc, args)
+		# get all combinations of parameters
+		for net in networks:
+			for numVisible in numVisibleNodes:
+				for numAdv in numAdversarialNodes:
+					print("Generate parameters combinations: ", (net, numVisible, numAdv))
+					# calculate how many players we have
+					numPlayers = numRegularPlayers + numAdv
 
-	# match results with parameters
-	for i in range(len(result)):
-		result[i] = list(args[i][2:5]) + [result[i]]
+					start_time = time.time()
+					# generate adjMat according to network type
+					if net == 'Erdos-Renyi-dense':
+						adjMat = ErdosRenyi(numPlayers, ERD_edges[numAdv], maxDegree)
+					elif net == 'Erdos-Renyi-sparse':
+						adjMat = ErdosRenyi(numPlayers, ERS_edges[numAdv], maxDegree)
+					else:
+						adjMat = AlbertBarabasi(numPlayers, m, maxDegree)
+					end_time = time.time()
 
-	result = pd.DataFrame(result)
-	result.columns = ['#visibleNodes', '#adversarial', 'network', 'ratio']
-	# result.to_csv('./result/5s_inertia=%.2f.csv' % inertia, index=None)
+					print("Elapsed time to generate graph structure: %.2f" % (end_time - start_time))
 
-	pool.close()
-	pool.join()
+					args.append((numSimulation, gameTime, numVisible, 
+							 numAdv, net, adjMat, inertia))
+
+		# initialize processes pool
+		pool = Pool(processes=8)
+		result = pool.map(simulationFunc, args)
+
+		# match results with parameters
+		for i in range(len(result)):
+			result[i] = list(args[i][2:5]) + [result[i]]
+
+		result = pd.DataFrame(result)
+		result.columns = ['#visibleNodes', '#adversarial', 'network', 'ratio']
+		result.to_csv('./result/inertia=%.2f.csv' % inertia, index=None)
+
+		pool.close()
+		pool.join()
 
 
 if __name__ =="__main__":
-
-	#define a wrapper function for multi-processing
-	def simulationFunc(args):
-		# ret contains simulated results
-		ret = []
-		for j in range(numSimulation):
-		    m = DCGame(adjMat, numVisibleNodes, numAdversarialNodes, inertia)
-		    for i in range(gameTime):
-		        m.step()
-		    ret.append(m.datacollector.get_model_vars_dataframe())
-
-		# determine success ratio
-		# if a game reaches consensus under 60s, then it's successful
-		ratio = count([len(item) < gameTime for item in ret]) / numSimulation
-		# result.append([numVisibleNodes, numAdversarialNodes, networkType, ratio])
-		return ratio
-
-
-	# allExpDate = ['2017_03_10']
-
-	# experimental parameters
-	################################
-	numSimulation = 20000
-	gameTime = 60
-	inertia = 0.5
-	numRegularPlayers = 20
-	################################
-
-
-	# network parameters
-	################################
-	# each new node is connected to m new nodes
-	m = 3
-    # number of edges of sparse erdos-renyi graph
-	numOfEdgesSparse = 23
-    # number of edges of dense erdos-renyi graph
-	numOfEdgesDense  = 45
-    # max degrees
-	maxDegreeOfBarabasiAlbert = 15
-	maxDegreeOfErdosRenyiSparse = 15
-	maxDegreeOfErdosRenyiDense = 15
-	################################
-
-	args = []
-	networks = ['Erdos-Renyi-dense', 'Erdos-Renyi-sparse', 'Barabasi-Albert']
-	numVisibleNodes = [0, 1, 2, 5]
-	numAdversarialNodes = [0, 2, 5]
-
-	# get all combinations of parameters
-	for net in networks:
-		for numVisible in numVisibleNodes:
-			for numAdv in numAdversarialNodes:
-				print("Generate parameters combinations: ", (net, numVisible, numAdv))
-				# calculate how many players we have
-				numPlayers = numRegularPlayers + numAdv
-
-				start_time = time.time()
-				# generate adjMat according to network type
-				if net == 'Erdos-Renyi-dense':
-					adjMat = ErdosRenyi(numPlayers, numOfEdgesDense, maxDegreeOfErdosRenyiDense)
-				elif net == 'Erdos-Renyi-sparse':
-					adjMat = ErdosRenyi(numPlayers, numOfEdgesSparse, maxDegreeOfErdosRenyiSparse)
-				else:
-					adjMat = AlbertBarabasi(numPlayers, 5, m, maxDegreeOfBarabasiAlbert)
-				end_time = time.time()
-
-				print("Elapsed time to generate graph structure: %.2f" % (end_time - start_time))
-
-				args.append((numSimulation, gameTime, numVisible, 
-						 numAdv, net, adjMat, inertia))
-
-
-	# for expDate in allExpDate:
-	# 	data = expSummary(expDate)
-	# 	# we only simulate games with none communication
-	# 	data = {key: value for key, value in data.items() if value['communication'] != 'local'}
-
-	# 	# for each game in the data, we simulate it 100 times
-	# 	for expId, expData in data.items():
-	# 		numVisibleNodes = expData['numVisible']
-	# 		numAdversarialNodes = expData['numAdv']
-	# 		networkType = expData['network']
-	# 		adjMat = expData['adjMat']
-
-	# 		# aggregate all combinations of parameters
-	# 		args.append((numSimulation, gameTime, numVisibleNodes, 
-	# 					 numAdversarialNodes, networkType, adjMat, inertia))
-
-	# # initialize processes pool
-	# pool = Pool(processes=8)
-	# result = pool.map(simulationFunc, args)
-
-	# # match results with parameters
-	# for i in range(len(result)):
-	# 	result[i] = list(args[i][2:5]) + [result[i]]
-
-	# result = pd.DataFrame(result)
-	# result.columns = ['#visibleNodes', '#adversarial', 'network', 'ratio']
-	# # result.to_csv('./result/5s_inertia=%.2f.csv' % inertia, index=None)
-
-	# pool.close()
-	# pool.join()
-
-
+	main()
 
 
 
