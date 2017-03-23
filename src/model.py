@@ -235,7 +235,8 @@ class DCGame(Model):
 
 
 
-def main():
+
+if __name__ =="__main__":
 	# iterate over all inertia values
 	for inertia in np.arange(0.1, 1.0, 0.1):
 		print("Current inertia: ", inertia)
@@ -327,9 +328,6 @@ def main():
 		pool.close()
 		pool.join()
 
-
-if __name__ =="__main__":
-	main()
 
 
 
