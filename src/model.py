@@ -244,6 +244,7 @@ if __name__ =="__main__":
 
 		#define a wrapper function for multi-processing
 		def simulationFunc(args):
+			numSimulation, gameTime, numVisibleNodes, numAdversarialNodes, net, adjMat, inertia = args
 			# ret contains simulated results
 			ret = []
 			for j in range(numSimulation):
@@ -265,7 +266,7 @@ if __name__ =="__main__":
 		################################
 		numSimulation = 20000
 		gameTime = 60
-		inertia = 0.5
+		# inertia = 0.5
 		numRegularPlayers = 20
 		################################
 
@@ -287,13 +288,13 @@ if __name__ =="__main__":
 
 		args = []
 		networks = ['Erdos-Renyi-dense', 'Erdos-Renyi-sparse', 'Barabasi-Albert']
-		numVisibleNodes = [0, 1, 2, 5]
-		numAdversarialNodes = [0, 2, 5]
+		numVisibleNodes_ = [0, 1, 2, 5]
+		numAdversarialNodes_ = [0, 2, 5]
 
 		# get all combinations of parameters
 		for net in networks:
-			for numVisible in numVisibleNodes:
-				for numAdv in numAdversarialNodes:
+			for numVisible in numVisibleNodes_:
+				for numAdv in numAdversarialNodes_:
 					print("Generate parameters combinations: ", (net, numVisible, numAdv))
 					# calculate how many players we have
 					numPlayers = numRegularPlayers + numAdv
