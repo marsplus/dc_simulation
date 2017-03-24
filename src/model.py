@@ -177,7 +177,7 @@ class DCGame(Model):
 		def getAdjList(adjMat):
 			adjList = {key: [] for key in range(self.numAgents)}
 			for node in range(self.numAgents):
-				adjList[node] = [idx for idx, value in enumerate(adjMat[node]) if value == "True"]
+				adjList[node] = [idx for idx, value in enumerate(adjMat[node]) if value == True]
 			return adjList
 
 		self.adjList = getAdjList(self.adjMat)
