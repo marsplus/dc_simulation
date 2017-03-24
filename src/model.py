@@ -140,211 +140,204 @@ def getCurrentColor(model):
 
 # get the number of nodes selecting red in each time step
 def getRed(model):
-	red = 0
-	current_color = [a.color for a in model.schedule.agents]
-	for color in current_color:
-		if color == "red":
-			red += 1
-	return red
+    red = 0
+    current_color = [a.color for a in model.schedule.agents]
+    for color in current_color:
+        if color == "red":
+            red += 1
+    return red
 
 
 def getGreen(model):
-	green = 0
-	current_color = [a.color for a in model.schedule.agents]
-	for color in current_color:
-		if color == "green":
-			green += 1
-	return green
+    green = 0
+    current_color = [a.color for a in model.schedule.agents]
+    for color in current_color:
+        if color == "green":
+            green += 1
+    return green
 
 
 
 class DCGame(Model):
-	def __init__(self, adjMat, numVisibleColorNodes, numAdversarialNodes, inertia):
-		self.adjMat = adjMat
-		self.numVisibleColorNodes = numVisibleColorNodes
-		self.numAdversarialNodes = numAdversarialNodes
-		self.adversarialNodes = []
-		self.visibleColorNodes = []
-		self.schedule = RandomActivation(self)
-		self.numAgents = len(adjMat)
-		self.inertia = inertia
-        # if there are 20 consensus colors then a 
-        # terminal state is reached
-		self.terminate = False
-        
-
-        # convert adjMat to adjList
-		def getAdjList(adjMat):
-			adjList = {key: [] for key in range(self.numAgents)}
-			for node in range(self.numAgents):
-				adjList[node] = [idx for idx, value in enumerate(adjMat[node]) if value == True]
-			return adjList
-
-		self.adjList = getAdjList(self.adjMat)
+    def __init__(self, adjMat, numVisibleColorNodes, numAdversarialNodes, inertia):
+        self.adjMat = adjMat
+        self.numVisibleColorNodes = numVisibleColorNodes
+        self.numAdversarialNodes = numAdversarialNodes
+        self.adversarialNodes = []
+        self.visibleColorNodes = []
+        self.schedule = RandomActivation(self)
+        self.numAgents = len(adjMat)
+        self.inertia = inertia
+    # if there are 20 consensus colors then a
+    # terminal state is reached
+        self.terminate = False
 
 
-        ############# designate adversarial #############
-        # (node, degree)
-		node_deg = [(idx, count(adjMat[idx])) for idx in range(self.numAgents)]
-        # select the top-k nodes with largest degrees as adversarial
-		node_deg.sort(key=lambda x: x[1], reverse=True)
-		self.adversarialNodes = [item[0] for item in node_deg[:self.numAdversarialNodes]]
+    # convert adjMat to adjList
+        def getAdjList(adjMat):
+            adjList = {key: [] for key in range(self.numAgents)}
+            for node in range(self.numAgents):
+                adjList[node] = [idx for idx, value in enumerate(adjMat[node]) if value == True]
+            return adjList
+
+        self.adjList = getAdjList(self.adjMat)
 
 
-        ############# designate visible nodes #############
-		availableNodes = shuffled(node_deg[numAdversarialNodes:])
-		self.visibleColorNodes = [item[0] for item in availableNodes[:self.numVisibleColorNodes]]
+    ############# designate adversarial #############
+    # (node, degree)
+        node_deg = [(idx, count(adjMat[idx])) for idx in range(self.numAgents)]
+    # select the top-k nodes with largest degrees as adversarial
+        node_deg.sort(key=lambda x: x[1], reverse=True)
+        self.adversarialNodes = [item[0] for item in node_deg[:self.numAdversarialNodes]]
 
-		self.regularNodes = [n for n in range(self.numAgents) if n not in self.visibleColorNodes
-                            and n not in self.adversarialNodes]
+
+    ############# designate visible nodes #############
+        availableNodes = shuffled(node_deg[numAdversarialNodes:])
+        self.visibleColorNodes = [item[0] for item in availableNodes[:self.numVisibleColorNodes]]
+
+        self.regularNodes = [n for n in range(self.numAgents) if n not in self.visibleColorNodes
+                    and n not in self.adversarialNodes]
 
 
-        ############# initialize all agents #############
-		for i in range(self.numAgents):
-			# if i is a visible node
-			isVisibleNode = i in self.visibleColorNodes
+    ############# initialize all agents #############
+        for i in range(self.numAgents):
+            # if i is a visible node
+            isVisibleNode = i in self.visibleColorNodes
             # if i is an adversarial
-			isAdversarial = i in self.adversarialNodes
+            isAdversarial = i in self.adversarialNodes
 
-			neighbors = self.adjList[i]
+            neighbors = self.adjList[i]
             # visible color nodes in i's neighbors
-			visibleColorNodes = list(set(neighbors) & set(self.visibleColorNodes))
-			inertia = self.inertia
+            visibleColorNodes = list(set(neighbors) & set(self.visibleColorNodes))
+            inertia = self.inertia
 
             # def __init__(self, unique_id, visibleNode, adversarial, neighbors, visibleColorNodes, inertia, model):
 
-			# print("Add agent:", (i, visibleNode, adversarial, neighbors, visibleColorNodes))
-			a = GameAgent(i, isVisibleNode, isAdversarial, neighbors, visibleColorNodes, inertia, self)
-			self.schedule.add(a)
+            # print("Add agent:", (i, visibleNode, adversarial, neighbors, visibleColorNodes))
+            a = GameAgent(i, isVisibleNode, isAdversarial, neighbors, visibleColorNodes, inertia, self)
+            self.schedule.add(a)
 
-		self.datacollector = DataCollector(
-				model_reporters = {"red": getRed, "green": getGreen},
-				agent_reporters = {"agent_color": lambda a: a.color}
-				) 
+        self.datacollector = DataCollector(
+                        model_reporters = {"red": getRed, "green": getGreen},
+                        agent_reporters = {"agent_color": lambda a: a.color}
+                        )
 
     # simulate the whole model for one step
-	def step(self):
-		# # if either red or green reaches consensus, terminates!
-		# in terminal state we do not collect data
-		test = getCurrentColor(self)
-		if test['red'] >= 20 or test['green'] >= 20:
-			pass
-		else:
-			self.datacollector.collect(self)
-		self.schedule.step()
+    def step(self):
+        # # if either red or green reaches consensus, terminates!
+        # in terminal state we do not collect data
+        test = getCurrentColor(self)
+        if test['red'] >= 20 or test['green'] >= 20:
+            pass
+        else:
+            self.datacollector.collect(self)
+        self.schedule.step()
 
 
 #define a wrapper function for multi-processing
 def simulationFunc(args):
-	# dispatch arguments
-	numSimulation, gameTime, numRegularPlayers, numVisibleNodes, numAdversarialNodes, net, inertia = args
+    # dispatch arguments
+    numSimulation, gameTime, numRegularPlayers, numVisibleNodes, numAdversarialNodes, net, inertia = args
 
-	# calculate how many players we have
-	numPlayers = numRegularPlayers + numAdversarialNodes
+    # calculate how many players we have
+    numPlayers = numRegularPlayers + numAdversarialNodes
 
-	# network parameters
-	################################
-	### CODE FROM Zlatko ###
-	# each new node is connected to m new nodes
-	m = 3
-	no_consensus_nodes_range = range(11)
+    # network parameters
+    ################################
+    ### CODE FROM Zlatko ###
+    # each new node is connected to m new nodes
+    m = 3
+    no_consensus_nodes_range = range(11)
     # max degrees
-	maxDegree = 17
-	BA_edges = [(numRegularPlayers + no_consensus_nodes - 3) * m for \
-    				no_consensus_nodes in no_consensus_nodes_range]
-	ERD_edges = [edges_no for edges_no in BA_edges]
-	ERS_edges = [int(math.ceil(edges_no/2.0)) for edges_no in ERD_edges]
-	################################
+    maxDegree = 17
+    BA_edges = [(numRegularPlayers + no_consensus_nodes - 3) * m for \
+                            no_consensus_nodes in no_consensus_nodes_range]
+    ERD_edges = [edges_no for edges_no in BA_edges]
+    ERS_edges = [int(math.ceil(edges_no/2.0)) for edges_no in ERD_edges]
+    ################################
 
-	# ret contains simulated results
-	ret = []
-	for j in range(numSimulation):
-		if j % 1000 == 0:
-			print("Current number of simulations: ", j)
+    # ret contains simulated results
+    ret = []
+    for j in range(numSimulation):
+        if j % 1000 == 0:
+            print("Current number of simulations: ", j)
 
-		# generate adjMat according to network type
-		if net == 'Erdos-Renyi-dense':
-			adjMat = ErdosRenyi(numPlayers, ERD_edges[numAdversarialNodes], maxDegree)
-		elif net == 'Erdos-Renyi-sparse':
-			adjMat = ErdosRenyi(numPlayers, ERS_edges[numAdversarialNodes], maxDegree)
-		else:
-			adjMat = AlbertBarabasi(numPlayers, m, maxDegree)
+        # generate adjMat according to network type
+        if net == 'Erdos-Renyi-dense':
+            adjMat = ErdosRenyi(numPlayers, ERD_edges[numAdversarialNodes], maxDegree)
+        elif net == 'Erdos-Renyi-sparse':
+            adjMat = ErdosRenyi(numPlayers, ERS_edges[numAdversarialNodes], maxDegree)
+        else:
+            adjMat = AlbertBarabasi(numPlayers, m, maxDegree)
 
-		
-		model = DCGame(adjMat, numVisibleNodes, numAdversarialNodes, inertia)
-		for i in range(gameTime):
-			model.step()
 
-		ret.append(model.datacollector.get_model_vars_dataframe())
+        model = DCGame(adjMat, numVisibleNodes, numAdversarialNodes, inertia)
+        for i in range(gameTime):
+            model.step()
 
-	# determine success ratio
-	# if a game reaches consensus under 60s, then it's successful
-	# ratio = count([len(item) < gameTime for item in ret]) / numSimulation
-	# return ratio
+        ret.append(model.datacollector.get_model_vars_dataframe())
 
-	result = [1 if len(item) < gameTime else 0 for item in ret]
-	print(len(result))
-	return result
+    # determine success ratio
+    # if a game reaches consensus under 60s, then it's successful
+    # ratio = count([len(item) < gameTime for item in ret]) / numSimulation
+    # return ratio
+
+    result = [1 if len(item) < gameTime else 0 for item in ret]
+    print(len(result))
+    return result
 
 
 
 
 
 if __name__ =="__main__":
-	# iterate over all inertia values
-	for inertia in np.arange(1.0, 1.1, 0.1):
-		print("Current inertia: ", inertia)
+    # iterate over all inertia values
+    for inertia in np.arange(0.1, 1.1, 0.1):
+        print("Current inertia: ", inertia)
 
-		# allExpDate = ['2017_03_10']
+        # allExpDate = ['2017_03_10']
 
-		# experimental parameters
-		################################
-		numSimulation = 10000
-		gameTime = 60
-		# inertia = 0.5
-		numRegularPlayers = 20
-		################################
-
-
-		args = []
-		networks = ['Erdos-Renyi-dense', 'Erdos-Renyi-sparse', 'Barabasi-Albert']
-		numVisibleNodes_ = [0, 1, 2, 5]
-		numAdversarialNodes_ = [0, 2, 5]
+        # experimental parameters
+        ################################
+        numSimulation = 10000
+        gameTime = 60
+        # inertia = 0.5
+        numRegularPlayers = 20
+        ################################
 
 
-		# get all combinations of parameters
-		for net in networks:
-			for numVisible in numVisibleNodes_:
-				for numAdv in numAdversarialNodes_:
-					print("Generate parameters combinations: ", (net, numVisible, numAdv))
-					args.append((numSimulation, gameTime, numRegularPlayers, numVisible, 
-							 numAdv, net, inertia))
-
-		# initialize processes pool
-		pool = Pool(processes=50)
-		result = pool.map(simulationFunc, args)
-
-		# # match results with parameters
-		# for i in range(len(result)):
-		# 	result[i] = list(args[i][3:6]) + [result[i]]
-
-		# this is extremely memory un-efficient
-		# but for now it is a solution
-		data = []
-		for i in range(len(result)):
-			for j in range(len(result[i])):
-				data.append(tuple(list(args[i][3:6]) + [result[i][j]]))
-
-		data = pd.DataFrame(data)
-		data.columns = ['#visibleNodes', '#adversarial', 'network', 'ratio']
-		data.to_csv('./result/inertia=%.2f.csv' % inertia, index=None)
-
-		pool.close()
-		pool.join()
-	
+        args = []
+        networks = ['Erdos-Renyi-dense', 'Erdos-Renyi-sparse', 'Barabasi-Albert']
+        numVisibleNodes_ = [0, 1, 2, 5]
+        numAdversarialNodes_ = [0, 2, 5]
 
 
+        # get all combinations of parameters
+        for net in networks:
+            for numVisible in numVisibleNodes_:
+                for numAdv in numAdversarialNodes_:
+                    print("Generate parameters combinations: ", (net, numVisible, numAdv))
+                    args.append((numSimulation, gameTime, numRegularPlayers, numVisible,
+                                     numAdv, net, inertia))
 
+        # initialize processes pool
+        pool = Pool(processes=50)
+        result = pool.map(simulationFunc, args)
 
+        # # match results with parameters
+        # for i in range(len(result)):
+        #       result[i] = list(args[i][3:6]) + [result[i]]
 
+        # this is extremely memory un-efficient
+        # but for now it is a solution
+        data = []
+        for i in range(len(result)):
+            for j in range(len(result[i])):
+                data.append(tuple(list(args[i][3:6]) + [result[i][j]]))
 
+        data = pd.DataFrame(data)
+        data.columns = ['#visibleNodes', '#adversarial', 'network', 'ratio']
+        # data.to_csv('./result/inertia=%.2f.csv' % inertia, index=None)
+
+        pool.close()
+        pool.join()
