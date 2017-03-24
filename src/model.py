@@ -234,6 +234,17 @@ class DCGame(Model):
 		self.schedule.step()
 
 
+def getAdjMat(net):
+	# generate adjMat according to network type
+	if net == 'Erdos-Renyi-dense':
+		adjMat = ErdosRenyi(numPlayers, ERD_edges[numAdversarialNodes], maxDegree)
+	elif net == 'Erdos-Renyi-sparse':
+		adjMat = ErdosRenyi(numPlayers, ERS_edges[numAdversarialNodes], maxDegree)
+	else:
+		adjMat = AlbertBarabasi(numPlayers, m, maxDegree)
+	return adjMat
+
+
 #define a wrapper function for multi-processing
 def simulationFunc(args):
 	# dispatch arguments
@@ -262,14 +273,7 @@ def simulationFunc(args):
 		if j % 1000 == 0:
 			print("Current number of simulations: ", j)
 
-		# generate adjMat according to network type
-		if net == 'Erdos-Renyi-dense':
-			adjMat = ErdosRenyi(numPlayers, ERD_edges[numAdversarialNodes], maxDegree)
-		elif net == 'Erdos-Renyi-sparse':
-			adjMat = ErdosRenyi(numPlayers, ERS_edges[numAdversarialNodes], maxDegree)
-		else:
-			adjMat = AlbertBarabasi(numPlayers, m, maxDegree)
-
+		adjMat = getAdjMat(net)
 		
 		model = DCGame(adjMat, numVisibleNodes, numAdversarialNodes, inertia)
 		for i in range(gameTime):
@@ -292,55 +296,56 @@ def simulationFunc(args):
 
 if __name__ =="__main__":
 	# iterate over all inertia values
-	for inertia in np.arange(0.1, 1.0, 0.1):
-		print("Current inertia: ", inertia)
+	# for inertia in np.arange(0.1, 1.0, 0.1):
+	inertia = 0.9
+	print("Current inertia: ", inertia)
 
-		# allExpDate = ['2017_03_10']
+	# allExpDate = ['2017_03_10']
 
-		# experimental parameters
-		################################
-		numSimulation = 10000
-		gameTime = 60
-		# inertia = 0.5
-		numRegularPlayers = 20
-		################################
-
-
-		args = []
-		networks = ['Erdos-Renyi-dense', 'Erdos-Renyi-sparse', 'Barabasi-Albert']
-		numVisibleNodes_ = [0, 1, 2, 5]
-		numAdversarialNodes_ = [0, 2, 5]
+	# experimental parameters
+	################################
+	numSimulation = 100
+	gameTime = 5
+	# inertia = 0.5
+	numRegularPlayers = 20
+	################################
 
 
-		# get all combinations of parameters
-		for net in networks:
-			for numVisible in numVisibleNodes_:
-				for numAdv in numAdversarialNodes_:
-					print("Generate parameters combinations: ", (net, numVisible, numAdv))
-					args.append((numSimulation, gameTime, numRegularPlayers, numVisible, 
-							 numAdv, net, inertia))
+	args = []
+	networks = ['Erdos-Renyi-dense', 'Erdos-Renyi-sparse', 'Barabasi-Albert']
+	numVisibleNodes_ = [0, 1, 2, 5]
+	numAdversarialNodes_ = [0, 2, 5]
 
-		# initialize processes pool
-		pool = Pool(processes=50)
-		result = pool.map(simulationFunc, args)
 
-		# # match results with parameters
-		# for i in range(len(result)):
-		# 	result[i] = list(args[i][3:6]) + [result[i]]
+	# get all combinations of parameters
+	for net in networks:
+		for numVisible in numVisibleNodes_:
+			for numAdv in numAdversarialNodes_:
+				print("Generate parameters combinations: ", (net, numVisible, numAdv))
+				args.append((numSimulation, gameTime, numRegularPlayers, numVisible, 
+						 numAdv, net, inertia))
 
-		# this is extremely memory un-efficient
-		# but for now it is a solution
-		data = []
-		for i in range(len(result)):
-			for j in range(len(result[i])):
-				data.append(tuple(list(args[i][3:6]) + [result[i][j]]))
+	# initialize processes pool
+	pool = Pool(processes=1)
+	result = pool.map(simulationFunc, args)
 
-		data = pd.DataFrame(data)
-		data.columns = ['#visibleNodes', '#adversarial', 'network', 'ratio']
-		result.to_csv('./result/inertia=%.2f.csv' % inertia, index=None)
+	# # match results with parameters
+	# for i in range(len(result)):
+	# 	result[i] = list(args[i][3:6]) + [result[i]]
 
-		pool.close()
-		pool.join()
+	# this is extremely memory un-efficient
+	# but for now it is a solution
+	data = []
+	for i in range(len(result)):
+		for j in range(len(result[i])):
+			data.append(tuple(list(args[i][3:6]) + [result[i][j]]))
+
+	data = pd.DataFrame(data)
+	data.columns = ['#visibleNodes', '#adversarial', 'network', 'ratio']
+	data.to_csv('./result/inertia=%.2f.csv' % inertia, index=None)
+
+	pool.close()
+	pool.join()
 	
 
 
