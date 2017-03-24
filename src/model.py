@@ -249,6 +249,22 @@ if __name__ =="__main__":
 			# calculate how many players we have
 			numPlayers = numRegularPlayers + numAdversarialNodes
 
+			# network parameters
+			################################
+			### CODE FROM Zlatko ###
+			# each new node is connected to m new nodes
+			m = 3
+			no_consensus_nodes_range = range(11)
+		    # max degrees
+			maxDegree = 17
+			BA_edges = [(numRegularPlayers + no_consensus_nodes - 3) * m for \
+		    				no_consensus_nodes in no_consensus_nodes_range]
+			ERD_edges = [edges_no for edges_no in BA_edges]
+			ERS_edges = [int(math.ceil(edges_no/2.0)) for edges_no in ERD_edges]
+
+			################################
+
+
 			# ret contains simulated results
 			ret = []
 			for j in range(numSimulation):
@@ -261,12 +277,12 @@ if __name__ =="__main__":
 				else:
 					adjMat = AlbertBarabasi(numPlayers, m, maxDegree)
 
-			    m = DCGame(adjMat, numVisibleNodes, numAdversarialNodes, inertia)
+			    model = DCGame(adjMat, numVisibleNodes, numAdversarialNodes, inertia)
 
 			    for i in range(gameTime):
-			        m.step()
+			        model.step()
 
-			    ret.append(m.datacollector.get_model_vars_dataframe())
+			    ret.append(model.datacollector.get_model_vars_dataframe())
 
 			# determine success ratio
 			# if a game reaches consensus under 60s, then it's successful
@@ -285,21 +301,6 @@ if __name__ =="__main__":
 		numRegularPlayers = 20
 		################################
 
-
-		# network parameters
-		################################
-		### CODE FROM Zlatko ###
-		# each new node is connected to m new nodes
-		m = 3
-		no_consensus_nodes_range = range(11)
-	    # max degrees
-		maxDegree = 17
-		BA_edges = [(numRegularPlayers + no_consensus_nodes - 3) * m for \
-	    				no_consensus_nodes in no_consensus_nodes_range]
-		ERD_edges = [edges_no for edges_no in BA_edges]
-		ERS_edges = [int(math.ceil(edges_no/2.0)) for edges_no in ERD_edges]
-
-		################################
 
 		args = []
 		networks = ['Erdos-Renyi-dense', 'Erdos-Renyi-sparse', 'Barabasi-Albert']

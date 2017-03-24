@@ -2,4 +2,3 @@ share/
 lib/
 bin/
 *.json
-src/__pycache__/*
