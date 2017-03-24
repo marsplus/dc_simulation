@@ -266,6 +266,8 @@ if __name__ =="__main__":
 			# ret contains simulated results
 			ret = []
 			for j in range(numSimulation):
+				if j % 1000 == 0:
+					print("Current number of simulations: ", j)
 
 				# generate adjMat according to network type
 				if net == 'Erdos-Renyi-dense':
