@@ -279,57 +279,68 @@ def simulationFunc(args):
 
 	# determine success ratio
 	# if a game reaches consensus under 60s, then it's successful
-	ratio = count([len(item) < gameTime for item in ret]) / numSimulation
-	# result.append([numVisibleNodes, numAdversarialNodes, networkType, ratio])
-	return ratio
+	# ratio = count([len(item) < gameTime for item in ret]) / numSimulation
+	# return ratio
+
+	result = [1 if len(item) < gameTime else 0 for item in ret]
+	print(len(result))
+	return result
+
+
 
 
 
 if __name__ =="__main__":
 	# iterate over all inertia values
-	# for inertia in np.arange(0.1, 1.0, 0.1):
-	inertia = 0.9
-	print("Current inertia: ", inertia)
+	for inertia in np.arange(0.1, 1.0, 0.1):
+		print("Current inertia: ", inertia)
 
-	# allExpDate = ['2017_03_10']
+		# allExpDate = ['2017_03_10']
 
-	# experimental parameters
-	################################
-	numSimulation = 50000
-	gameTime = 60
-	# inertia = 0.5
-	numRegularPlayers = 20
-	################################
-
-
-	args = []
-	networks = ['Erdos-Renyi-dense', 'Erdos-Renyi-sparse', 'Barabasi-Albert']
-	numVisibleNodes_ = [0, 1, 2, 5]
-	numAdversarialNodes_ = [0, 2, 5]
+		# experimental parameters
+		################################
+		numSimulation = 10000
+		gameTime = 60
+		# inertia = 0.5
+		numRegularPlayers = 20
+		################################
 
 
-	# get all combinations of parameters
-	for net in networks:
-		for numVisible in numVisibleNodes_:
-			for numAdv in numAdversarialNodes_:
-				print("Generate parameters combinations: ", (net, numVisible, numAdv))
-				args.append((numSimulation, gameTime, numRegularPlayers, numVisible, 
-						 numAdv, net, inertia))
+		args = []
+		networks = ['Erdos-Renyi-dense', 'Erdos-Renyi-sparse', 'Barabasi-Albert']
+		numVisibleNodes_ = [0, 1, 2, 5]
+		numAdversarialNodes_ = [0, 2, 5]
 
-	# initialize processes pool
-	pool = Pool(processes=50)
-	result = pool.map(simulationFunc, args)
 
-	# match results with parameters
-	for i in range(len(result)):
-		result[i] = list(args[i][3:6]) + [result[i]]
+		# get all combinations of parameters
+		for net in networks:
+			for numVisible in numVisibleNodes_:
+				for numAdv in numAdversarialNodes_:
+					print("Generate parameters combinations: ", (net, numVisible, numAdv))
+					args.append((numSimulation, gameTime, numRegularPlayers, numVisible, 
+							 numAdv, net, inertia))
 
-	result = pd.DataFrame(result)
-	result.columns = ['#visibleNodes', '#adversarial', 'network', 'ratio']
-	result.to_csv('./result/inertia=%.2f.csv' % inertia, index=None)
+		# initialize processes pool
+		pool = Pool(processes=50)
+		result = pool.map(simulationFunc, args)
 
-	pool.close()
-	pool.join()
+		# # match results with parameters
+		# for i in range(len(result)):
+		# 	result[i] = list(args[i][3:6]) + [result[i]]
+
+		# this is extremely memory un-efficient
+		# but for now it is a solution
+		data = []
+		for i in range(len(result)):
+			for j in range(len(result[i])):
+				data.append(tuple(list(args[i][3:6]) + [result[i][j]]))
+
+		data = pd.DataFrame(data)
+		data.columns = ['#visibleNodes', '#adversarial', 'network', 'ratio']
+		result.to_csv('./result/inertia=%.2f.csv' % inertia, index=None)
+
+		pool.close()
+		pool.join()
 	
 
 
