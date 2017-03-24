@@ -276,9 +276,8 @@ if __name__ =="__main__":
 					adjMat = ErdosRenyi(numPlayers, ERS_edges[numAdversarialNodes], maxDegree)
 				else:
 					adjMat = AlbertBarabasi(numPlayers, m, maxDegree)
-
-			    model = DCGame(adjMat, numVisibleNodes, numAdversarialNodes, inertia)
-
+				
+				model = DCGame(adjMat, numVisibleNodes, numAdversarialNodes, inertia)
 			    for i in range(gameTime):
 			        model.step()
 
