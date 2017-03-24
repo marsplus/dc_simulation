@@ -177,7 +177,7 @@ class DCGame(Model):
 		def getAdjList(adjMat):
 			adjList = {key: [] for key in range(self.numAgents)}
 			for node in range(self.numAgents):
-				adjList[node] = [idx for idx, value in enumerate(adjMat[node]) if value == "True"]
+				adjList[node] = [idx for idx, value in enumerate(adjMat[node]) if value == True]
 			return adjList
 
 		self.adjList = getAdjList(self.adjMat)
@@ -234,67 +234,72 @@ class DCGame(Model):
 		self.schedule.step()
 
 
+#define a wrapper function for multi-processing
+def simulationFunc(args):
+	# dispatch arguments
+	numSimulation, gameTime, numRegularPlayers, numVisibleNodes, numAdversarialNodes, net, inertia = args
+
+	# calculate how many players we have
+	numPlayers = numRegularPlayers + numAdversarialNodes
+
+	# network parameters
+	################################
+	### CODE FROM Zlatko ###
+	# each new node is connected to m new nodes
+	m = 3
+	no_consensus_nodes_range = range(11)
+    # max degrees
+	maxDegree = 17
+	BA_edges = [(numRegularPlayers + no_consensus_nodes - 3) * m for \
+    				no_consensus_nodes in no_consensus_nodes_range]
+	ERD_edges = [edges_no for edges_no in BA_edges]
+	ERS_edges = [int(math.ceil(edges_no/2.0)) for edges_no in ERD_edges]
+	################################
+
+	# ret contains simulated results
+	ret = []
+	for j in range(numSimulation):
+		if j % 1000 == 0:
+			print("Current number of simulations: ", j)
+
+		# generate adjMat according to network type
+		if net == 'Erdos-Renyi-dense':
+			adjMat = ErdosRenyi(numPlayers, ERD_edges[numAdversarialNodes], maxDegree)
+		elif net == 'Erdos-Renyi-sparse':
+			adjMat = ErdosRenyi(numPlayers, ERS_edges[numAdversarialNodes], maxDegree)
+		else:
+			adjMat = AlbertBarabasi(numPlayers, m, maxDegree)
+
+		
+		model = DCGame(adjMat, numVisibleNodes, numAdversarialNodes, inertia)
+		for i in range(gameTime):
+			model.step()
+
+		ret.append(model.datacollector.get_model_vars_dataframe())
+
+	# determine success ratio
+	# if a game reaches consensus under 60s, then it's successful
+	# ratio = count([len(item) < gameTime for item in ret]) / numSimulation
+	# return ratio
+
+	result = [1 if len(item) < gameTime else 0 for item in ret]
+	print(len(result))
+	return result
+
+
+
 
 
 if __name__ =="__main__":
 	# iterate over all inertia values
-	for inertia in np.arange(0.1, 1.0, 0.1):
+	for inertia in np.arange(1.0, 1.1, 0.1):
 		print("Current inertia: ", inertia)
-
-
-		#define a wrapper function for multi-processing
-		def simulationFunc(args):
-			numSimulation, gameTime, numRegularPlayers, numVisibleNodes, numAdversarialNodes, net, inertia = args
-
-			# calculate how many players we have
-			numPlayers = numRegularPlayers + numAdversarialNodes
-
-			# network parameters
-			################################
-			### CODE FROM Zlatko ###
-			# each new node is connected to m new nodes
-			m = 3
-			no_consensus_nodes_range = range(11)
-		    # max degrees
-			maxDegree = 17
-			BA_edges = [(numRegularPlayers + no_consensus_nodes - 3) * m for \
-		    				no_consensus_nodes in no_consensus_nodes_range]
-			ERD_edges = [edges_no for edges_no in BA_edges]
-			ERS_edges = [int(math.ceil(edges_no/2.0)) for edges_no in ERD_edges]
-			################################
-
-			# ret contains simulated results
-			ret = []
-			for j in range(numSimulation):
-				if j % 1000 == 0:
-					print("Current number of simulations: ", j)
-
-				# generate adjMat according to network type
-				if net == 'Erdos-Renyi-dense':
-					adjMat = ErdosRenyi(numPlayers, ERD_edges[numAdversarialNodes], maxDegree)
-				elif net == 'Erdos-Renyi-sparse':
-					adjMat = ErdosRenyi(numPlayers, ERS_edges[numAdversarialNodes], maxDegree)
-				else:
-					adjMat = AlbertBarabasi(numPlayers, m, maxDegree)
-				
-				model = DCGame(adjMat, numVisibleNodes, numAdversarialNodes, inertia)
-				for i in range(gameTime):
-					model.step()
-
-			ret.append(model.datacollector.get_model_vars_dataframe())
-
-			# determine success ratio
-			# if a game reaches consensus under 60s, then it's successful
-			ratio = count([len(item) < gameTime for item in ret]) / numSimulation
-			# result.append([numVisibleNodes, numAdversarialNodes, networkType, ratio])
-			return ratio
-
 
 		# allExpDate = ['2017_03_10']
 
 		# experimental parameters
 		################################
-		numSimulation = 50000
+		numSimulation = 10000
 		gameTime = 60
 		# inertia = 0.5
 		numRegularPlayers = 20
@@ -306,6 +311,7 @@ if __name__ =="__main__":
 		numVisibleNodes_ = [0, 1, 2, 5]
 		numAdversarialNodes_ = [0, 2, 5]
 
+
 		# get all combinations of parameters
 		for net in networks:
 			for numVisible in numVisibleNodes_:
@@ -315,19 +321,27 @@ if __name__ =="__main__":
 							 numAdv, net, inertia))
 
 		# initialize processes pool
-		pool = Pool(processes=36)
+		pool = Pool(processes=50)
 		result = pool.map(simulationFunc, args)
 
-		# match results with parameters
-		for i in range(len(result)):
-			result[i] = list(args[i][3:6]) + [result[i]]
+		# # match results with parameters
+		# for i in range(len(result)):
+		# 	result[i] = list(args[i][3:6]) + [result[i]]
 
-		result = pd.DataFrame(result)
-		result.columns = ['#visibleNodes', '#adversarial', 'network', 'ratio']
-		result.to_csv('./result/inertia=%.2f.csv' % inertia, index=None)
+		# this is extremely memory un-efficient
+		# but for now it is a solution
+		data = []
+		for i in range(len(result)):
+			for j in range(len(result[i])):
+				data.append(tuple(list(args[i][3:6]) + [result[i][j]]))
+
+		data = pd.DataFrame(data)
+		data.columns = ['#visibleNodes', '#adversarial', 'network', 'ratio']
+		data.to_csv('./result/inertia=%.2f.csv' % inertia, index=None)
 
 		pool.close()
 		pool.join()
+	
 
 
 
