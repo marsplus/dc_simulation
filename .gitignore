@@ -2,3 +2,4 @@ share/
 lib/
 bin/
 *.json
+result/
