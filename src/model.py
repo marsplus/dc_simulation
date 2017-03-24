@@ -244,13 +244,28 @@ if __name__ =="__main__":
 
 		#define a wrapper function for multi-processing
 		def simulationFunc(args):
-			numSimulation, gameTime, numVisibleNodes, numAdversarialNodes, net, adjMat, inertia = args
+			numSimulation, gameTime, numRegularPlayers, numVisibleNodes, numAdversarialNodes, net, inertia = args
+
+			# calculate how many players we have
+			numPlayers = numRegularPlayers + numAdversarialNodes
+
 			# ret contains simulated results
 			ret = []
 			for j in range(numSimulation):
+
+				# generate adjMat according to network type
+				if net == 'Erdos-Renyi-dense':
+					adjMat = ErdosRenyi(numPlayers, ERD_edges[numAdversarialNodes], maxDegree)
+				elif net == 'Erdos-Renyi-sparse':
+					adjMat = ErdosRenyi(numPlayers, ERS_edges[numAdversarialNodes], maxDegree)
+				else:
+					adjMat = AlbertBarabasi(numPlayers, m, maxDegree)
+
 			    m = DCGame(adjMat, numVisibleNodes, numAdversarialNodes, inertia)
+
 			    for i in range(gameTime):
 			        m.step()
+
 			    ret.append(m.datacollector.get_model_vars_dataframe())
 
 			# determine success ratio
@@ -296,31 +311,16 @@ if __name__ =="__main__":
 			for numVisible in numVisibleNodes_:
 				for numAdv in numAdversarialNodes_:
 					print("Generate parameters combinations: ", (net, numVisible, numAdv))
-					# calculate how many players we have
-					numPlayers = numRegularPlayers + numAdv
-
-					start_time = time.time()
-					# generate adjMat according to network type
-					if net == 'Erdos-Renyi-dense':
-						adjMat = ErdosRenyi(numPlayers, ERD_edges[numAdv], maxDegree)
-					elif net == 'Erdos-Renyi-sparse':
-						adjMat = ErdosRenyi(numPlayers, ERS_edges[numAdv], maxDegree)
-					else:
-						adjMat = AlbertBarabasi(numPlayers, m, maxDegree)
-					end_time = time.time()
-
-					print("Elapsed time to generate graph structure: %.2f" % (end_time - start_time))
-
-					args.append((numSimulation, gameTime, numVisible, 
-							 numAdv, net, adjMat, inertia))
+					args.append((numSimulation, gameTime, numRegularPlayers, numVisible, 
+							 numAdv, net, inertia))
 
 		# initialize processes pool
-		pool = Pool(processes=8)
+		pool = Pool(processes=36)
 		result = pool.map(simulationFunc, args)
 
 		# match results with parameters
 		for i in range(len(result)):
-			result[i] = list(args[i][2:5]) + [result[i]]
+			result[i] = list(args[i][2:6]) + [result[i]]
 
 		result = pd.DataFrame(result)
 		result.columns = ['#visibleNodes', '#adversarial', 'network', 'ratio']
