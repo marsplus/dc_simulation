@@ -261,9 +261,7 @@ if __name__ =="__main__":
 		    				no_consensus_nodes in no_consensus_nodes_range]
 			ERD_edges = [edges_no for edges_no in BA_edges]
 			ERS_edges = [int(math.ceil(edges_no/2.0)) for edges_no in ERD_edges]
-
 			################################
-
 
 			# ret contains simulated results
 			ret = []
@@ -278,10 +276,10 @@ if __name__ =="__main__":
 					adjMat = AlbertBarabasi(numPlayers, m, maxDegree)
 				
 				model = DCGame(adjMat, numVisibleNodes, numAdversarialNodes, inertia)
-			    for i in range(gameTime):
-			        model.step()
+				for i in range(gameTime):
+					model.step()
 
-			    ret.append(model.datacollector.get_model_vars_dataframe())
+			ret.append(model.datacollector.get_model_vars_dataframe())
 
 			# determine success ratio
 			# if a game reaches consensus under 60s, then it's successful
@@ -294,7 +292,7 @@ if __name__ =="__main__":
 
 		# experimental parameters
 		################################
-		numSimulation = 20000
+		numSimulation = 50000
 		gameTime = 60
 		# inertia = 0.5
 		numRegularPlayers = 20
@@ -320,7 +318,7 @@ if __name__ =="__main__":
 
 		# match results with parameters
 		for i in range(len(result)):
-			result[i] = list(args[i][2:6]) + [result[i]]
+			result[i] = list(args[i][3:6]) + [result[i]]
 
 		result = pd.DataFrame(result)
 		result.columns = ['#visibleNodes', '#adversarial', 'network', 'ratio']
