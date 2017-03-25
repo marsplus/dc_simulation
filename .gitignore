@@ -2,4 +2,5 @@ share/
 lib/
 bin/
 *.json
-result/
+result/*
+*.csv
