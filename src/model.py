@@ -15,6 +15,7 @@ from mesa.datacollection import DataCollector
 class GameAgent(Agent):
     def __init__(self, unique_id, isVisibleNode, isAdversarial, neighbors, visibleColorNodes, inertia, model):
         super().__init__(unique_id, model)
+        self.game = model
         # whether this node is a visible node
         self.isVisibleNode = isVisibleNode
         # whether this node is an adversarial
@@ -100,22 +101,27 @@ class GameAgent(Agent):
 
     # make a decision
     def step(self):
-        major_color = self.majorityColor()
-        if major_color == "white":
-            # agents cannot go back to white once they
-            # choosed certain color
-            pass
+        # check game state
+        current_color = getCurrentColor(self.game)
+        if current_color["red"] == 20 or current_color["green"] == 20:
+            self.game.setTerminal()
         else:
-            if random.random() < self.p:
-                if major_color == "red":
-                    self.color = "red"
-                else:
-                    self.color = "green"
-            # each agent has a small probability to not make
-            # any decision
-            else:
-                # do nothing
+            major_color = self.majorityColor()
+            if major_color == "white":
+                # agents cannot go back to white once they
+                # choosed certain color
                 pass
+            else:
+                if random.random() < self.p:
+                    if major_color == "red":
+                        self.color = "red"
+                    else:
+                        self.color = "green"
+                # each agent has a small probability to not make
+                # any decision
+                else:
+                    # do nothing
+                    pass
 
     def degree(self):
         return len(self.neighbors)
@@ -191,6 +197,7 @@ class DCGame(Model):
         self.regularNodes = [n for n in range(self.numAgents) if n not in self.visibleColorNodes
                     and n not in self.adversarialNodes]
 
+        # adversarial nodes, regular nodes and visible nodes should not overlap
         assert set(self.visibleColorNodes) & set(self.adversarialNodes) & set(self.regularNodes) == set()
 
         ############# initialize all agents #############
@@ -218,14 +225,24 @@ class DCGame(Model):
 
     # simulate the whole model for one step
     def step(self):
-        # # if either red or green reaches consensus, terminates!
-        # in terminal state we do not collect data
-        test = getCurrentColor(self)
-        if test['red'] >= 20 or test['green'] >= 20:
-            pass
-        else:
+        # # # if either red or green reaches consensus, terminates!
+        # # in terminal state we do not collect data
+        # test = getCurrentColor(self)
+        # if test['red'] >= 20 or test['green'] >= 20:
+        #     pass
+        # else:
+        #     self.datacollector.collect(self)
+        # self.schedule.step()
+
+        if not self.terminate:
             self.datacollector.collect(self)
-        self.schedule.step()
+            self.schedule.step()
+        return self.terminate
+
+
+    def setTerminal(self):
+        assert self.terminate == False
+        self.terminate = True
 
 
 def getAdjMat(net, numPlayers, numRegularPlayers, numAdversarialNodes):
@@ -319,7 +336,10 @@ def simulationFunc(args):
         adjMat = getAdjMat(net, numPlayers, numRegularPlayers, numAdversarialNodes)
         model = DCGame(adjMat, numVisibleNodes, numAdversarialNodes, inertia)
         for i in range(gameTime):
-            model.step()
+            # check whether a game terminates
+            terminate = model.step()
+            if terminate:
+                break
         ret.append(model.datacollector.get_model_vars_dataframe())
 
     # the collected data is actually an object
