@@ -1,6 +1,6 @@
-share
-lib
-bin
+share/
+lib/
+bin/
 *.json
 result/*
 *.csv
