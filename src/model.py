@@ -128,12 +128,14 @@ class GameAgent(Agent):
 
 
 # # this function is used to retrieve color information
-# at each time step
+#  of regular nodes at each time steop
 def getCurrentColor(model):
-    ret = {"red": 0, "green": 0, "white": 0}
-    current_color = [(a.color, a.unique_id) for a in model.schedule.agents]
+    ret = {"red": 0, "green": 0}
+    current_color = [(a.color, a.unique_id) for a in model.schedule.agents\
+				if a.unique_id in model.regularNodes]
     for item in current_color:
-        ret[item[0]] += 1
+        if item[0] != "white":
+            ret[item[0]] += 1
     return ret
 
 
@@ -164,6 +166,7 @@ class DCGame(Model):
         self.numAdversarialNodes = numAdversarialNodes
         self.adversarialNodes = []
         self.visibleColorNodes = []
+        self.regularNodes = []
         self.schedule = RandomActivation(self)
         self.numAgents = len(adjMat)
         self.inertia = inertia
@@ -349,14 +352,14 @@ def simulationFunc(args):
 
 if __name__ =="__main__":
     # iterate over all inertia values
-    for inertia in np.arange(0.1, 1.1, 0.1):
+    for inertia in np.arange(0.6, 0, -0.1):
         print("Current inertia: ", inertia)
 
         # allExpDate = ['2017_03_10']
 
         # experimental parameters
         ################################
-        numSimulation = 5
+        numSimulation = 50000
         gameTime = 60
         # inertia = 0.5
         numRegularPlayers = 20
@@ -380,7 +383,7 @@ if __name__ =="__main__":
                     counter += 1
 
         # initialize processes pool
-        pool = Pool(processes=8)
+        pool = Pool(processes=36)
         result = pool.map(simulationFunc, args)
 
         # # sort result
@@ -393,11 +396,11 @@ if __name__ =="__main__":
 
         consensus_ret = pd.concat([item.getConsensusResult() for item in result])
         consensus_ret.columns = ['#visibleNodes', '#adversarial', 'network', 'ratio']
-        # consensus_ret.to_csv('./result/consensus_inertia=%.2f.csv' % inertia, index=None)
+        consensus_ret.to_csv('./result/consensus_inertia=%.2f.csv' % inertia, index=None)
 
         time_ret = pd.concat([item.getTimeResult() for item in result])
         time_ret.columns = ['#visibleNodes', '#adversarial', 'network', 'time']
-        # time_ret.to_csv('./result/time_inertia=%.2f.csv' % inertia, index=None)
+        time_ret.to_csv('./result/time_inertia=%.2f.csv' % inertia, index=None)
 
         pool.close()
         pool.join()
