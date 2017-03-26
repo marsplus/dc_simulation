@@ -1,0 +1,8 @@
+share
+lib
+bin
+*.json
+result
+*.csv
+*.pyc
+
