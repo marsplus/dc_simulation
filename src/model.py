@@ -133,6 +133,8 @@ def getCurrentColor(model):
     ret = {"red": 0, "green": 0}
     current_color = [(a.color, a.unique_id) for a in model.schedule.agents\
 				if a.unique_id in model.regularNodes]
+    # a  = set(model.visibleColorNodes) & set(model.regularNodes) == set(model.visibleColorNodes)
+    # print(a)
     for item in current_color:
         if item[0] != "white":
             ret[item[0]] += 1
@@ -194,14 +196,17 @@ class DCGame(Model):
 
 
         ############# designate visible nodes #############
-        availableNodes = shuffled(node_deg[numAdversarialNodes:])
+        availableNodes = shuffled(node_deg[self.numAdversarialNodes:])
         self.visibleColorNodes = [item[0] for item in availableNodes[:self.numVisibleColorNodes]]
 
-        self.regularNodes = [n for n in range(self.numAgents) if n not in self.visibleColorNodes
-                    and n not in self.adversarialNodes]
+        self.regularNodes = [n for n in range(self.numAgents) if n not in self.adversarialNodes]
+        # make sure we have 20 regular nodes
+        assert len(self.regularNodes) == 20
 
-        # adversarial nodes, regular nodes and visible nodes should not overlap
-        assert set(self.visibleColorNodes) & set(self.adversarialNodes) & set(self.regularNodes) == set()
+        # adversarial nodes and regular nodes should not overlap
+        assert set(self.adversarialNodes) & set(self.regularNodes) == set()
+        # visible nodes should belong to regular nodes
+        assert set(self.visibleColorNodes) & set(self.regularNodes) == set(self.visibleColorNodes)
 
         ############# initialize all agents #############
         for i in range(self.numAgents):
@@ -209,6 +214,8 @@ class DCGame(Model):
             isVisibleNode = i in self.visibleColorNodes
             # if i is an adversarial
             isAdversarial = i in self.adversarialNodes
+
+            assert isVisibleNode & isAdversarial == False
 
             neighbors = self.adjList[i]
             # visible color nodes in i's neighbors
@@ -352,14 +359,14 @@ def simulationFunc(args):
 
 if __name__ =="__main__":
     # iterate over all inertia values
-    for inertia in np.arange(0.6, 0, -0.1):
+    for inertia in np.arange(1.0, 0, -0.1):
         print("Current inertia: ", inertia)
 
         # allExpDate = ['2017_03_10']
 
         # experimental parameters
         ################################
-        numSimulation = 50000
+        numSimulation = 20000
         gameTime = 60
         # inertia = 0.5
         numRegularPlayers = 20
@@ -382,11 +389,17 @@ if __name__ =="__main__":
                                      numAdv, net, inertia, counter))
                     counter += 1
 
+        # result = simulationFunc(args[0])
+        # result.generateResult()
+        # a = result.getConsensusResult()
+        # a.columns = ['#visibleNodes', '#adversarial', 'network', 'ratio']
+
+
         # initialize processes pool
         pool = Pool(processes=36)
         result = pool.map(simulationFunc, args)
 
-        # # sort result
+        # sort result
         # result.sort(key=lambda a: a.ret_id)
 
         # generate needed data from collected objects
