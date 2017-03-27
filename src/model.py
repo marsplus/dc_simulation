@@ -1,5 +1,6 @@
 from __future__ import division
 import random
+import pickle
 import time
 import math
 import pandas as pd
@@ -132,7 +133,7 @@ class GameAgent(Agent):
 def getCurrentColor(model):
     ret = {"red": 0, "green": 0}
     current_color = [(a.color, a.unique_id) for a in model.schedule.agents\
-				if a.unique_id in model.regularNodes]
+                if a.unique_id in model.regularNodes]
     # a  = set(model.visibleColorNodes) & set(model.regularNodes) == set(model.visibleColorNodes)
     # print(a)
     for item in current_color:
@@ -214,7 +215,7 @@ class DCGame(Model):
             isVisibleNode = i in self.visibleColorNodes
             # if i is an adversarial
             isAdversarial = i in self.adversarialNodes
-
+            # make sure adversarial nodes are not intersected with visible nodes
             assert isVisibleNode & isAdversarial == False
 
             neighbors = self.adjList[i]
@@ -253,32 +254,6 @@ class DCGame(Model):
     def setTerminal(self):
         assert self.terminate == False
         self.terminate = True
-
-
-def getAdjMat(net, numPlayers, numRegularPlayers, numAdversarialNodes):
-    # network parameters
-    ################################
-    ### CODE FROM Zlatko ###
-    # each new node is connected to m new nodes
-    m = 3
-    no_consensus_nodes_range = range(11)
-    # max degrees
-    maxDegree = 17
-    BA_edges = [(numRegularPlayers + no_consensus_nodes - 3) * m for \
-                            no_consensus_nodes in no_consensus_nodes_range]
-    ERD_edges = [edges_no for edges_no in BA_edges]
-    ERS_edges = [int(math.ceil(edges_no/2.0)) for edges_no in ERD_edges]
-    ################################ 
-
-    # generate adjMat according to network type
-    if net == 'Erdos-Renyi-dense':
-        adjMat = ErdosRenyi(numPlayers, ERD_edges[numAdversarialNodes], maxDegree)
-    elif net == 'Erdos-Renyi-sparse':
-        adjMat = ErdosRenyi(numPlayers, ERS_edges[numAdversarialNodes], maxDegree)
-    else:
-        adjMat = AlbertBarabasi(numPlayers, m, maxDegree)
-
-    return adjMat
 
 
 class BatchResult(object):
@@ -329,6 +304,33 @@ class BatchResult(object):
         return self.time_ret
 
 
+def getAdjMat(net, numPlayers, numRegularPlayers, numAdversarialNodes):
+    # network parameters
+    ################################
+    ### CODE FROM Zlatko ###
+    # each new node is connected to m new nodes
+    m = 3
+    no_consensus_nodes_range = range(11)
+    # max degrees
+    maxDegree = 17
+    BA_edges = [(numRegularPlayers + no_consensus_nodes - 3) * m for \
+                            no_consensus_nodes in no_consensus_nodes_range]
+    ERD_edges = [edges_no for edges_no in BA_edges]
+    ERS_edges = [int(math.ceil(edges_no/2.0)) for edges_no in ERD_edges]
+    ################################ 
+
+    # generate adjMat according to network type
+    if net == 'Erdos-Renyi-dense':
+        adjMat = ErdosRenyi(numPlayers, ERD_edges[numAdversarialNodes], maxDegree)
+    elif net == 'Erdos-Renyi-sparse':
+        adjMat = ErdosRenyi(numPlayers, ERS_edges[numAdversarialNodes], maxDegree)
+    else:
+        adjMat = AlbertBarabasi(numPlayers, m, maxDegree)
+
+    return adjMat
+
+
+
 #define a wrapper function for multi-processing
 def simulationFunc(args):
     # dispatch arguments
@@ -357,16 +359,35 @@ def simulationFunc(args):
     return result
 
 
+
+def combineResults(result, args):
+    inertia = args[0][-2]
+    # result is returned from multi-processing 
+    for ret in result:
+        ret.generateResult()
+
+    consensus_ret = pd.concat([item.getConsensusResult() for item in result])
+    consensus_ret.columns = ['#visibleNodes', '#adversarial', 'network', 'ratio']
+    consensus_ret.to_csv('./result/consensus_inertia=%.2f.csv' % inertia, index=None)
+
+    time_ret = pd.concat([item.getTimeResult() for item in result])
+    time_ret.columns = ['#visibleNodes', '#adversarial', 'network', 'time']
+    time_ret.to_csv('./result/time_inertia=%.2f.csv' % inertia, index=None)
+
+    dynamics_ret = {args[idx]: item.getDynamicsResult() for idx, item in enumerate(result)}
+    with open('result/dynamics_inertia=%.2f.p' % inertia, 'wb') as fid:
+        pickle.dump(dynamics_ret, fid)
+
+
+
 if __name__ =="__main__":
     # iterate over all inertia values
     for inertia in np.arange(1.0, 0, -0.1):
         print("Current inertia: ", inertia)
 
-        # allExpDate = ['2017_03_10']
-
         # experimental parameters
         ################################
-        numSimulation = 20000
+        numSimulation = 10
         gameTime = 60
         # inertia = 0.5
         numRegularPlayers = 20
@@ -399,21 +420,21 @@ if __name__ =="__main__":
         pool = Pool(processes=36)
         result = pool.map(simulationFunc, args)
 
-        # sort result
-        # result.sort(key=lambda a: a.ret_id)
+        combineResults(result, args)
 
-        # generate needed data from collected objects
-        for ret in result:
-            ret.generateResult()
+        # # generate needed data from collected objects
+        # for ret in result:
+        #     ret.generateResult()
 
+        # consensus_ret = pd.concat([item.getConsensusResult() for item in result])
+        # consensus_ret.columns = ['#visibleNodes', '#adversarial', 'network', 'ratio']
+        # consensus_ret.to_csv('./result/consensus_inertia=%.2f.csv' % inertia, index=None)
 
-        consensus_ret = pd.concat([item.getConsensusResult() for item in result])
-        consensus_ret.columns = ['#visibleNodes', '#adversarial', 'network', 'ratio']
-        consensus_ret.to_csv('./result/consensus_inertia=%.2f.csv' % inertia, index=None)
-
-        time_ret = pd.concat([item.getTimeResult() for item in result])
-        time_ret.columns = ['#visibleNodes', '#adversarial', 'network', 'time']
-        time_ret.to_csv('./result/time_inertia=%.2f.csv' % inertia, index=None)
+        # time_ret = pd.concat([item.getTimeResult() for item in result])
+        # time_ret.columns = ['#visibleNodes', '#adversarial', 'network', 'time']
+        # time_ret.to_csv('./result/time_inertia=%.2f.csv' % inertia, index=None)
 
         pool.close()
         pool.join()
+
+
