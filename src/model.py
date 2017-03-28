@@ -48,71 +48,86 @@ class GameAgent(Agent):
 
 
     # return current majority color
+    # this actually corresponds to different players' strategies
     def majorityColor(self):
-        # regular node
-        if not self.isAdversarial and not self.isVisibleNode:
-            # if there is any visible color node in the neighbor
-            if self.hasVisibleColorNode():
-
-                if random.random() < 0.9:
-
-                    visibleColor = [agent.color for agent in self.visibleColorNodes if agent.color != "white"]
-                    # if no visible node makes choice
-                    if len(visibleColor) == 0:
-
-                        # if there is indeed visible color node, but none of them
-                        # makes a decision, then the agent doesn't make any decision
-                        # either
-                        return self.color
-                    else:
-                        # print("hello")
-                        red = len([color for color in visibleColor if color == "red"])
-                        green = len(visibleColor) - red
-                        if red > green:
-                            return red
-                        elif green > red:
-                            return green
-                        else:
-                            # if #red == #green, randomly pick one
-                            random.choice(["red", "green"])
-
-                else:
-                    
-                    neighbor_color = self.getNeighborColor()
-                    if neighbor_color["red"] > neighbor_color["green"]:
-                        return "red"
-                    elif neighbor_color["red"] < neighbor_color["green"]:
-                        return "green"
-                    else:
-                        random.choice(["red", "green"])
-
-
-            # if no visible color node, follow majority
+        neighbor_color = self.getNeighborColor()
+        if neighbor_color["red"] > neighbor_color["green"]:
+            if self.isAdversarial:
+                return "green"
             else:
-                neighbor_color = self.getNeighborColor()
-                if neighbor_color["red"] > neighbor_color["green"]:
-                    return "red"
-                elif neighbor_color["red"] < neighbor_color["green"]:
-                    return "green"
-                else:
-                    random.choice(["red", "green"])
-
-        # visible nodes choose majority color, whereas adversarial
-        # nodes choose the opposite
+                return "red"
+        elif neighbor_color["red"] < neighbor_color["green"]:
+            if self.isAdversarial:
+                return "red"
+            else:
+                return "green"
         else:
-            neighbor_color = self.getNeighborColor()
-            if neighbor_color["red"] > neighbor_color["green"]:
-                if self.isVisibleNode:
-                    return "red"
-                else:
-                    return "green"
-            elif neighbor_color["red"] < neighbor_color["green"]:
-                if self.isVisibleNode:
-                    return "green"
-                else:
-                    return "red"
-            else:
-                return random.choice(["red", "green"])
+            return random.choice(["red", "green"])
+
+        # # regular node
+        # if not self.isAdversarial and not self.isVisibleNode:
+        #     # if there is any visible color node in the neighbor
+        #     if self.hasVisibleColorNode():
+
+        #         if random.random() < 0.9:
+
+        #             visibleColor = [agent.color for agent in self.visibleColorNodes if agent.color != "white"]
+        #             # if no visible node makes choice
+        #             if len(visibleColor) == 0:
+
+        #                 # if there is indeed visible color node, but none of them
+        #                 # makes a decision, then the agent doesn't make any decision
+        #                 # either
+        #                 return self.color
+        #             else:
+        #                 # print("hello")
+        #                 red = len([color for color in visibleColor if color == "red"])
+        #                 green = len(visibleColor) - red
+        #                 if red > green:
+        #                     return red
+        #                 elif green > red:
+        #                     return green
+        #                 else:
+        #                     # if #red == #green, randomly pick one
+        #                     random.choice(["red", "green"])
+
+        #         else:
+
+        #             neighbor_color = self.getNeighborColor()
+        #             if neighbor_color["red"] > neighbor_color["green"]:
+        #                 return "red"
+        #             elif neighbor_color["red"] < neighbor_color["green"]:
+        #                 return "green"
+        #             else:
+        #                 random.choice(["red", "green"])
+
+
+        #     # if no visible color node, follow majority
+        #     else:
+        #         neighbor_color = self.getNeighborColor()
+        #         if neighbor_color["red"] > neighbor_color["green"]:
+        #             return "red"
+        #         elif neighbor_color["red"] < neighbor_color["green"]:
+        #             return "green"
+        #         else:
+        #             random.choice(["red", "green"])
+
+        # # visible nodes choose majority color, whereas adversarial
+        # # nodes choose the opposite
+        # else:
+        #     neighbor_color = self.getNeighborColor()
+        #     if neighbor_color["red"] > neighbor_color["green"]:
+        #         if self.isVisibleNode:
+        #             return "red"
+        #         else:
+        #             return "green"
+        #     elif neighbor_color["red"] < neighbor_color["green"]:
+        #         if self.isVisibleNode:
+        #             return "green"
+        #         else:
+        #             return "red"
+        #     else:
+        #         return random.choice(["red", "green"])
 
 
     # make a decision
