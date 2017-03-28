@@ -39,97 +39,76 @@ class GameAgent(Agent):
         return len(self.visibleColorNodes) > 0
 
 
-    def getNeighborColor(self):
+    def getNeighborMajorColor(self):
         neighbor_color = {"red": 0, "green": 0}
         for a in self.neighbors:
             if a.color != "white":
                 neighbor_color[a.color] += 1
-        return neighbor_color
+
+        if neighbor_color["red"] > neighbor_color["green"]:
+            return "red"
+        elif neighbor_color["red"] < neighbor_color["green"]:
+            return "green"
+        else:
+            return random.choice(["red", "green"])
 
 
     # return current majority color
     # this actually corresponds to different players' strategies
     def majorityColor(self):
 
-        neighbor_color = self.getNeighborColor()
-        if neighbor_color["red"] > neighbor_color["green"]:
-            if self.isAdversarial:
-                return "green"
+        # regular node
+        if not self.isAdversarial and not self.isVisibleNode:
+            # if there is any visible color node in the neighbor
+            if self.hasVisibleColorNode():
+
+                # if random.random() < 0.0:
+
+                visibleColor = [agent.color for agent in self.visibleColorNodes if agent.color != "white"]
+                # if no visible node makes choice
+                if len(visibleColor) == 0:
+
+                    # if there is indeed visible color node, but none of them
+                    # makes a decision, then the agent doesn't make any decision
+                    # either
+                    return self.color
+                else:
+                    red = len([color for color in visibleColor if color == "red"])
+                    green = len(visibleColor) - red
+                    if red > green:
+                        return red
+                    elif green > red:
+                        return green
+                    else:
+                        # if #red == #green, randomly pick one
+                        return random.choice(["red", "green"])
+
+                # else:
+                    # color = self.getNeighborMajorColor()
+                    # return color
+                    # neighbor_color = self.getNeighborColor()
+                    # if neighbor_color["red"] > neighbor_color["green"]:
+                    #     return "red"
+                    # elif neighbor_color["red"] < neighbor_color["green"]:
+                    #     return "green"
+                    # else:
+                    #     random.choice(["red", "green"])
+
+
+            # if no visible color node, follow majority
             else:
-                return "red"
-        elif neighbor_color["red"] < neighbor_color["green"]:
-            if self.isAdversarial:
-                return "red"
-            else:
-                return "green"
+                color = self.getNeighborMajorColor() 
+                return color
+
+        # visible nodes choose majority color, whereas adversarial
+        # nodes choose the opposite
         else:
-            return random.choice(["red", "green"])
+            color = self.getNeighborMajorColor()
+            if self.isVisibleNode:
+                return color
+            else:
+                return "red" if color == "green" else "green"
 
-
-        # # regular node
-        # if not self.isAdversarial and not self.isVisibleNode:
-        #     # if there is any visible color node in the neighbor
-        #     if self.hasVisibleColorNode():
-
-        #         if random.random() < 0.9:
-
-        #             visibleColor = [agent.color for agent in self.visibleColorNodes if agent.color != "white"]
-        #             # if no visible node makes choice
-        #             if len(visibleColor) == 0:
-
-        #                 # if there is indeed visible color node, but none of them
-        #                 # makes a decision, then the agent doesn't make any decision
-        #                 # either
-        #                 return self.color
-        #             else:
-        #                 # print("hello")
-        #                 red = len([color for color in visibleColor if color == "red"])
-        #                 green = len(visibleColor) - red
-        #                 if red > green:
-        #                     return red
-        #                 elif green > red:
-        #                     return green
-        #                 else:
-        #                     # if #red == #green, randomly pick one
-        #                     random.choice(["red", "green"])
-
-        #         else:
-
-        #             neighbor_color = self.getNeighborColor()
-        #             if neighbor_color["red"] > neighbor_color["green"]:
-        #                 return "red"
-        #             elif neighbor_color["red"] < neighbor_color["green"]:
-        #                 return "green"
-        #             else:
-        #                 random.choice(["red", "green"])
-
-
-        #     # if no visible color node, follow majority
-        #     else:
-        #         neighbor_color = self.getNeighborColor()
-        #         if neighbor_color["red"] > neighbor_color["green"]:
-        #             return "red"
-        #         elif neighbor_color["red"] < neighbor_color["green"]:
-        #             return "green"
-        #         else:
-        #             random.choice(["red", "green"])
-
-        # # visible nodes choose majority color, whereas adversarial
-        # # nodes choose the opposite
-        # else:
-        #     neighbor_color = self.getNeighborColor()
-        #     if neighbor_color["red"] > neighbor_color["green"]:
-        #         if self.isVisibleNode:
-        #             return "red"
-        #         else:
-        #             return "green"
-        #     elif neighbor_color["red"] < neighbor_color["green"]:
-        #         if self.isVisibleNode:
-        #             return "green"
-        #         else:
-        #             return "red"
-        #     else:
-        #         return random.choice(["red", "green"])
 
 
     # make a decision
@@ -252,14 +231,18 @@ class DCGame(Model):
 
             neighbors = self.adjList[i]
             # visible color nodes in i's neighbors
-            visibleColorNodes = list(set(neighbors) & set(self.visibleColorNodes))
+            vNode = list(set(neighbors) & set(self.visibleColorNodes))
             inertia = self.inertia
 
-            # def __init__(self, unique_id, visibleNode, adversarial, neighbors, visibleColorNodes, inertia, model):
-
             # print("Add agent:", (i, visibleNode, adversarial, neighbors, visibleColorNodes))
-            a = GameAgent(i, isVisibleNode, isAdversarial, neighbors, visibleColorNodes, inertia, self)
+            a = GameAgent(i, isVisibleNode, isAdversarial, neighbors, vNode, inertia, self)
             self.schedule.add(a)
+
+            # print("*"*80)
+            # print(self.adversarialNodes)
+            # print(self.visibleColorNodes)
+            # print(self.regularNodes)
+            # print("*"*80)
 
         self.datacollector = DataCollector(
                         model_reporters = {"red": getRed, "green": getGreen},
@@ -270,12 +253,6 @@ class DCGame(Model):
     def step(self):
         # # # if either red or green reaches consensus, terminates!
         # # in terminal state we do not collect data
-        # test = getCurrentColor(self)
-        # if test['red'] >= 20 or test['green'] >= 20:
-        #     pass
-        # else:
-        #     self.datacollector.collect(self)
-        # self.schedule.step()
 
         if not self.terminate:
             self.datacollector.collect(self)
@@ -392,7 +369,10 @@ def simulationFunc(args):
 
 
 
-def combineResults(result, args):
+def combineResults(result, args, folder=None):
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+
     inertia = args[0][-2]
     # result is returned from multi-processing 
     for ret in result:
@@ -400,26 +380,30 @@ def combineResults(result, args):
 
     consensus_ret = pd.concat([item.getConsensusResult() for item in result])
     consensus_ret.columns = ['#visibleNodes', '#adversarial', 'network', 'ratio']
-    consensus_ret.to_csv('./result/consensus_inertia=%.2f.csv' % inertia, index=None)
+    p = os.path.join(folder, 'consensus_inertia=%.2f.csv' % inertia)
+    consensus_ret.to_csv(p, index=None)
+
 
     time_ret = pd.concat([item.getTimeResult() for item in result])
     time_ret.columns = ['#visibleNodes', '#adversarial', 'network', 'time']
-    time_ret.to_csv('./result/time_inertia=%.2f.csv' % inertia, index=None)
+    p = os.path.join(folder, 'time_inertia=%.2f.csv' % inertia)
+    time_ret.to_csv(p, index=None)
 
     dynamics_ret = {args[idx]: item.getDynamicsResult() for idx, item in enumerate(result)}
-    with open('result/dynamics_inertia=%.2f.p' % inertia, 'wb') as fid:
+    p = os.path.join(folder, 'dynamics_inertia=%.2f.p' % inertia)
+    with open(p, 'wb') as fid:
         pickle.dump(dynamics_ret, fid)
 
 
 
 if __name__ =="__main__":
     # iterate over all inertia values
-    for inertia in np.arange(1.0, 0, -0.1):
+    for inertia in np.arange(0.9, 0.8, -0.1):
         print("Current inertia: ", inertia)
 
         # experimental parameters
         ################################
-        numSimulation = 10
+        numSimulation = 20000
         gameTime = 60
         # inertia = 0.5
         numRegularPlayers = 20
@@ -451,20 +435,8 @@ if __name__ =="__main__":
         # initialize processes pool
         pool = Pool(processes=36)
         result = pool.map(simulationFunc, args)
+        combineResults(result, args, 'result/newStrategy_regularNodes')
 
-        combineResults(result, args)
-
-        # # generate needed data from collected objects
-        # for ret in result:
-        #     ret.generateResult()
-
-        # consensus_ret = pd.concat([item.getConsensusResult() for item in result])
-        # consensus_ret.columns = ['#visibleNodes', '#adversarial', 'network', 'ratio']
-        # consensus_ret.to_csv('./result/consensus_inertia=%.2f.csv' % inertia, index=None)
-
-        # time_ret = pd.concat([item.getTimeResult() for item in result])
-        # time_ret.columns = ['#visibleNodes', '#adversarial', 'network', 'time']
-        # time_ret.to_csv('./result/time_inertia=%.2f.csv' % inertia, index=None)
 
         pool.close()
         pool.join()
