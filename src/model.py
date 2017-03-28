@@ -62,38 +62,30 @@ class GameAgent(Agent):
             # if there is any visible color node in the neighbor
             if self.hasVisibleColorNode():
 
-                # if random.random() < 0.0:
+                if random.random() < 0.9:
 
-                visibleColor = [agent.color for agent in self.visibleColorNodes if agent.color != "white"]
-                # if no visible node makes choice
-                if len(visibleColor) == 0:
+                    visibleColor = [agent.color for agent in self.visibleColorNodes if agent.color != "white"]
+                    # if no visible node makes choice
+                    if len(visibleColor) == 0:
 
-                    # if there is indeed visible color node, but none of them
-                    # makes a decision, then the agent doesn't make any decision
-                    # either
-                    return self.color
-                else:
-                    red = len([color for color in visibleColor if color == "red"])
-                    green = len(visibleColor) - red
-                    if red > green:
-                        return red
-                    elif green > red:
-                        return green
+                        # if there is indeed visible color node, but none of them
+                        # makes a decision, then the agent doesn't make any decision
+                        # either
+                        return self.color
                     else:
-                        # if #red == #green, randomly pick one
-                        return random.choice(["red", "green"])
+                        red = len([color for color in visibleColor if color == "red"])
+                        green = len(visibleColor) - red
+                        if red > green:
+                            return red
+                        elif green > red:
+                            return green
+                        else:
+                            # if #red == #green, randomly pick one
+                            return random.choice(["red", "green"])
 
-                # else:
-                    # color = self.getNeighborMajorColor()
-                    # return color
-                    # neighbor_color = self.getNeighborColor()
-                    # if neighbor_color["red"] > neighbor_color["green"]:
-                    #     return "red"
-                    # elif neighbor_color["red"] < neighbor_color["green"]:
-                    #     return "green"
-                    # else:
-                    #     random.choice(["red", "green"])
-
+                else:
+                    color = self.getNeighborMajorColor()
+                    return color
 
             # if no visible color node, follow majority
             else:
