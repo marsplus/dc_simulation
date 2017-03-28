@@ -50,6 +50,7 @@ class GameAgent(Agent):
     # return current majority color
     # this actually corresponds to different players' strategies
     def majorityColor(self):
+
         neighbor_color = self.getNeighborColor()
         if neighbor_color["red"] > neighbor_color["green"]:
             if self.isAdversarial:
@@ -63,6 +64,7 @@ class GameAgent(Agent):
                 return "green"
         else:
             return random.choice(["red", "green"])
+
 
         # # regular node
         # if not self.isAdversarial and not self.isVisibleNode:
