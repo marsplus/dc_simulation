@@ -4,7 +4,7 @@ import networkx as nx
 from copy import deepcopy
 
 def count(seq):
-	return sum(x == True for x in seq)
+    return sum(x == True for x in seq)
 
 # def count_True(seq):
 # 	return sum(x == True for x in seq)

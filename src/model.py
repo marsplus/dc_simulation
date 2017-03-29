@@ -55,50 +55,54 @@ class GameAgent(Agent):
 
     # return current majority color
     # this actually corresponds to different players' strategies
-    def majorityColor(self):
+    def decision(self):
 
         # regular node
         if not self.isAdversarial and not self.isVisibleNode:
             # if there is any visible color node in the neighbor
             if self.hasVisibleColorNode():
 
-                if random.random() < 0.9:
+                # if random.random() < 0.9:
 
-                    visibleColor = [agent.color for agent in self.visibleColorNodes if agent.color != "white"]
-                    # if no visible node makes choice
-                    if len(visibleColor) == 0:
+                visibleColor = [agent.color for agent in self.visibleColorNodes if agent.color != "white"]
+                # if no visible node makes choice
+                if len(visibleColor) == 0:
 
-                        # if there is indeed visible color node, but none of them
-                        # makes a decision, then the agent doesn't make any decision
-                        # either
-                        return self.color
-                    else:
-                        red = len([color for color in visibleColor if color == "red"])
-                        green = len(visibleColor) - red
-                        if red > green:
-                            return red
-                        elif green > red:
-                            return green
-                        else:
-                            # if #red == #green, randomly pick one
-                            return random.choice(["red", "green"])
-
+                    # if there is indeed visible color node, but none of them
+                    # makes a decision, then the agent doesn't make any decision
+                    # either
+                    return self.color
                 else:
-                    color = self.getNeighborMajorColor()
-                    return color
+                    numRed = len([color for color in visibleColor if color == "red"])
+                    numGreen = len(visibleColor) - numRed
+                    if numRed > numGreen:
+                        return "red"
+                    elif numRed < numGreen:
+                        return "green"
+                    else:
+                        # if #red == #green, randomly pick one
+                        return random.choice(["red", "green"])
+
+                # else:
+                #     return self.getNeighborMajorColor()
 
             # if no visible color node, follow majority
             else:
-                color = self.getNeighborMajorColor() 
-                return color
+                return self.getNeighborMajorColor() 
 
         # visible nodes choose majority color, whereas adversarial
         # nodes choose the opposite
         else:
+            # either visible node or adversarial node
+            assert self.isVisibleNode | self.isAdversarial == True
+
             color = self.getNeighborMajorColor()
             if self.isVisibleNode:
+                # print(self.isVisibleNode)
                 return color
             else:
+                # print(self.isAdversarial)
+                # return "red" if color == "green" else "green"
                 return "red" if color == "green" else "green"
 
 
@@ -110,17 +114,16 @@ class GameAgent(Agent):
         if current_color["red"] == 20 or current_color["green"] == 20:
             self.game.setTerminal()
         else:
-            major_color = self.majorityColor()
-            if major_color == "white":
+
+            decision_color = self.decision()
+            
+            if decision_color == "white":
                 # agents cannot go back to white once they
                 # choosed certain color
                 pass
             else:
                 if random.random() < self.p:
-                    if major_color == "red":
-                        self.color = "red"
-                    else:
-                        self.color = "green"
+                    self.color = decision_color
                 # each agent has a small probability to not make
                 # any decision
                 else:
@@ -170,7 +173,7 @@ class DCGame(Model):
         self.adjMat = adjMat
         self.numVisibleColorNodes = numVisibleColorNodes
         self.numAdversarialNodes = numAdversarialNodes
-        self.adversarialNodes = []
+        # self.adversarialNodes = []
         self.visibleColorNodes = []
         self.regularNodes = []
         self.schedule = RandomActivation(self)
@@ -404,6 +407,7 @@ if __name__ =="__main__":
 
         args = []
         networks = ['Erdos-Renyi-dense', 'Erdos-Renyi-sparse', 'Barabasi-Albert']
+        # networks = ['Erdos-Renyi-dense']
         numVisibleNodes_ = [0, 1, 2, 5]
         numAdversarialNodes_ = [0, 2, 5]
 
