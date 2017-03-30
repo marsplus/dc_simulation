@@ -81,7 +81,8 @@ class GameAgent(Agent):
                         return "green"
                     else:
                         # if #red == #green, randomly pick one
-                        return random.choice(["red", "green"])
+                        # return random.choice(["red", "green"])
+                        return self.getNeighborMajorColor()
 
                 # else:
                 #     return self.getNeighborMajorColor()
@@ -114,8 +115,17 @@ class GameAgent(Agent):
         if current_color["red"] == 20 or current_color["green"] == 20:
             self.game.setTerminal()
         else:
-
             decision_color = self.decision()
+
+            # ###
+            # if self.hasVisibleColorNode() and  self.isAdversarial:
+            #     print('*'*80)
+            #     if self.hasVisibleColorNode():
+            #         vNodeColor = [(a.unique_id, a.color) for a in self.neighbors if a.unique_id in self.game.visibleColorNodes]
+            #         print("visible color: %s" % vNodeColor[0][1])
+            #         print("%i: %s" % (self.unique_id, decision_color))
+            #     print('*'*80)
+            # ###
             
             if decision_color == "white":
                 # agents cannot go back to white once they
@@ -138,13 +148,13 @@ class GameAgent(Agent):
 ##  of regular nodes at each time steop
 def getCurrentColor(model):
     ret = {"red": 0, "green": 0}
-    current_color = [(a.color, a.unique_id) for a in model.schedule.agents\
+    current_color = [a.color for a in model.schedule.agents\
                 if a.unique_id in model.regularNodes]
     # a  = set(model.visibleColorNodes) & set(model.regularNodes) == set(model.visibleColorNodes)
     # print(a)
     for item in current_color:
-        if item[0] != "white":
-            ret[item[0]] += 1
+        if item != "white":
+            ret[item] += 1
     return ret
 
 
@@ -232,12 +242,6 @@ class DCGame(Model):
             # print("Add agent:", (i, visibleNode, adversarial, neighbors, visibleColorNodes))
             a = GameAgent(i, isVisibleNode, isAdversarial, neighbors, vNode, inertia, self)
             self.schedule.add(a)
-
-            # print("*"*80)
-            # print(self.adversarialNodes)
-            # print(self.visibleColorNodes)
-            # print(self.regularNodes)
-            # print("*"*80)
 
         self.datacollector = DataCollector(
                         model_reporters = {"red": getRed, "green": getGreen},
@@ -398,7 +402,7 @@ if __name__ =="__main__":
 
         # experimental parameters
         ################################
-        numSimulation = 20000
+        numSimulation = 1
         gameTime = 60
         # inertia = 0.5
         numRegularPlayers = 20
@@ -406,10 +410,10 @@ if __name__ =="__main__":
 
 
         args = []
-        networks = ['Erdos-Renyi-dense', 'Erdos-Renyi-sparse', 'Barabasi-Albert']
-        # networks = ['Erdos-Renyi-dense']
-        numVisibleNodes_ = [0, 1, 2, 5]
-        numAdversarialNodes_ = [0, 2, 5]
+        # networks = ['Erdos-Renyi-dense', 'Erdos-Renyi-sparse', 'Barabasi-Albert']
+        networks = ['Erdos-Renyi-dense']
+        numVisibleNodes_ = [1]
+        numAdversarialNodes_ = [2]
 
 
         # get all combinations of parameters
@@ -422,19 +426,19 @@ if __name__ =="__main__":
                                      numAdv, net, inertia, counter))
                     counter += 1
 
-        # result = simulationFunc(args[0])
+        result = simulationFunc(args[0])
         # result.generateResult()
         # a = result.getConsensusResult()
         # a.columns = ['#visibleNodes', '#adversarial', 'network', 'ratio']
 
 
-        # initialize processes pool
-        pool = Pool(processes=36)
-        result = pool.map(simulationFunc, args)
-        combineResults(result, args, 'result/newStrategy_regularNodes')
+        # # initialize processes pool
+        # pool = Pool(processes=36)
+        # result = pool.map(simulationFunc, args)
+        # combineResults(result, args, 'result/newStrategy_regularNodes')
 
 
-        pool.close()
-        pool.join()
+        # pool.close()
+        # pool.join()
 
 
