@@ -100,20 +100,20 @@ class GameAgent(Agent):
                     elif numRed < numGreen:
                         return "green"
                     else:
-                        # pColor, dominant = self.getNeighborMajorColor()
-                        # # if pColor is dominant color in the neighborhood
-                        # if dominant:
-                        #     return pColor
-                        # # if pColor is not dominant color and the player
-                        # # has already made decision, then keep the original 
-                        # # color
-                        # else:
-                        #     if self.color != "white":
-                        #         return self.color
-                        #     else:
-                        #         return pColor
+                        pColor, dominant = self.getNeighborMajorColor()
+                        # if pColor is dominant color in the neighborhood
+                        if dominant:
+                            return pColor
+                        # if pColor is not dominant color and the player
+                        # has already made decision, then keep the original 
+                        # color
+                        else:
+                            if self.color != "white":
+                                return self.color
+                            else:
+                                return pColor
 
-                        return random.choice(["red", "green"])
+                        # return random.choice(["red", "green"])
 
 
             # if no visible color node, follow majority
