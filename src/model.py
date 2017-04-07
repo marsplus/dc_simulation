@@ -316,8 +316,8 @@ class DCGame(Model):
 
             neighbors = self.adjList[i]
 
-            if isVisibleNode:
-                print(neighbors)
+            #if isVisibleNode:
+            #    print(neighbors)
 
             # visible color nodes in i's neighbors
             vNode = list(set(neighbors) & set(self.visibleColorNodes))
@@ -508,7 +508,7 @@ if __name__ =="__main__":
 
         # experimental parameters
         ################################
-        numSimulation = 1
+        numSimulation = 20000
         gameTime = 60
         # inertia = 0.5
         numRegularPlayers = 20
