@@ -46,14 +46,17 @@ class GameAgent(Agent):
             if a.color != "white":
                 neighbor_color[a.color] += 1
 
-        # if the player has not made any decision
-        # then its current decision only based on 
-        # its neighbors. Otherwise the current decision
-        # needs to take its current color into account
-        if self.color == "white":
-            pass
-        else:
+        if self.color != "white":
             neighbor_color[self.color] += 1
+
+        # # if the player has not made any decision
+        # # then its current decision only based on 
+        # # its neighbors. Otherwise the current decision
+        # # needs to take its current color into account
+        # if self.color == "white":
+        #     pass
+        # else:
+        #     neighbor_color[self.color] += 1
 
         if neighbor_color["red"] > neighbor_color["green"]:
             # dominant = True if and only if red > green
@@ -97,18 +100,20 @@ class GameAgent(Agent):
                     elif numRed < numGreen:
                         return "green"
                     else:
-                        pColor, dominant = self.getNeighborMajorColor()
-                        # if pColor is dominant color in the neighborhood
-                        if dominant:
-                            return pColor
-                        # if pColor is not dominant color and the player
-                        # has already made decision, then keep the original 
-                        # color
-                        else:
-                            if self.color != "white":
-                                return self.color
-                            else:
-                                return pColor
+                        # pColor, dominant = self.getNeighborMajorColor()
+                        # # if pColor is dominant color in the neighborhood
+                        # if dominant:
+                        #     return pColor
+                        # # if pColor is not dominant color and the player
+                        # # has already made decision, then keep the original 
+                        # # color
+                        # else:
+                        #     if self.color != "white":
+                        #         return self.color
+                        #     else:
+                        #         return pColor
+
+                        return random.choice(["red", "green"])
 
 
             # if no visible color node, follow majority
@@ -169,16 +174,6 @@ class GameAgent(Agent):
             self.game.setTerminal()
         else:
             decision_color = self.decision()
-
-            # ###
-            # if self.hasVisibleColorNode() and  self.isAdversarial:
-            #     print('*'*80)
-            #     if self.hasVisibleColorNode():
-            #         vNodeColor = [(a.unique_id, a.color) for a in self.neighbors if a.unique_id in self.game.visibleColorNodes]
-            #         print("visible color: %s" % vNodeColor[0][1])
-            #         print("%i: %s" % (self.unique_id, decision_color))
-            #     print('*'*80)
-            # ###
             
             if decision_color == "white":
                 # agents cannot go back to white once they
@@ -196,7 +191,6 @@ class GameAgent(Agent):
                     else:
                         role = 'reg'
 
-                    ### log
                     logMsg = "%d,%s,%i.%i,%s," % (self.unique_id, decision_color, self.game.time, order, role)
                     if self.hasVisibleColorNode():
                         hasVis = "hasVis,"
@@ -541,7 +535,7 @@ if __name__ =="__main__":
         # initialize processes pool
         pool = Pool(processes=36)
         result = pool.map(simulationFunc, args)
-        combineResults(result, args, 'result/newStrategy_regularNodes')
+        combineResults(result, args, 'result/')
 
 
         pool.close()
