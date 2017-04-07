@@ -125,6 +125,7 @@ class GameAgent(Agent):
                         return self.color
                     else:
                         return pColor
+                # return random.choice(["red", "green"])
 
 
         # visible nodes choose majority color, whereas adversarial
@@ -142,7 +143,7 @@ class GameAgent(Agent):
                 # color
                 else:
                     if self.color != "white":
-                        return pColor
+                        return self.color
                     else:
                         return pColor
             else:
@@ -155,7 +156,7 @@ class GameAgent(Agent):
                     # the adversary should change to the opposite 
                     # of its own color
                     if self.color != "white":
-                        return pColor
+                        return self.color
                     else:
                         return pColor
 
@@ -515,10 +516,10 @@ if __name__ =="__main__":
 
 
         args = []
-        # networks = ['Erdos-Renyi-dense', 'Erdos-Renyi-sparse', 'Barabasi-Albert']
-        networks = ['Erdos-Renyi-dense']
-        numVisibleNodes_ = [1]
-        numAdversarialNodes_ = [0]
+        networks = ['Erdos-Renyi-dense', 'Erdos-Renyi-sparse', 'Barabasi-Albert']
+        # networks = ['Erdos-Renyi-dense']
+        numVisibleNodes_ = [0, 1, 2, 5]
+        numAdversarialNodes_ = [0, 2, 5]
 
 
         # get all combinations of parameters
@@ -531,19 +532,19 @@ if __name__ =="__main__":
                                      numAdv, net, inertia, counter))
                     counter += 1
 
-        result = simulationFunc(args[0])
+        # result = simulationFunc(args[0])
         # result.generateResult()
         # a = result.getConsensusResult()
         # a.columns = ['#visibleNodes', '#adversarial', 'network', 'ratio']
 
 
-        # # initialize processes pool
-        # pool = Pool(processes=36)
-        # result = pool.map(simulationFunc, args)
-        # combineResults(result, args, 'result/newStrategy_regularNodes')
+        # initialize processes pool
+        pool = Pool(processes=36)
+        result = pool.map(simulationFunc, args)
+        combineResults(result, args, 'result/newStrategy_regularNodes')
 
 
-        # pool.close()
-        # pool.join()
+        pool.close()
+        pool.join()
 
 
