@@ -5,13 +5,14 @@ import time
 import math
 import pandas as pd
 import numpy as np
+from log import Log
 from utils import *
 from mesa import Agent, Model
 from mesa.time import RandomActivation
 from multiprocessing import Pool
 from mesa.datacollection import DataCollector
 
-# random.seed(123)
+random.seed(123)
 
 class GameAgent(Agent):
     def __init__(self, unique_id, isVisibleNode, isAdversarial, neighbors, visibleColorNodes, inertia, model):
@@ -45,12 +46,28 @@ class GameAgent(Agent):
             if a.color != "white":
                 neighbor_color[a.color] += 1
 
-        if neighbor_color["red"] > neighbor_color["green"]:
-            return "red"
-        elif neighbor_color["red"] < neighbor_color["green"]:
-            return "green"
+        # if the player has not made any decision
+        # then its current decision only based on 
+        # its neighbors. Otherwise the current decision
+        # needs to take its current color into account
+        if self.color == "white":
+            pass
         else:
-            return random.choice(["red", "green"])
+            neighbor_color[self.color] += 1
+
+        if neighbor_color["red"] > neighbor_color["green"]:
+            # dominant = True if and only if red > green
+            dominant = True
+            return ("red", dominant)
+        elif neighbor_color["red"] < neighbor_color["green"]:
+            # dominant = True if and only if red < green
+            dominant = True
+            return ("green", dominant)
+        else:
+            # dominant != True if and only if red == green
+            dominant = False
+            return (random.choice(["red", "green"]), dominant)
+
 
 
     # return current majority color
@@ -80,16 +97,35 @@ class GameAgent(Agent):
                     elif numRed < numGreen:
                         return "green"
                     else:
-                        # if #red == #green, randomly pick one
-                        # return random.choice(["red", "green"])
-                        return self.getNeighborMajorColor()
+                        pColor, dominant = self.getNeighborMajorColor()
+                        # if pColor is dominant color in the neighborhood
+                        if dominant:
+                            return pColor
+                        # if pColor is not dominant color and the player
+                        # has already made decision, then keep the original 
+                        # color
+                        else:
+                            if self.color != "white":
+                                return self.color
+                            else:
+                                return pColor
 
-                # else:
-                #     return self.getNeighborMajorColor()
 
             # if no visible color node, follow majority
             else:
-                return self.getNeighborMajorColor() 
+                pColor, dominant = self.getNeighborMajorColor()
+                # if pColor is dominant color in the neighborhood
+                if dominant:
+                    return pColor
+                # if pColor is not dominant color and the player
+                # has already made decision, then keep the original 
+                # color
+                else:
+                    if self.color != "white":
+                        return self.color
+                    else:
+                        return pColor
+
 
         # visible nodes choose majority color, whereas adversarial
         # nodes choose the opposite
@@ -97,19 +133,35 @@ class GameAgent(Agent):
             # either visible node or adversarial node
             assert self.isVisibleNode | self.isAdversarial == True
 
-            color = self.getNeighborMajorColor()
+            pColor, dominant = self.getNeighborMajorColor()
             if self.isVisibleNode:
-                # print(self.isVisibleNode)
-                return color
+                if dominant:
+                    return pColor
+                # if pColor is not dominant color and the player
+                # has already made decision, then keep the original 
+                # color
+                else:
+                    if self.color != "white":
+                        return pColor
+                    else:
+                        return pColor
             else:
-                # print(self.isAdversarial)
-                # return "red" if color == "green" else "green"
-                return "red" if color == "green" else "green"
-
+                if dominant:
+                    return "red" if pColor == "green" else "green"
+                # if pColor is not dominant color and the player
+                # has already made decision, then keep the original 
+                # color
+                else:
+                    # the adversary should change to the opposite 
+                    # of its own color
+                    if self.color != "white":
+                        return pColor
+                    else:
+                        return pColor
 
 
     # make a decision
-    def step(self):
+    def step(self, order):
         # check game state
         current_color = getCurrentColor(self.game)
         if current_color["red"] == 20 or current_color["green"] == 20:
@@ -134,6 +186,25 @@ class GameAgent(Agent):
             else:
                 if random.random() < self.p:
                     self.color = decision_color
+
+                    ### record the decision
+                    if self.isAdversarial:
+                        role = 'adv'
+                    elif self.isVisibleNode:
+                        role = 'vis'
+                    else:
+                        role = 'reg'
+
+                    ### log
+                    logMsg = "%d,%s,%i.%i,%s," % (self.unique_id, decision_color, self.game.time, order, role)
+                    if self.hasVisibleColorNode():
+                        hasVis = "hasVis,"
+                    else:
+                        hasVis = "noVis,"
+                    logMsg += hasVis
+                    self.game.addRecord(logMsg)
+                    ###
+
                 # each agent has a small probability to not make
                 # any decision
                 else:
@@ -192,6 +263,9 @@ class DCGame(Model):
         # if there are 20 consensus colors then a
         # terminal state is reached
         self.terminate = False
+        self.time = 0
+        # logging information
+        self.log = Log()
 
 
         # convert adjMat to adjList
@@ -225,6 +299,11 @@ class DCGame(Model):
         # visible nodes should belong to regular nodes
         assert set(self.visibleColorNodes) & set(self.regularNodes) == set(self.visibleColorNodes)
 
+        # logging simulation configuration
+        self.log.add("#visible nodes: " + str(self.visibleColorNodes))
+        self.log.add("#adversarial nodes: " + str(self.adversarialNodes))
+        self.log.add("#regular nodes: " + str(self.regularNodes) + '\n')
+
         ############# initialize all agents #############
         for i in range(self.numAgents):
             # if i is a visible node
@@ -235,6 +314,10 @@ class DCGame(Model):
             assert isVisibleNode & isAdversarial == False
 
             neighbors = self.adjList[i]
+
+            if isVisibleNode:
+                print(neighbors)
+
             # visible color nodes in i's neighbors
             vNode = list(set(neighbors) & set(self.visibleColorNodes))
             inertia = self.inertia
@@ -252,16 +335,37 @@ class DCGame(Model):
     def step(self):
         # # # if either red or green reaches consensus, terminates!
         # # in terminal state we do not collect data
-
         if not self.terminate:
             self.datacollector.collect(self)
             self.schedule.step()
         return self.terminate
 
+    def simulate(self, simulationTimes):
+        for i in range(simulationTimes):
+            # update model's time
+            self.updateTime(i)
+            terminate = self.step()
+            if terminate:
+                break
+        # output log file to disk
+        self.log.outputLog('result/simResult.txt')
+        simulatedResult = self.datacollector.get_model_vars_dataframe()
+        return simulatedResult
+
+    # update model's clock
+    def updateTime(self, t):
+        self.time = t
 
     def setTerminal(self):
         assert self.terminate == False
         self.terminate = True
+
+    def addRecord(self, msg):
+        self.log.add(msg)
+
+
+
+
 
 
 class BatchResult(object):
@@ -355,12 +459,13 @@ def simulationFunc(args):
 
         adjMat = getAdjMat(net, numPlayers, numRegularPlayers, numAdversarialNodes)
         model = DCGame(adjMat, numVisibleNodes, numAdversarialNodes, inertia)
-        for i in range(gameTime):
-            # check whether a game terminates
-            terminate = model.step()
-            if terminate:
-                break
-        ret.append(model.datacollector.get_model_vars_dataframe())
+        # for i in range(gameTime):
+        #     # check whether a game terminates
+        #     terminate = model.step()
+        #     if terminate:
+        #         break
+        simulatedResult = model.simulate(gameTime)
+        ret.append(simulatedResult)
 
     # the collected data is actually an object
     result = BatchResult(ret, args, arg_id)
@@ -413,7 +518,7 @@ if __name__ =="__main__":
         # networks = ['Erdos-Renyi-dense', 'Erdos-Renyi-sparse', 'Barabasi-Albert']
         networks = ['Erdos-Renyi-dense']
         numVisibleNodes_ = [1]
-        numAdversarialNodes_ = [2]
+        numAdversarialNodes_ = [0]
 
 
         # get all combinations of parameters
