@@ -12,7 +12,7 @@ from mesa.time import RandomActivation
 from multiprocessing import Pool
 from mesa.datacollection import DataCollector
 
-random.seed(123)
+random.seed(0)
 
 class GameAgent(Agent):
     def __init__(self, unique_id, isVisibleNode, isAdversarial, neighbors, visibleColorNodes, inertia, model):
@@ -22,17 +22,27 @@ class GameAgent(Agent):
         self.isVisibleNode = isVisibleNode
         # whether this node is an adversarial
         self.isAdversarial = isAdversarial
-        self.neighbors = [agent for agent in model.schedule.agents if
-                                                 agent.unique_id in neighbors]
+        self.neighbors = neighbors
+
         # for each agent initial color is white
         self.color = "white"
-        self.visibleColorNodes = [agent for agent in model.schedule.agents if
-                                                 agent.unique_id in visibleColorNodes]
+
+        self.visibleColorNodes = visibleColorNodes
+
         # probability to make a change
         self.p = inertia
 
         # statistics
         self.colorChanges = 0
+
+
+    def instantiateNeighbors(self, model):
+        self.neighbors = [agent for agent in model.schedule.agents if
+                            agent.unique_id in self.neighbors]
+
+    def instantiateVisibleColorNodes(self, model):
+        self.visibleColorNodes = [agent for agent in model.schedule.agents if
+                            agent.unique_id in self.visibleColorNodes]
 
 
     # determine if there is any visible color node in the neighborhood
@@ -81,10 +91,10 @@ class GameAgent(Agent):
         if not self.isAdversarial and not self.isVisibleNode:
             # if there is any visible color node in the neighbor
             if self.hasVisibleColorNode():
-
                 # if random.random() < 0.9:
 
                 visibleColor = [agent.color for agent in self.visibleColorNodes if agent.color != "white"]
+
                 # if no visible node makes choice
                 if len(visibleColor) == 0:
 
@@ -93,6 +103,7 @@ class GameAgent(Agent):
                     # either
                     return self.color
                 else:
+
                     numRed = len([color for color in visibleColor if color == "red"])
                     numGreen = len(visibleColor) - numRed
                     if numRed > numGreen:
@@ -310,16 +321,22 @@ class DCGame(Model):
 
             neighbors = self.adjList[i]
 
-            #if isVisibleNode:
-            #    print(neighbors)
 
             # visible color nodes in i's neighbors
             vNode = list(set(neighbors) & set(self.visibleColorNodes))
+            # if i == 6:
+            #     print(vNode)
             inertia = self.inertia
 
             # print("Add agent:", (i, visibleNode, adversarial, neighbors, visibleColorNodes))
             a = GameAgent(i, isVisibleNode, isAdversarial, neighbors, vNode, inertia, self)
             self.schedule.add(a)
+
+        # instantiate all nodes' neighbors and visibleColorNodes
+        for agent in self.schedule.agents:
+            agent.instantiateNeighbors(self)
+            agent.instantiateVisibleColorNodes(self)
+
 
         self.datacollector = DataCollector(
                         model_reporters = {"red": getRed, "green": getGreen},
@@ -501,7 +518,7 @@ def combineResults(result, args, folder=None):
 
 if __name__ =="__main__":
     # iterate over all inertia values
-    for inertia in np.arange(0.9, 0.8, -0.1):
+    for inertia in np.arange(1.0, 0.9, -0.1):
         print("Current inertia: ", inertia)
 
         # experimental parameters
@@ -515,7 +532,7 @@ if __name__ =="__main__":
 
         args = []
         # networks = ['Erdos-Renyi-dense', 'Erdos-Renyi-sparse', 'Barabasi-Albert']
-        networks = ['Erdos-Renyi-dense']
+        networks = ['Erdos-Renyi-sparse']
         numVisibleNodes_ = [1]
         numAdversarialNodes_ = [0]
 

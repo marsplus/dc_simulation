@@ -37,11 +37,11 @@ labelPosition = [pair + np.array((1.5, 1.5)) for pair in position.values()]
 labelText = {}
 for n in G.nodes():
     if n in visNodes:
-        labelText[n] = 'vis'
+        labelText[n] = 'vis,%d' % n
     elif n in advNodes:
-        labelText[n] = 'adv'
+        labelText[n] = 'adv,%d' % n
     else:
-        labelText[n] = 'reg'
+        labelText[n] = 'reg,%d' % n
 
 
 
@@ -66,7 +66,7 @@ nodes = nx.draw_networkx_nodes(G, pos=position, node_color=nodeColor)
 edges = nx.draw_networkx_edges(G, pos=position) 
 
 numFrame = len(gameData)
-anim = FuncAnimation(fig, update, frames=numFrame, interval=400, repeat=False)
+anim = FuncAnimation(fig, update, frames=numFrame, interval=1, repeat=False)
 plt.show()
 
 
