@@ -56,8 +56,8 @@ class GameAgent(Agent):
             if a.color != "white":
                 neighbor_color[a.color] += 1
 
-        # if self.color != "white":
-        #     neighbor_color[self.color] += 1
+        if self.color != "white":
+            neighbor_color[self.color] += 1
 
         if neighbor_color["red"] > neighbor_color["green"]:
             # dominant = True if and only if red > green
