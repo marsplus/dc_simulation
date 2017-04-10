@@ -4,6 +4,8 @@ import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
+import matplotlib.animation as animation
+plt.rcParams['animation.ffmpeg_path'] = '/opt/ffmpeg/bin/ffmpeg'
 
 np.random.seed(123)
 
@@ -12,7 +14,9 @@ adjMat = np.loadtxt('result/adjMat.txt')
 G = nx.from_numpy_matrix(adjMat)
 
 # generate random position
-position = {i: np.random.randint(1, 100, 2) for i in range(len(G.nodes()))}
+position = nx.spring_layout(G)
+position = {key: value  *100 for key, value in position.items()}
+# position = {i: np.random.randint(1, 100, 2) for i in range(len(G.nodes()))}
 
 # initialize nodes' color
 nodeColor = ['w' for i in range(len(G.nodes()))]
@@ -59,13 +63,20 @@ def update(i):
 
     return nodes,
 
-fig = plt.figure(figsize=(8,8))
+fig = plt.figure(figsize=(18, 10))
+plt.title('BA, 1 visible, 0 adversary, no consensus')
 nx.draw_networkx_labels(G, pos=labelPosition, labels=labelText)
 nodes = nx.draw_networkx_nodes(G, pos=position, node_color=nodeColor)
 edges = nx.draw_networkx_edges(G, pos=position) 
 
+
+# # Set up formatting for the movie files
+# FFwriter = animation.FFMpegWriter()
+
+
 numFrame = len(gameData)
-anim = FuncAnimation(fig, update, frames=numFrame, interval=200, repeat=False)
+anim = FuncAnimation(fig, update, frames=numFrame, interval=1000, repeat=False)
+# anim.save('result/basic_animation.mp4', writer = FFwriter, fps=5, extra_args=['-vcodec', 'libx264'])
 plt.show()
 
 

@@ -49,6 +49,10 @@ class GameAgent(Agent):
     def hasVisibleColorNode(self):
         return len(self.visibleColorNodes) > 0
 
+    # if anybody in the neighbor makes decision
+    def hasNeighborDecision(self):
+        return [agent.color for agent in self.neighbors if agent.color != "white"]
+
 
     def getNeighborMajorColor(self):
         neighbor_color = {"red": 0, "green": 0}
@@ -56,6 +60,7 @@ class GameAgent(Agent):
             if a.color != "white":
                 neighbor_color[a.color] += 1
 
+        # take one's own decision into account
         if self.color != "white":
             neighbor_color[self.color] += 1
 
@@ -141,10 +146,18 @@ class GameAgent(Agent):
         else:
             # either visible node or adversarial node
             assert self.isVisibleNode | self.isAdversarial == True
-
             pColor, dominant = self.getNeighborMajorColor()
+
             if self.isVisibleNode:
-                return pColor
+            #     return pColor
+
+                # checks whether anybody in visible node's neighbors makes decision
+                if not self.hasNeighborDecision():
+                    return "white"
+                else:
+                    return pColor
+
+
                 # if dominant:
                 #     return pColor
                 # # if pColor is not dominant color and the player
@@ -379,9 +392,6 @@ class DCGame(Model):
 
 
 
-
-
-
 class BatchResult(object):
     def __init__(self, data, args, arg_id):
         # used to uniquely pair BatchResult and args
@@ -475,6 +485,7 @@ def simulationFunc(args):
         model = DCGame(adjMat, numVisibleNodes, numAdversarialNodes, inertia)
         simulatedResult = model.simulate(gameTime)
         ret.append(simulatedResult)
+        print(simulatedResult)
         model.outputAdjMat('result/adjMat.txt')
 
     # the collected data is actually an object
@@ -512,7 +523,7 @@ def combineResults(result, args, folder=None):
 
 if __name__ =="__main__":
     # iterate over all inertia values
-    for inertia in np.arange(1.0, 0.9, -0.1):
+    for inertia in np.arange(0.9, 0.8, -0.1):
         print("Current inertia: ", inertia)
 
         # experimental parameters
@@ -526,7 +537,7 @@ if __name__ =="__main__":
 
         args = []
         networks = ['Erdos-Renyi-dense', 'Erdos-Renyi-sparse', 'Barabasi-Albert']
-        # networks = ['Erdos-Renyi-dense']
+        # networks = ['Barabasi-Albert']
         numVisibleNodes_ = [0, 1, 2, 5]
         numAdversarialNodes_ = [0, 2, 5]
 
@@ -551,7 +562,6 @@ if __name__ =="__main__":
         pool = Pool(processes=36)
         result = pool.map(simulationFunc, args)
         combineResults(result, args, 'result/')
-
 
         pool.close()
         pool.join()
