@@ -8,7 +8,6 @@ from matplotlib.animation import FuncAnimation
 np.random.seed(123)
 
 
-
 adjMat = np.loadtxt('result/adjMat.txt')
 G = nx.from_numpy_matrix(adjMat)
 
