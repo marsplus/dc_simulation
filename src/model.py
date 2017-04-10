@@ -56,8 +56,6 @@ class GameAgent(Agent):
             if a.color != "white":
                 neighbor_color[a.color] += 1
 
-        if self.color != "white":
-            neighbor_color[self.color] += 1
 
         # # if the player has not made any decision
         # # then its current decision only based on 
@@ -109,19 +107,19 @@ class GameAgent(Agent):
                     elif numRed < numGreen:
                         return "green"
                     else:
-                        pColor, dominant = self.getNeighborMajorColor()
-                        # if pColor is dominant color in the neighborhood
-                        if dominant:
-                            return pColor
-                        # if pColor is not dominant color and the player
-                        # has already made decision, then keep the original 
-                        # color
-                        else:
-                            # if self.color != "white":
-                            #     return self.color
-                            # else:
-                            #     return pColor
-                            return pColor
+                        return random.choice(["red", "green"])
+                        # pColor, dominant = self.getNeighborMajorColor()
+                        # # if pColor is dominant color in the neighborhood
+                        # if dominant:
+                        #     return pColor
+                        # # if pColor is not dominant color and the player
+                        # # has already made decision, then keep the original 
+                        # # color
+                        # else:
+                        #     if self.color != "white":
+                        #         return self.color
+                        #     else:
+                        #         return pColor
 
             # if no visible color node, follow majority
             else:
@@ -133,11 +131,10 @@ class GameAgent(Agent):
                 # has already made decision, then keep the original 
                 # color
                 else:
-                    # if self.color != "white":
-                    #     return self.color
-                    # else:
-                    #     return pColor
-                    return pColor
+                    if self.color != "white":
+                        return self.color
+                    else:
+                        return pColor
 
         # visible nodes choose majority color, whereas adversarial
         # nodes choose the opposite
@@ -153,11 +150,11 @@ class GameAgent(Agent):
                 # has already made decision, then keep the original 
                 # color
                 else:
-                    # if self.color != "white":
-                    #     return self.color
-                    # else:
-                    #     return pColor
-                    return pColor
+                    if self.color != "white":
+                        return self.color
+                    else:
+                        return pColor
+                    # return pColor
             else:
                 if dominant:
                     return "red" if pColor == "green" else "green"
@@ -167,11 +164,11 @@ class GameAgent(Agent):
                 else:
                     # the adversary should change to the opposite 
                     # of its own color
-                    # if self.color != "white":
-                    #     return self.color
-                    # else:
-                    #     return pColor
-                    return pColor
+                    if self.color != "white":
+                        return self.color
+                    else:
+                        return pColor
+                    # return pColor
 
 
     # make a decision
