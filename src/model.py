@@ -520,7 +520,7 @@ if __name__ =="__main__":
 
         # experimental parameters
         ################################
-        numSimulation = 1
+        numSimulation = 20000
         gameTime = 60
         # inertia = 0.5
         numRegularPlayers = 20
@@ -528,10 +528,10 @@ if __name__ =="__main__":
 
 
         args = []
-        # networks = ['Erdos-Renyi-dense', 'Erdos-Renyi-sparse', 'Barabasi-Albert']
-        networks = ['Erdos-Renyi-dense']
-        numVisibleNodes_ = [1]
-        numAdversarialNodes_ = [0]
+        networks = ['Erdos-Renyi-dense', 'Erdos-Renyi-sparse', 'Barabasi-Albert']
+        # networks = ['Erdos-Renyi-dense']
+        numVisibleNodes_ = [0, 1, 2, 5]
+        numAdversarialNodes_ = [0, 2, 5]
 
 
         # get all combinations of parameters
@@ -544,19 +544,19 @@ if __name__ =="__main__":
                                      numAdv, net, inertia, counter))
                     counter += 1
 
-        result = simulationFunc(args[0])
+        # result = simulationFunc(args[0])
         # result.generateResult()
         # a = result.getConsensusResult()
         # a.columns = ['#visibleNodes', '#adversarial', 'network', 'ratio']
 
 
-        # # initialize processes pool
-        # pool = Pool(processes=36)
-        # result = pool.map(simulationFunc, args)
-        # combineResults(result, args, 'result/')
+        # initialize processes pool
+        pool = Pool(processes=36)
+        result = pool.map(simulationFunc, args)
+        combineResults(result, args, 'result/')
 
 
-        # pool.close()
-        # pool.join()
+        pool.close()
+        pool.join()
 
 
