@@ -149,14 +149,7 @@ class GameAgent(Agent):
             pColor, dominant = self.getNeighborMajorColor()
 
             if self.isVisibleNode:
-            #     return pColor
-
-                # checks whether anybody in visible node's neighbors makes decision
-                if not self.hasNeighborDecision():
-                    return "white"
-                else:
-                    return pColor
-
+                return pColor
 
                 # if dominant:
                 #     return pColor
@@ -169,10 +162,7 @@ class GameAgent(Agent):
                 #     else:
                 #         return pColor
             else:
-                if not self.hasNeighborDecision():
-                    return "white"
-                else:
-                    return "red" if pColor == "green" else "green"
+                return "red" if pColor == "green" else "green"
                 # if dominant:
                 #     return "red" if pColor == "green" else "green"
                 # # if pColor is not dominant color and the player
