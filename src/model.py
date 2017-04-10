@@ -107,7 +107,11 @@ class GameAgent(Agent):
                     elif numRed < numGreen:
                         return "green"
                     else:
-                        return random.choice(["red", "green"])
+                        if self.color != "white":
+                            return self.color
+                        else:
+                            return random.choice(['red', 'green'])
+                            
                         # pColor, dominant = self.getNeighborMajorColor()
                         # # if pColor is dominant color in the neighborhood
                         # if dominant:
@@ -124,19 +128,19 @@ class GameAgent(Agent):
             # if no visible color node, follow majority
             else:
                 pColor, dominant = self.getNeighborMajorColor()
-                return pColor
+                # return pColor
 
-                # # if pColor is dominant color in the neighborhood
-                # if dominant:
-                #     return pColor
-                # # if pColor is not dominant color and the player
-                # # has already made decision, then keep the original 
-                # # color
-                # else:
-                #     if self.color != "white":
-                #         return self.color
-                #     else:
-                #         return pColor
+                # if pColor is dominant color in the neighborhood
+                if dominant:
+                    return pColor
+                # if pColor is not dominant color and the player
+                # has already made decision, then keep the original 
+                # color
+                else:
+                    if self.color != "white":
+                        return self.color
+                    else:
+                        return pColor
 
         # visible nodes choose majority color, whereas adversarial
         # nodes choose the opposite
@@ -146,31 +150,31 @@ class GameAgent(Agent):
 
             pColor, dominant = self.getNeighborMajorColor()
             if self.isVisibleNode:
-                return pColor
-                # if dominant:
-                #     return pColor
-                # # if pColor is not dominant color and the player
-                # # has already made decision, then keep the original 
-                # # color
-                # else:
-                #     if self.color != "white":
-                #         return self.color
-                #     else:
-                #         return pColor
+                # return pColor
+                if dominant:
+                    return pColor
+                # if pColor is not dominant color and the player
+                # has already made decision, then keep the original 
+                # color
+                else:
+                    if self.color != "white":
+                        return self.color
+                    else:
+                        return pColor
             else:
-                return "red" if pColor == "green" else "green"
-                # if dominant:
-                #     return "red" if pColor == "green" else "green"
-                # # if pColor is not dominant color and the player
-                # # has already made decision, then keep the original 
-                # # color
-                # else:
-                #     # the adversary should change to the opposite 
-                #     # of its own color
-                #     if self.color != "white":
-                #         return self.color
-                #     else:
-                #         return pColor
+                # return "red" if pColor == "green" else "green"
+                if dominant:
+                    return "red" if pColor == "green" else "green"
+                # if pColor is not dominant color and the player
+                # has already made decision, then keep the original 
+                # color
+                else:
+                    # the adversary should change to the opposite 
+                    # of its own color
+                    if self.color != "white":
+                        return self.color
+                    else:
+                        return pColor
 
 
     # make a decision
