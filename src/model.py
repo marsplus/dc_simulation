@@ -169,7 +169,10 @@ class GameAgent(Agent):
                 #     else:
                 #         return pColor
             else:
-                return "red" if pColor == "green" else "green"
+                if not self.hasNeighborDecision():
+                    return "white"
+                else:
+                    return "red" if pColor == "green" else "green"
                 # if dominant:
                 #     return "red" if pColor == "green" else "green"
                 # # if pColor is not dominant color and the player
@@ -485,7 +488,7 @@ def simulationFunc(args):
         model = DCGame(adjMat, numVisibleNodes, numAdversarialNodes, inertia)
         simulatedResult = model.simulate(gameTime)
         ret.append(simulatedResult)
-        print(simulatedResult)
+        # print(simulatedResult)
         model.outputAdjMat('result/adjMat.txt')
 
     # the collected data is actually an object
