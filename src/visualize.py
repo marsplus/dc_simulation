@@ -66,7 +66,7 @@ nodes = nx.draw_networkx_nodes(G, pos=position, node_color=nodeColor)
 edges = nx.draw_networkx_edges(G, pos=position) 
 
 numFrame = len(gameData)
-anim = FuncAnimation(fig, update, frames=numFrame, interval=1, repeat=False)
+anim = FuncAnimation(fig, update, frames=numFrame, interval=200, repeat=False)
 plt.show()
 
 
