@@ -56,15 +56,8 @@ class GameAgent(Agent):
             if a.color != "white":
                 neighbor_color[a.color] += 1
 
-
-        # if the player has not made any decision
-        # then its current decision only based on 
-        # its neighbors. Otherwise the current decision
-        # needs to take its current color into account
-        if self.color == "white":
-            pass
-        else:
-            neighbor_color[self.color] += 1
+        # if self.color != "white":
+        #     neighbor_color[self.color] += 1
 
         if neighbor_color["red"] > neighbor_color["green"]:
             # dominant = True if and only if red > green
@@ -107,10 +100,11 @@ class GameAgent(Agent):
                     elif numRed < numGreen:
                         return "green"
                     else:
-                        if self.color != "white":
-                            return self.color
-                        else:
-                            return random.choice(['red', 'green'])
+                        # if self.color != "white":
+                        #     return self.color
+                        # else:
+                        #     return random.choice(['red', 'green'])
+                        return random.choice(['red', 'green']) 
 
                         # pColor, dominant = self.getNeighborMajorColor()
                         # # if pColor is dominant color in the neighborhood
