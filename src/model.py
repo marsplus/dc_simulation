@@ -225,7 +225,7 @@ class GameAgent(Agent):
                                     currMajorColor = "green"
                                 # there is a visible node whose decision
                                 # is against overall major color
-                                if decision_color != currColor:
+                                if decision_color != currMajorColor:
                                     self.game.hasConflict = True
                                     
 
