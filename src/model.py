@@ -15,7 +15,7 @@ from mesa.datacollection import DataCollector
 random.seed(0)
 
 class GameAgent(Agent):
-    def __init__(self, unique_id, isVisibleNode, isAdversarial, neighbors, visibleColorNodes, inertia, model):
+    def __init__(self, unique_id, isVisibleNode, isAdversarial, neighbors, visibleColorNodes, inertia, beta, model):
         super().__init__(unique_id, model)
         self.game = model
         # whether this node is a visible node
@@ -32,8 +32,9 @@ class GameAgent(Agent):
         # probability to make a change
         self.p = inertia
 
-        # statistics
-        self.colorChanges = 0
+        # randomize regular players' (excluding visibles)
+        # decision
+        self.beta = beta
 
 
     def instantiateNeighbors(self, model):
@@ -88,7 +89,7 @@ class GameAgent(Agent):
             # if there is any visible color node in the neighbor
             if self.hasVisibleColorNode():
 
-                if random.random() < 0.9:
+                if random.random() < self.beta:
                     
                     visibleColor = [agent.color for agent in self.visibleColorNodes if agent.color != "white"]
                     # if no visible node makes choice
@@ -235,7 +236,7 @@ def getGreen(model):
 
 
 class DCGame(Model):
-    def __init__(self, adjMat, numVisibleColorNodes, numAdversarialNodes, inertia):
+    def __init__(self, adjMat, numVisibleColorNodes, numAdversarialNodes, inertia, beta):
         self.adjMat = adjMat
         self.numVisibleColorNodes = numVisibleColorNodes
         self.numAdversarialNodes = numAdversarialNodes
@@ -255,6 +256,10 @@ class DCGame(Model):
         ##  temporarily added this for figuring out 
         ##  why visible nodes have no help
         self.hasConflict = False
+
+        # randomize regular players (exclude visibles)
+        # decision
+        self.beta = beta
 
 
         # convert adjMat to adjList
@@ -307,12 +312,12 @@ class DCGame(Model):
 
             # visible color nodes in i's neighbors
             vNode = list(set(neighbors) & set(self.visibleColorNodes))
-            # if i == 6:
-            #     print(vNode)
+            
             inertia = self.inertia
+            beta = self.beta
 
             # print("Add agent:", (i, visibleNode, adversarial, neighbors, visibleColorNodes))
-            a = GameAgent(i, isVisibleNode, isAdversarial, neighbors, vNode, inertia, self)
+            a = GameAgent(i, isVisibleNode, isAdversarial, neighbors, vNode, inertia, beta, self)
             self.schedule.add(a)
 
         # instantiate all nodes' neighbors and visibleColorNodes
@@ -452,7 +457,7 @@ def getAdjMat(net, numPlayers, numRegularPlayers, numAdversarialNodes):
 #define a wrapper function for multi-processing
 def simulationFunc(args):
     # dispatch arguments
-    numSimulation, gameTime, numRegularPlayers, numVisibleNodes, numAdversarialNodes, net, inertia, arg_id = args
+    numSimulation, gameTime, numRegularPlayers, numVisibleNodes, numAdversarialNodes, net, inertia, beta, arg_id = args
 
     # calculate how many players we have
     numPlayers = numRegularPlayers + numAdversarialNodes
@@ -465,7 +470,7 @@ def simulationFunc(args):
             print("Current number of simulations: ", j)
 
         adjMat = getAdjMat(net, numPlayers, numRegularPlayers, numAdversarialNodes)
-        model = DCGame(adjMat, numVisibleNodes, numAdversarialNodes, inertia)
+        model = DCGame(adjMat, numVisibleNodes, numAdversarialNodes, inertia, beta)
         simulatedResult = model.simulate(gameTime)
         ret.append(simulatedResult)
 
@@ -487,21 +492,22 @@ def combineResults(result, args, folder=None):
     if not os.path.exists(folder):
         os.makedirs(folder)
 
-    inertia = args[0][-2]
+    inertia = args[0][-3]
+    beta = args[0][-2]
     # result is returned from multi-processing 
     for ret in result:
         ret.generateResult()
 
     consensus_ret = pd.concat([item.getConsensusResult() for item in result])
     consensus_ret.columns = ['#visibleNodes', '#adversarial', 'network', 'ratio', 'hasConflict']
-    p = os.path.join(folder, 'consensus_inertia=%.2f.csv' % inertia)
+    p = os.path.join(folder, 'consensus_inertia=%.2f_beta=%.2f.csv' % (inertia, beta))
     consensus_ret.to_csv(p, index=None)
 
 
-    time_ret = pd.concat([item.getTimeResult() for item in result])
-    time_ret.columns = ['#visibleNodes', '#adversarial', 'network', 'time']
-    p = os.path.join(folder, 'time_inertia=%.2f.csv' % inertia)
-    time_ret.to_csv(p, index=None)
+    # time_ret = pd.concat([item.getTimeResult() for item in result])
+    # time_ret.columns = ['#visibleNodes', '#adversarial', 'network', 'time']
+    # p = os.path.join(folder, 'time_inertia=%.2f.csv' % inertia)
+    # time_ret.to_csv(p, index=None)
 
     # dynamics_ret = {args[idx]: item.getDynamicsResult() for idx, item in enumerate(result)}
     # p = os.path.join(folder, 'dynamics_inertia=%.2f.p' % inertia)
@@ -515,44 +521,45 @@ if __name__ =="__main__":
     for inertia in np.arange(0.9, 0.8, -0.1):
         print("Current inertia: ", inertia)
 
-        # experimental parameters
-        ################################
-        numSimulation = 10000
-        gameTime = 60
-        # inertia = 0.5
-        numRegularPlayers = 20
-        ################################
+        for beta in np.arange(0.1, 1.1, 0.1):
+
+            # experimental parameters
+            ################################
+            numSimulation = 10000
+            gameTime = 60
+            # inertia = 0.5
+            numRegularPlayers = 20
+            ################################
+
+            args = []
+            networks = ['Erdos-Renyi-dense', 'Erdos-Renyi-sparse', 'Barabasi-Albert']
+            # networks = ['Barabasi-Albert']
+            numVisibleNodes_ = [0, 1, 2, 5]
+            numAdversarialNodes_ = [0, 2, 5]
 
 
-        args = []
-        networks = ['Erdos-Renyi-dense', 'Erdos-Renyi-sparse', 'Barabasi-Albert']
-        # networks = ['Barabasi-Albert']
-        numVisibleNodes_ = [0, 1, 2, 5]
-        numAdversarialNodes_ = [0, 2, 5]
+            # get all combinations of parameters
+            counter = 0
+            for net in networks:
+                for numVisible in numVisibleNodes_:
+                    for numAdv in numAdversarialNodes_:
+                        print("Generate parameters combinations: ", (net, numVisible, numAdv))
+                        args.append((numSimulation, gameTime, numRegularPlayers, numVisible,
+                                         numAdv, net, inertia, beta, counter))
+                        counter += 1
+
+            # result = simulationFunc(args[0])
+            # combineResults([result], args, 'result/')
+            # a = result.getConsensusResult()
+            # a.columns = ['#visibleNodes', '#adversarial', 'network', 'ratio']
 
 
-        # get all combinations of parameters
-        counter = 0
-        for net in networks:
-            for numVisible in numVisibleNodes_:
-                for numAdv in numAdversarialNodes_:
-                    print("Generate parameters combinations: ", (net, numVisible, numAdv))
-                    args.append((numSimulation, gameTime, numRegularPlayers, numVisible,
-                                     numAdv, net, inertia, counter))
-                    counter += 1
+            # initialize processes pool
+            pool = Pool(processes=36)
+            result = pool.map(simulationFunc, args)
+            combineResults(result, args, 'result/newStrategy')
 
-        # result = simulationFunc(args[0])
-        # combineResults([result], args, 'result/')
-        # a = result.getConsensusResult()
-        # a.columns = ['#visibleNodes', '#adversarial', 'network', 'ratio']
-
-
-        # initialize processes pool
-        pool = Pool(processes=36)
-        result = pool.map(simulationFunc, args)
-        combineResults(result, args, 'result/')
-
-        pool.close()
-        pool.join()
+            pool.close()
+            pool.join()
 
 
