@@ -574,19 +574,19 @@ if __name__ =="__main__":
                     args.append((numSimulation, gameTime, numRegularPlayers, numVisible,
                                      numAdv, net, inertia, counter))
                     counter += 1
-        for i in range(36):
-            result = simulationFunc(args[i])
-            combineResults([result], args, 'result/')
+        # for i in range(36):
+        #     result = simulationFunc(args[i])
+        #     combineResults([result], args, 'result/')
         # a = result.getConsensusResult()
         # a.columns = ['#visibleNodes', '#adversarial', 'network', 'ratio']
 
 
-        # # initialize processes pool
-        # pool = Pool(processes=36)
-        # result = pool.map(simulationFunc, args)
-        # combineResults(result, args, 'result/')
+        # initialize processes pool
+        pool = Pool(processes=36)
+        result = pool.map(simulationFunc, args)
+        combineResults(result, args, 'result/')
 
-        # pool.close()
-        # pool.join()
+        pool.close()
+        pool.join()
 
 
