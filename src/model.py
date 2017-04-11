@@ -414,11 +414,15 @@ class DCGame(Model):
 
 
 class BatchResult(object):
-    def __init__(self, model, data, args, arg_id):
+    def __init__(self, data, dataOfConflict, args, arg_id):
         # used to uniquely pair BatchResult and args
         self.ret_id = arg_id
-        self.game = model
         self.data = data
+
+        ###
+        self.dataOfConflict = dataOfConflict
+        ###
+
         self.args = args
         self.gameTime = args[1]
         self.numVisibleNodes = args[3]
@@ -435,7 +439,7 @@ class BatchResult(object):
         for i in range(len(self.data)):
             if_consensus = 1 if len(self.data[i]) < self.gameTime else 0
             consensus_ret.append((self.numVisibleNodes, self.numAdversarialNodes,\
-                                  self.network, if_consensus, self.game.hasConflict))
+                                  self.network, if_consensus, self.dataOfConflict[i]))
         consensus_ret = pd.DataFrame(consensus_ret)
         self.consensus_ret = consensus_ret
 
@@ -500,6 +504,7 @@ def simulationFunc(args):
 
     # ret contains simulated results
     ret = []
+    retOfConflict = []
     for j in range(numSimulation):
         if j % 1000 == 0:
             print("Current number of simulations: ", j)
@@ -508,11 +513,17 @@ def simulationFunc(args):
         model = DCGame(adjMat, numVisibleNodes, numAdversarialNodes, inertia)
         simulatedResult = model.simulate(gameTime)
         ret.append(simulatedResult)
+
+        ###
+        retOfConflict.append(model.hasConflict)
+        ###
+
+
         # print(simulatedResult)
         model.outputAdjMat('result/adjMat.txt')
 
     # the collected data is actually an object
-    result = BatchResult(model, ret, args, arg_id)
+    result = BatchResult(ret, retOfConflict, args, arg_id)
     return result
 
 
@@ -551,7 +562,7 @@ if __name__ =="__main__":
 
         # experimental parameters
         ################################
-        numSimulation = 1000
+        numSimulation = 10000
         gameTime = 60
         # inertia = 0.5
         numRegularPlayers = 20
@@ -574,9 +585,9 @@ if __name__ =="__main__":
                     args.append((numSimulation, gameTime, numRegularPlayers, numVisible,
                                      numAdv, net, inertia, counter))
                     counter += 1
-        # for i in range(36):
-        #     result = simulationFunc(args[i])
-        #     combineResults([result], args, 'result/')
+
+        # result = simulationFunc(args[0])
+        # combineResults([result], args, 'result/')
         # a = result.getConsensusResult()
         # a.columns = ['#visibleNodes', '#adversarial', 'network', 'ratio']
 
