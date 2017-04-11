@@ -210,28 +210,28 @@ class GameAgent(Agent):
                             hasVis = "noVis,"
                         logMsg += hasVis
 
-                        #####
-                        # if a visible node makes decision and 
-                        # this decision is different from overall major
-                        # color at that time step, then we record this 
-                        if self.isVisibleNode:
-                            currColor = getCurrentColor(self.game)
-                            if currColor["red"] == currColor["green"]:
-                                pass
-                            else:
-                                if currColor["red"] > currColor["green"]:
-                                    currMajorColor = "red"
-                                else:
-                                    currMajorColor = "green"
-                                # there is a visible node whose decision
-                                # is against overall major color
-                                if decision_color != currMajorColor:
-                                    self.game.hasConflict = True
-                                    
-
-                        #####
                         self.game.addRecord(logMsg)
                         ###
+
+                    #####
+                    # if a visible node makes decision and 
+                    # this decision is different from overall major
+                    # color at that time step, then we record this 
+                    if self.isVisibleNode:
+                        currColor = getCurrentColor(self.game)
+                        if currColor["red"] == currColor["green"]:
+                            pass
+                        else:
+                            if currColor["red"] > currColor["green"]:
+                                currMajorColor = "red"
+                            else:
+                                currMajorColor = "green"
+                            # there is a visible node whose decision
+                            # is against overall major color
+                            if decision_color != currMajorColor:
+                                self.game.hasConflict = True                                
+                    #####
+
 
                     self.color = decision_color
 
@@ -298,7 +298,7 @@ class DCGame(Model):
         self.log = Log()
 
         ##  temporarily added this for figuring out 
-        #   why visible nodes have no help
+        ##  why visible nodes have no help
         self.hasConflict = False
 
 
@@ -527,7 +527,7 @@ def combineResults(result, args, folder=None):
         ret.generateResult()
 
     consensus_ret = pd.concat([item.getConsensusResult() for item in result])
-    consensus_ret.columns = ['#visibleNodes', '#adversarial', 'network', 'ratio']
+    consensus_ret.columns = ['#visibleNodes', '#adversarial', 'network', 'ratio', 'hasConflict']
     p = os.path.join(folder, 'consensus_inertia=%.2f.csv' % inertia)
     consensus_ret.to_csv(p, index=None)
 
