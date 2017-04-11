@@ -217,7 +217,7 @@ class GameAgent(Agent):
                         if self.isVisibleNode:
                             currColor = getCurrentColor(self.game)
                             if currColor["red"] == currColor["green"]:
-                                logMsg += "noConflict"
+                                pass
                             else:
                                 if currColor["red"] > currColor["green"]:
                                     currMajorColor = "red"
@@ -226,9 +226,9 @@ class GameAgent(Agent):
                                 # there is a visible node whose decision
                                 # is against overall major color
                                 if decision_color != currColor:
-                                    logMsg += "Conflict"
-                        else:
-                            logMsg += "noConflict"
+                                    self.game.hasConflict = True
+                                    
+
                         #####
                         self.game.addRecord(logMsg)
                         ###
@@ -296,6 +296,10 @@ class DCGame(Model):
         self.time = 0
         # logging information
         self.log = Log()
+
+        ##  temporarily added this for figuring out 
+        #   why visible nodes have no help
+        self.hasConflict = False
 
 
         # convert adjMat to adjList
@@ -429,7 +433,7 @@ class BatchResult(object):
         consensus_ret = []
         for i in range(len(self.data)):
             if_consensus = 1 if len(self.data[i]) < self.gameTime else 0
-            consensus_ret.append((self.numVisibleNodes, self.numAdversarialNodes, self.network, if_consensus))
+            consensus_ret.append((self.numVisibleNodes, self.numAdversarialNodes, self.network, if_consensus, self.hasConflict))
         consensus_ret = pd.DataFrame(consensus_ret)
         self.consensus_ret = consensus_ret
 
