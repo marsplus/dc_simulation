@@ -414,9 +414,10 @@ class DCGame(Model):
 
 
 class BatchResult(object):
-    def __init__(self, data, args, arg_id):
+    def __init__(self, model, data, args, arg_id):
         # used to uniquely pair BatchResult and args
         self.ret_id = arg_id
+        self.game = model
         self.data = data
         self.args = args
         self.gameTime = args[1]
@@ -433,7 +434,8 @@ class BatchResult(object):
         consensus_ret = []
         for i in range(len(self.data)):
             if_consensus = 1 if len(self.data[i]) < self.gameTime else 0
-            consensus_ret.append((self.numVisibleNodes, self.numAdversarialNodes, self.network, if_consensus, self.hasConflict))
+            consensus_ret.append((self.numVisibleNodes, self.numAdversarialNodes,\
+                                  self.network, if_consensus, self.game.hasConflict))
         consensus_ret = pd.DataFrame(consensus_ret)
         self.consensus_ret = consensus_ret
 
@@ -506,11 +508,11 @@ def simulationFunc(args):
         model = DCGame(adjMat, numVisibleNodes, numAdversarialNodes, inertia)
         simulatedResult = model.simulate(gameTime)
         ret.append(simulatedResult)
-        print(simulatedResult)
+        # print(simulatedResult)
         model.outputAdjMat('result/adjMat.txt')
 
     # the collected data is actually an object
-    result = BatchResult(ret, args, arg_id)
+    result = BatchResult(model, ret, args, arg_id)
     return result
 
 
