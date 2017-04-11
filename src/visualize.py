@@ -75,7 +75,7 @@ edges = nx.draw_networkx_edges(G, pos=position)
 
 
 numFrame = len(gameData)
-anim = FuncAnimation(fig, update, frames=numFrame, interval=1000, repeat=False)
+anim = FuncAnimation(fig, update, frames=numFrame, interval=1500, repeat=False)
 # anim.save('result/basic_animation.mp4', writer = FFwriter, fps=5, extra_args=['-vcodec', 'libx264'])
 plt.show()
 

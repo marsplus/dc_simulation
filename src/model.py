@@ -192,24 +192,48 @@ class GameAgent(Agent):
                 pass
             else:
                 if random.random() < self.p:
+            
+                    # we don't record repeated same color change
+                    if self.color == "white" or ( decision_color != self.color and self.color != "white" ):
+                        ### record the decision
+                        if self.isAdversarial:
+                            role = 'adv'
+                        elif self.isVisibleNode:
+                            role = 'vis'
+                        else:
+                            role = 'reg'
+
+                        logMsg = "%d,%s,%i.%i,%s," % (self.unique_id, decision_color, self.game.time, order, role)
+                        if self.hasVisibleColorNode():
+                            hasVis = "hasVis,"
+                        else:
+                            hasVis = "noVis,"
+                        logMsg += hasVis
+
+                        #####
+                        # if a visible node makes decision and 
+                        # this decision is different from overall major
+                        # color at that time step, then we record this 
+                        if self.isVisibleNode:
+                            currColor = getCurrentColor(self.game)
+                            if currColor["red"] == currColor["green"]:
+                                logMsg += "noConflict"
+                            else:
+                                if currColor["red"] > currColor["green"]:
+                                    currMajorColor = "red"
+                                else:
+                                    currMajorColor = "green"
+                                # there is a visible node whose decision
+                                # is against overall major color
+                                if decision_color != currColor:
+                                    logMsg += "Conflict"
+                        else:
+                            logMsg += "noConflict"
+                        #####
+                        self.game.addRecord(logMsg)
+                        ###
+
                     self.color = decision_color
-
-                    ### record the decision
-                    if self.isAdversarial:
-                        role = 'adv'
-                    elif self.isVisibleNode:
-                        role = 'vis'
-                    else:
-                        role = 'reg'
-
-                    logMsg = "%d,%s,%i.%i,%s," % (self.unique_id, decision_color, self.game.time, order, role)
-                    if self.hasVisibleColorNode():
-                        hasVis = "hasVis,"
-                    else:
-                        hasVis = "noVis,"
-                    logMsg += hasVis
-                    self.game.addRecord(logMsg)
-                    ###
 
                 # each agent has a small probability to not make
                 # any decision
@@ -478,7 +502,7 @@ def simulationFunc(args):
         model = DCGame(adjMat, numVisibleNodes, numAdversarialNodes, inertia)
         simulatedResult = model.simulate(gameTime)
         ret.append(simulatedResult)
-        # print(simulatedResult)
+        print(simulatedResult)
         model.outputAdjMat('result/adjMat.txt')
 
     # the collected data is actually an object
@@ -521,7 +545,7 @@ if __name__ =="__main__":
 
         # experimental parameters
         ################################
-        numSimulation = 5000
+        numSimulation = 10000
         gameTime = 60
         # inertia = 0.5
         numRegularPlayers = 20
