@@ -88,18 +88,20 @@ class GameAgent(Agent):
         if not self.isAdversarial and not self.isVisibleNode:
             # if there is any visible color node in the neighbor
             if self.hasVisibleColorNode():
-
-                if random.random() < self.beta:
                     
-                    visibleColor = [agent.color for agent in self.visibleColorNodes if agent.color != "white"]
-                    # if no visible node makes choice
-                    if len(visibleColor) == 0:
+                visibleColor = [agent.color for agent in self.visibleColorNodes if agent.color != "white"]
 
-                        # if there is indeed visible color node, but none of them
-                        # makes a decision, then the agent doesn't make any decision
-                        # either
-                        return self.color
-                    else:
+                # if no visible node makes choice
+                # this also make sure visible nodes
+                # move before other regular players
+                if len(visibleColor) == 0:
+
+                    # if there is indeed visible color node, but none of them
+                    # makes a decision, then the agent doesn't make any decision
+                    # either
+                    return self.color
+                else:
+                    if random.random() < self.beta:
                         numRed = len([color for color in visibleColor if color == "red"])
                         numGreen = len(visibleColor) - numRed
                         if numRed > numGreen:
@@ -108,10 +110,10 @@ class GameAgent(Agent):
                             return "green"
                         else:
                             return random.choice(['red', 'green']) 
+                    else:
+                        pColor, dominant = self.getNeighborMajorColor()
+                        return pColor
 
-                else:
-                    pColor, dominant = self.getNeighborMajorColor()
-                    return pColor
 
             # if no visible color node, follow majority
             else:
@@ -557,7 +559,7 @@ if __name__ =="__main__":
             # initialize processes pool
             pool = Pool(processes=36)
             result = pool.map(simulationFunc, args)
-            combineResults(result, args, 'result/newStrategy')
+            combineResults(result, args, 'result/newStrategy_updated')
 
             pool.close()
             pool.join()
