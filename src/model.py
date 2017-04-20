@@ -564,10 +564,11 @@ if __name__ =="__main__":
             for net in networks:
                 for numVisible in numVisibleNodes_:
                     for numAdv in numAdversarialNodes_:
-                        print("Generate parameters combinations: ", (net, numVisible, numAdv))
-                        args.append((numSimulation, gameTime, numRegularPlayers, numVisible,
-                                         numAdv, net, inertia, beta, counter))
-                        counter += 1
+                        for delay in delayTime_:
+                            print("Generate parameters combinations: ", (net, numVisible, numAdv))
+                            args.append((numSimulation, gameTime, numRegularPlayers, numVisible,
+                                             numAdv, net, inertia, beta, delay, counter))
+                            counter += 1
 
             # result = simulationFunc(args[0])
             # combineResults([result], args, 'result/')
