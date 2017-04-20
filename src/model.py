@@ -150,8 +150,7 @@ class GameAgent(Agent):
                 # choosed certain color
                 pass
             else:
-                if random.random() > self.p:
-            
+                if random.random() > self.p:           
                     # we don't record repeated same color change
                     if self.color == "white" or ( decision_color != self.color and self.color != "white" ):
                         ### record the decision
@@ -195,6 +194,7 @@ class GameAgent(Agent):
 
 
                     self.color = decision_color
+                    self.game.colorChanges += 1
 
                 # each agent has a small probability to not make
                 # any decision
@@ -270,6 +270,9 @@ class DCGame(Model):
         # ordinary players = players who are neither visibles
         # nor has any visibles in their neighbor
         self.delay = delay
+
+        # total number of color changes in a game
+        self.colorChanges = 0
 
 
         # convert adjMat to adjList
@@ -491,6 +494,7 @@ def simulationFunc(args):
         ### a game-level data collector
         retOnGameLevel['hasConflict'].append(model.hasConflict)
         retOnGameLevel['delay'].append(model.delay)
+        retOnGameLevel['colorChanges'].append(model.colorChanges)
         ###
 
 
@@ -514,7 +518,8 @@ def combineResults(result, args, folder=None):
         ret.generateResult()
 
     consensus_ret = pd.concat([item.getConsensusResult() for item in result])
-    consensus_ret.columns = ['#visibleNodes', '#adversarial', 'network', 'ratio', 'hasConflict', 'delay']
+    consensus_ret.columns = ['#visibleNodes', '#adversarial', 'network', 'ratio',\
+                             'hasConflict', 'delay', 'colorChanges']
     p = os.path.join(folder, 'consensus_inertia=%.2f_beta=%.2f.csv' % (inertia, beta))
     consensus_ret.to_csv(p, index=None)
 
