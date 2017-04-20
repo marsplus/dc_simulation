@@ -1,0 +1,2 @@
+Current inertia:  0.9
+Current number of simulations:  0

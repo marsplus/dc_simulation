@@ -512,8 +512,9 @@ def combineResults(result, args, folder=None):
     if not os.path.exists(folder):
         os.makedirs(folder)
 
-    inertia = args[0][-3]
-    beta = args[0][-2]
+    inertia = args[0][-4]
+    beta = args[0][-3]
+
     # result is returned from multi-processing 
     for ret in result:
         ret.generateResult()
@@ -539,14 +540,13 @@ def combineResults(result, args, folder=None):
 
 if __name__ =="__main__":
     # iterate over all inertia values
-    for inertia in np.arange(0.9, 1.0, 0.1):
+    for inertia in np.linspace(0.9, 1.0, 1):
         print("Current inertia: ", inertia)
-
-        for beta in np.arange(1.0, 1.1, 0.1):
+        for beta in np.linspace(1.0, 1.0, 1):
 
             # experimental parameters
             ################################
-            numSimulation = 5000
+            numSimulation = 1000
             gameTime = 60
             # inertia = 0.5
             numRegularPlayers = 20
@@ -566,23 +566,23 @@ if __name__ =="__main__":
                 for numVisible in numVisibleNodes_:
                     for numAdv in numAdversarialNodes_:
                         for delay in delayTime_:
-                            print("Generate parameters combinations: ", (net, numVisible, numAdv))
+                            # print("Generate parameters combinations: ", (net, numVisible, numAdv))
                             args.append((numSimulation, gameTime, numRegularPlayers, numVisible,
                                              numAdv, net, inertia, beta, delay, counter))
                             counter += 1
 
-            result = simulationFunc(args[0])
-            combineResults([result], args, 'result/')
+            # result = simulationFunc(args[0])
+            # combineResults([result], args, 'result/')
             # a = result.getConsensusResult()
             # a.columns = ['#visibleNodes', '#adversarial', 'network', 'ratio']
 
 
-            # # initialize processes pool
-            # pool = Pool(processes=8)
-            # result = pool.map(simulationFunc, args)
-            # combineResults(result, args, 'result/visibleMoveFirst')
+            # initialize processes pool
+            pool = Pool(processes=40)
+            result = pool.map(simulationFunc, args)
+            combineResults(result, args, 'result/visibleMoveFirst')
 
-            # pool.close()
-            # pool.join()
+            pool.close()
+            pool.join()
 
 
