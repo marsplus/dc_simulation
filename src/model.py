@@ -9,6 +9,7 @@ from log import Log
 from utils import *
 from mesa import Agent, Model
 from mesa.time import RandomActivation
+from mesa.time import FollowVisibleActivation
 from multiprocessing import Pool
 from mesa.datacollection import DataCollector
 
@@ -149,7 +150,7 @@ class GameAgent(Agent):
                 # choosed certain color
                 pass
             else:
-                if random.random() < self.p:
+                if random.random() > self.p:
             
                     # we don't record repeated same color change
                     if self.color == "white" or ( decision_color != self.color and self.color != "white" ):
@@ -180,6 +181,8 @@ class GameAgent(Agent):
                         if currColor["red"] == currColor["green"]:
                             pass
                         else:
+                            # notice: currMajorColor denotes
+                            # global majority color
                             if currColor["red"] > currColor["green"]:
                                 currMajorColor = "red"
                             else:
@@ -238,14 +241,14 @@ def getGreen(model):
 
 
 class DCGame(Model):
-    def __init__(self, adjMat, numVisibleColorNodes, numAdversarialNodes, inertia, beta):
+    def __init__(self, adjMat, numVisibleColorNodes, numAdversarialNodes, inertia, beta, delay):
         self.adjMat = adjMat
         self.numVisibleColorNodes = numVisibleColorNodes
         self.numAdversarialNodes = numAdversarialNodes
         # self.adversarialNodes = []
         self.visibleColorNodes = []
         self.regularNodes = []
-        self.schedule = RandomActivation(self)
+        self.schedule = FollowVisibleActivation(self)
         self.numAgents = len(adjMat)
         self.inertia = inertia
         # if there are 20 consensus colors then a
@@ -262,6 +265,11 @@ class DCGame(Model):
         # randomize regular players (exclude visibles)
         # decision
         self.beta = beta
+
+        # a amount of time to delay ordinary players' decision
+        # ordinary players = players who are neither visibles
+        # nor has any visibles in their neighbor
+        self.delay = delay
 
 
         # convert adjMat to adjList
@@ -339,7 +347,7 @@ class DCGame(Model):
         # # in terminal state we do not collect data
         if not self.terminate:
             self.datacollector.collect(self)
-            self.schedule.step()
+            self.schedule.step(self.delay)
         return self.terminate
 
     def simulate(self, simulationTimes):
@@ -376,13 +384,15 @@ class DCGame(Model):
 
 
 class BatchResult(object):
-    def __init__(self, data, dataOfConflict, args, arg_id):
+    def __init__(self, data, dataOnGameLevel, args, arg_id):
         # used to uniquely pair BatchResult and args
         self.ret_id = arg_id
+        # self.data records data at each time step
         self.data = data
 
-        ###
-        self.dataOfConflict = dataOfConflict
+        # self.dataOnGameLevel records data on 
+        # each game level
+        self.dataOnGameLevel = dataOnGameLevel
         ###
 
         self.args = args
@@ -401,7 +411,8 @@ class BatchResult(object):
         for i in range(len(self.data)):
             if_consensus = 1 if len(self.data[i]) < self.gameTime else 0
             consensus_ret.append((self.numVisibleNodes, self.numAdversarialNodes,\
-                                  self.network, if_consensus, self.dataOfConflict[i]))
+                                  self.network, if_consensus, self.dataOnGameLevel['hasConflict'][i],
+                                  self.dataOnGameLevel['delay'][i]))
         consensus_ret = pd.DataFrame(consensus_ret)
         self.consensus_ret = consensus_ret
 
@@ -459,25 +470,27 @@ def getAdjMat(net, numPlayers, numRegularPlayers, numAdversarialNodes):
 #define a wrapper function for multi-processing
 def simulationFunc(args):
     # dispatch arguments
-    numSimulation, gameTime, numRegularPlayers, numVisibleNodes, numAdversarialNodes, net, inertia, beta, arg_id = args
+    numSimulation, gameTime, numRegularPlayers, numVisibleNodes, \
+                numAdversarialNodes, net, inertia, beta, delay, arg_id = args
 
     # calculate how many players we have
     numPlayers = numRegularPlayers + numAdversarialNodes
 
     # ret contains simulated results
     ret = []
-    retOfConflict = []
+    retOnGameLevel = defaultdict(list)
     for j in range(numSimulation):
         if j % 1000 == 0:
             print("Current number of simulations: ", j)
 
         adjMat = getAdjMat(net, numPlayers, numRegularPlayers, numAdversarialNodes)
-        model = DCGame(adjMat, numVisibleNodes, numAdversarialNodes, inertia, beta)
+        model = DCGame(adjMat, numVisibleNodes, numAdversarialNodes, inertia, beta, delay)
         simulatedResult = model.simulate(gameTime)
         ret.append(simulatedResult)
 
-        ###
-        retOfConflict.append(model.hasConflict)
+        ### a game-level data collector
+        retOnGameLevel['hasConflict'].append(model.hasConflict)
+        retOnGameLevel['delay'].append(model.delay)
         ###
 
 
@@ -485,7 +498,7 @@ def simulationFunc(args):
         model.outputAdjMat('result/adjMat.txt')
 
     # the collected data is actually an object
-    result = BatchResult(ret, retOfConflict, args, arg_id)
+    result = BatchResult(ret, retOnGameLevel, args, arg_id)
     return result
 
 
@@ -501,7 +514,7 @@ def combineResults(result, args, folder=None):
         ret.generateResult()
 
     consensus_ret = pd.concat([item.getConsensusResult() for item in result])
-    consensus_ret.columns = ['#visibleNodes', '#adversarial', 'network', 'ratio', 'hasConflict']
+    consensus_ret.columns = ['#visibleNodes', '#adversarial', 'network', 'ratio', 'hasConflict', 'delay']
     p = os.path.join(folder, 'consensus_inertia=%.2f_beta=%.2f.csv' % (inertia, beta))
     consensus_ret.to_csv(p, index=None)
 
@@ -520,10 +533,10 @@ def combineResults(result, args, folder=None):
 
 if __name__ =="__main__":
     # iterate over all inertia values
-    for inertia in np.arange(0.9, 0.8, -0.1):
+    for inertia in np.arange(0.9, 1.0, 0.1):
         print("Current inertia: ", inertia)
 
-        for beta in np.arange(0.1, 1.1, 0.1):
+        for beta in np.arange(1.0, 1.1, 0.1):
 
             # experimental parameters
             ################################
@@ -538,6 +551,7 @@ if __name__ =="__main__":
             # networks = ['Barabasi-Albert']
             numVisibleNodes_ = [0, 1, 2, 5]
             numAdversarialNodes_ = [0, 2, 5]
+            delayTime_ = [0, 1, 2, 3, 4]
 
 
             # get all combinations of parameters
@@ -557,9 +571,9 @@ if __name__ =="__main__":
 
 
             # initialize processes pool
-            pool = Pool(processes=36)
+            pool = Pool(processes=50)
             result = pool.map(simulationFunc, args)
-            combineResults(result, args, 'result/newStrategy_updated')
+            combineResults(result, args, 'result/visibleMoveFirst')
 
             pool.close()
             pool.join()
