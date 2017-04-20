@@ -38,6 +38,11 @@ class GameAgent(Agent):
         # decision
         self.beta = beta
 
+    def __hash__(self):
+        return hash(self.unique_id)
+
+    def __eq__(self, other):
+        return self.unique_id == other.unique_id
 
     def instantiateNeighbors(self, model):
         self.neighbors = [agent for agent in model.schedule.agents if
@@ -571,18 +576,18 @@ if __name__ =="__main__":
                                              numAdv, net, inertia, beta, delay, counter))
                             counter += 1
 
-            # result = simulationFunc(args[0])
-            # combineResults([result], args, 'result/')
+            result = simulationFunc(args[101])
+            combineResults([result], args, 'result/')
             # a = result.getConsensusResult()
             # a.columns = ['#visibleNodes', '#adversarial', 'network', 'ratio']
 
 
-            # initialize processes pool
-            pool = Pool(processes=40)
-            result = pool.map(simulationFunc, args)
-            combineResults(result, args, 'result/visibleMoveFirst')
+            # # initialize processes pool
+            # pool = Pool(processes=40)
+            # result = pool.map(simulationFunc, args)
+            # combineResults(result, args, 'result/visibleMoveFirst')
 
-            pool.close()
-            pool.join()
+            # pool.close()
+            # pool.join()
 
 
