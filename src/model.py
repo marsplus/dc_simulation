@@ -11,6 +11,7 @@ from mesa import Agent, Model
 from mesa.time import RandomActivation
 from mesa.time import FollowVisibleActivation
 from multiprocessing import Pool
+from collections import defaultdict
 from mesa.datacollection import DataCollector
 
 random.seed(0)
@@ -415,7 +416,7 @@ class BatchResult(object):
             if_consensus = 1 if len(self.data[i]) < self.gameTime else 0
             consensus_ret.append((self.numVisibleNodes, self.numAdversarialNodes,\
                                   self.network, if_consensus, self.dataOnGameLevel['hasConflict'][i],
-                                  self.dataOnGameLevel['delay'][i]))
+                                  self.dataOnGameLevel['delay'][i], self.dataOnGameLevel['colorChanges'][i]))
         consensus_ret = pd.DataFrame(consensus_ret)
         self.consensus_ret = consensus_ret
 
@@ -545,7 +546,7 @@ if __name__ =="__main__":
 
             # experimental parameters
             ################################
-            numSimulation = 10000
+            numSimulation = 5000
             gameTime = 60
             # inertia = 0.5
             numRegularPlayers = 20
@@ -570,18 +571,18 @@ if __name__ =="__main__":
                                              numAdv, net, inertia, beta, delay, counter))
                             counter += 1
 
-            # result = simulationFunc(args[0])
-            # combineResults([result], args, 'result/')
+            result = simulationFunc(args[0])
+            combineResults([result], args, 'result/')
             # a = result.getConsensusResult()
             # a.columns = ['#visibleNodes', '#adversarial', 'network', 'ratio']
 
 
-            # initialize processes pool
-            pool = Pool(processes=50)
-            result = pool.map(simulationFunc, args)
-            combineResults(result, args, 'result/visibleMoveFirst')
+            # # initialize processes pool
+            # pool = Pool(processes=8)
+            # result = pool.map(simulationFunc, args)
+            # combineResults(result, args, 'result/visibleMoveFirst')
 
-            pool.close()
-            pool.join()
+            # pool.close()
+            # pool.join()
 
 
