@@ -551,7 +551,7 @@ if __name__ =="__main__":
 
             # experimental parameters
             ################################
-            numSimulation = 1000
+            numSimulation = 1
             gameTime = 60
             # inertia = 0.5
             numRegularPlayers = 20
@@ -562,7 +562,7 @@ if __name__ =="__main__":
             # networks = ['Barabasi-Albert']
             numVisibleNodes_ = [0, 1, 2, 5]
             numAdversarialNodes_ = [0, 2, 5]
-            delayTime_ = [0, 1, 2, 3, 4]
+            delayTime_ = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
 
 
             # get all combinations of parameters
@@ -576,18 +576,20 @@ if __name__ =="__main__":
                                              numAdv, net, inertia, beta, delay, counter))
                             counter += 1
 
-            result = simulationFunc(args[101])
-            combineResults([result], args, 'result/')
+            # a = list(args[101])
+            # a[-2] = 15
+            # result = simulationFunc(a)
+            # combineResults([result], args, 'result/')
             # a = result.getConsensusResult()
             # a.columns = ['#visibleNodes', '#adversarial', 'network', 'ratio']
 
 
-            # # initialize processes pool
-            # pool = Pool(processes=40)
-            # result = pool.map(simulationFunc, args)
-            # combineResults(result, args, 'result/visibleMoveFirst')
+            # initialize processes pool
+            pool = Pool(processes=40)
+            result = pool.map(simulationFunc, args)
+            combineResults(result, args, 'result/visibleMoveFirst')
 
-            # pool.close()
-            # pool.join()
+            pool.close()
+            pool.join()
 
 
