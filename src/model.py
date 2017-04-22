@@ -545,13 +545,13 @@ def combineResults(result, args, folder=None):
 
 if __name__ =="__main__":
     # iterate over all inertia values
-    for inertia in np.linspace(0.9, 1.0, 1):
+    for inertia in np.linspace(0.1, 0.1, 1):
         print("Current inertia: ", inertia)
         for beta in np.linspace(1.0, 1.0, 1):
 
             # experimental parameters
             ################################
-            numSimulation = 1
+            numSimulation = 10000
             gameTime = 60
             # inertia = 0.5
             numRegularPlayers = 20
@@ -562,7 +562,7 @@ if __name__ =="__main__":
             # networks = ['Barabasi-Albert']
             numVisibleNodes_ = [0, 1, 2, 5]
             numAdversarialNodes_ = [0, 2, 5]
-            delayTime_ = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+            delayTime_ = [0, 5, 10, 15]
 
 
             # get all combinations of parameters
@@ -587,7 +587,7 @@ if __name__ =="__main__":
             # initialize processes pool
             pool = Pool(processes=40)
             result = pool.map(simulationFunc, args)
-            combineResults(result, args, 'result/visibleMoveFirst')
+            combineResults(result, args, 'result/')
 
             pool.close()
             pool.join()
