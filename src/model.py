@@ -226,7 +226,7 @@ def getRed(model):
             red += 1
     return red
 
-
+# get the number of nodes selecting green in each time step
 def getGreen(model):
     green = 0
     current_color = [a.color for a in model.schedule.agents]
