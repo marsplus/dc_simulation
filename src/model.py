@@ -202,7 +202,7 @@ class GameAgent(Agent):
                     self.color = decision_color
                     self.game.colorChanges += 1
 
-                # each agent has a small probability to not make
+                # each agent has a probability to not make
                 # any decision
                 else:
                     # do nothing
@@ -545,7 +545,7 @@ def combineResults(result, args, folder=None):
 
 if __name__ =="__main__":
     # iterate over all inertia values
-    for inertia in np.linspace(0.1, 0.1, 1):
+    for inertia in np.linspace(0.9, 0.9, 1):
         print("Current inertia: ", inertia)
         for beta in np.linspace(1.0, 1.0, 1):
 
@@ -587,7 +587,7 @@ if __name__ =="__main__":
             # initialize processes pool
             pool = Pool(processes=40)
             result = pool.map(simulationFunc, args)
-            combineResults(result, args, 'result/')
+            combineResults(result, args, 'result/visibleMoveFirst')
 
             pool.close()
             pool.join()
