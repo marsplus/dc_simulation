@@ -149,7 +149,7 @@ class GameAgent(Agent):
                 # choosed certain color
                 pass
             else:
-                if random.random() < self.p:
+                if random.random() > self.p:
             
                     # we don't record repeated same color change
                     if self.color == "white" or ( decision_color != self.color and self.color != "white" ):
@@ -520,10 +520,10 @@ def combineResults(result, args, folder=None):
 
 if __name__ =="__main__":
     # iterate over all inertia values
-    for inertia in np.arange(0.9, 0.8, -0.1):
+    for inertia in np.linspace(0.1, 0.9, 9):
         print("Current inertia: ", inertia)
 
-        for beta in np.arange(0.1, 1.1, 0.1):
+        for beta in np.linspace(0.1, 0.9, 9):
 
             # experimental parameters
             ################################
