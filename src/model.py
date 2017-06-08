@@ -520,10 +520,10 @@ def combineResults(result, args, folder=None):
 
 if __name__ =="__main__":
     # iterate over all inertia values
-    for inertia in np.linspace(0.1, 0.9, 9):
+    for inertia in np.linspace(0.9, 0.9, 1):
         print("Current inertia: ", inertia)
 
-        for beta in np.linspace(0.1, 0.9, 9):
+        for beta in np.linspace(1.0, 1.0, 1):
 
             # experimental parameters
             ################################
@@ -557,9 +557,9 @@ if __name__ =="__main__":
 
 
             # initialize processes pool
-            pool = Pool(processes=36)
+            pool = Pool(processes=45)
             result = pool.map(simulationFunc, args)
-            combineResults(result, args, 'result/newStrategy_updated')
+            combineResults(result, args, 'result/newStrategy')
 
             pool.close()
             pool.join()
