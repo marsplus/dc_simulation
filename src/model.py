@@ -343,7 +343,6 @@ class GameAgent(Agent):
             if self.color != "white":
                 #if node already picked a color
                 decision_color = self.pickInitialColor()
-                print(decision_color)
                 # if random.random() > self.changing_p:
                 #     decision_color, dominant = self.getNeighborMajorColor()
                 if self.color != decision_color:
@@ -908,8 +907,7 @@ def simulationFunc(args):
 
     # the collected data is actually an object
     result = BatchResult(ret, retOnGameLevel, args)
-    result.generateResult()
-    return result.getConsensusResult()
+    return result
     # result.getConsensusResult().to_csv(os.path.join(outputPath, '%d.csv' % arg_id), index=None, sep=',')
 
 
@@ -921,7 +919,7 @@ def combineResults(result, args, folder=None):
     for ret in result:
         ret.generateResult()
 
-    consensus_ret = pd.concat([item.getConsensusResult()[1] for item in result])
+    consensus_ret = pd.concat([item.getConsensusResult() for item in result])
     consensus_ret.columns = result[0].getColumnNames()
     p = os.path.join(folder, 'consensus_inertia=%.2f_beta=%.2f.csv' % (inertia, beta))
     consensus_ret.to_csv(p, index=None)
@@ -1006,13 +1004,13 @@ if __name__ =="__main__":
     #                     counter += 1
 
     # initialize processes pool
-    pool = Pool(processes=7)
-    # pool.map(simulationFunc, args)
-    ret = simulationFunc(args[-1])
+    pool = Pool(processes=71)
+    result = pool.map(simulationFunc, args)
+    #ret = simulationFunc(args[-1])
     t1 = time.time()
     #simulationFunc(args[0])
     elapsedTime = time.time() - t1
-    #combineResults(result, args, 'result/visibleNode_adversaryNode_amplifier')
+    combineResults(result, args, 'result/tmp')
 
     pool.close()
     pool.join()
