@@ -1,0 +1,541 @@
+"X"	"experiment"	"game"	"network"	"communication"	"adversaries"	"list_of_adversaries"	"visibles"	"list_of_visibles"	"consensus"	"color"	"distance"	"length"
+"28"	"08.24.16"	1	"Barabasi-Albert"	"no_communication"	5	"[10, 14, 5, 20, 0]"	0	"[]"	"True"	"red"	0	48.177
+"29"	"08.24.16"	4	"Barabasi-Albert"	"no_communication"	2	"[5, 4]"	0	"[]"	"False"	"white"	2	60
+"30"	"08.24.16"	5	"Erdos-Renyi-dense"	"no_communication"	5	"[9, 2, 10, 19, 3]"	0	"[]"	"False"	"white"	8	60
+"31"	"08.24.16"	7	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	0	"[]"	"False"	"white"	2	60
+"32"	"08.24.16"	8	"Barabasi-Albert"	"no_communication"	0	"[]"	0	"[]"	"True"	"green"	0	59.004
+"33"	"08.24.16"	11	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	0	"[]"	"True"	"green"	0	11.828
+"34"	"08.24.16"	12	"Erdos-Renyi-sparse"	"no_communication"	2	"[0, 5]"	0	"[]"	"False"	"white"	4	60
+"35"	"08.24.16"	16	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	0	"[]"	"False"	"white"	2	60
+"36"	"08.24.16"	18	"Erdos-Renyi-dense"	"no_communication"	5	"[8, 9, 19, 18, 14]"	0	"[]"	"False"	"white"	1	60
+"37"	"08.24.16"	19	"Barabasi-Albert"	"no_communication"	2	"[9, 16]"	0	"[]"	"True"	"red"	0	27.699
+"38"	"08.24.16"	23	"Erdos-Renyi-dense"	"no_communication"	2	"[18, 8]"	0	"[]"	"False"	"white"	4	60
+"39"	"08.24.16"	24	"Erdos-Renyi-sparse"	"no_communication"	5	"[5, 7, 15, 13, 8]"	0	"[]"	"False"	"white"	9	60
+"40"	"08.24.16"	26	"Erdos-Renyi-dense"	"no_communication"	5	"[17, 0, 3, 10, 11]"	0	"[]"	"True"	"green"	0	25.687
+"41"	"08.24.16"	30	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	0	"[]"	"True"	"green"	0	39.019
+"42"	"08.24.16"	31	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	0	"[]"	"False"	"white"	3	60
+"43"	"08.24.16"	33	"Barabasi-Albert"	"no_communication"	5	"[8, 23, 6, 14, 17]"	0	"[]"	"True"	"green"	0	11.059
+"44"	"08.24.16"	34	"Erdos-Renyi-sparse"	"no_communication"	2	"[17, 19]"	0	"[]"	"False"	"white"	8	60
+"45"	"08.24.16"	35	"Erdos-Renyi-sparse"	"no_communication"	2	"[17, 8]"	0	"[]"	"False"	"white"	5	60
+"46"	"08.24.16"	37	"Erdos-Renyi-dense"	"no_communication"	2	"[20, 5]"	0	"[]"	"True"	"red"	0	53.4
+"47"	"08.24.16"	38	"Barabasi-Albert"	"no_communication"	0	"[]"	0	"[]"	"True"	"red"	0	50.055
+"48"	"08.24.16"	39	"Barabasi-Albert"	"no_communication"	5	"[20, 0, 18, 16, 1]"	0	"[]"	"True"	"red"	0	32.195
+"49"	"08.24.16"	48	"Barabasi-Albert"	"no_communication"	2	"[9, 7]"	0	"[]"	"True"	"red"	0	25.21
+"50"	"08.24.16"	49	"Barabasi-Albert"	"no_communication"	0	"[]"	0	"[]"	"True"	"red"	0	13.181
+"51"	"08.24.16"	50	"Erdos-Renyi-sparse"	"no_communication"	5	"[24, 13, 5, 14, 2]"	0	"[]"	"True"	"red"	0	55.408
+"52"	"08.24.16"	52	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	0	"[]"	"True"	"red"	0	26.53
+"53"	"08.24.16"	53	"Erdos-Renyi-sparse"	"no_communication"	5	"[23, 0, 8, 14, 3]"	0	"[]"	"False"	"white"	8	60
+"54"	"09.02.16"	4	"Erdos-Renyi-sparse"	"no_communication"	2	"[14, 7]"	0	"[]"	"True"	"red"	0	28.362
+"55"	"09.02.16"	8	"Barabasi-Albert"	"no_communication"	2	"[6, 11]"	0	"[]"	"True"	"green"	0	26.848
+"56"	"09.02.16"	10	"Erdos-Renyi-sparse"	"no_communication"	5	"[10, 12, 19, 7, 20]"	0	"[]"	"False"	"white"	8	60
+"57"	"09.02.16"	17	"Barabasi-Albert"	"no_communication"	0	"[]"	0	"[]"	"False"	"white"	1	60
+"58"	"09.02.16"	20	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	0	"[]"	"True"	"red"	0	55.208
+"59"	"09.02.16"	25	"Barabasi-Albert"	"no_communication"	5	"[15, 7, 6, 9, 20]"	0	"[]"	"True"	"green"	0	15.189
+"60"	"09.02.16"	39	"Erdos-Renyi-dense"	"no_communication"	5	"[6, 0, 20, 24, 1]"	0	"[]"	"False"	"white"	3	60
+"61"	"09.02.16"	49	"Erdos-Renyi-dense"	"no_communication"	2	"[18, 4]"	0	"[]"	"False"	"white"	2	60
+"62"	"09.02.16"	53	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	0	"[]"	"False"	"white"	10	60
+"63"	"09.09.16"	2	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	0	"[]"	"False"	"white"	5	60
+"64"	"09.09.16"	3	"Barabasi-Albert"	"no_communication"	0	"[]"	0	"[]"	"True"	"red"	0	45.314
+"65"	"09.09.16"	4	"Erdos-Renyi-dense"	"no_communication"	5	"[9, 24, 18, 1, 5]"	0	"[]"	"False"	"white"	5	60
+"66"	"09.09.16"	6	"Erdos-Renyi-sparse"	"no_communication"	5	"[1, 21, 0, 7, 6]"	0	"[]"	"False"	"white"	7	60
+"67"	"09.09.16"	9	"Barabasi-Albert"	"no_communication"	5	"[0, 1, 11, 15, 10]"	0	"[]"	"False"	"white"	5	60
+"68"	"09.09.16"	10	"Erdos-Renyi-dense"	"no_communication"	2	"[3, 0]"	0	"[]"	"True"	"red"	0	19.837
+"69"	"09.09.16"	17	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	0	"[]"	"False"	"white"	6	60
+"70"	"09.09.16"	19	"Barabasi-Albert"	"no_communication"	5	"[17, 3, 8, 0, 18]"	0	"[]"	"False"	"white"	10	60
+"71"	"09.09.16"	21	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	0	"[]"	"True"	"green"	0	31.337
+"72"	"09.09.16"	22	"Barabasi-Albert"	"no_communication"	0	"[]"	0	"[]"	"False"	"white"	7	60
+"73"	"09.09.16"	24	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	0	"[]"	"False"	"white"	9	60
+"74"	"09.09.16"	26	"Erdos-Renyi-sparse"	"no_communication"	5	"[20, 21, 11, 16, 13]"	0	"[]"	"False"	"white"	8	60
+"75"	"09.09.16"	27	"Erdos-Renyi-dense"	"no_communication"	2	"[21, 18]"	0	"[]"	"False"	"white"	4	60
+"76"	"09.09.16"	35	"Barabasi-Albert"	"no_communication"	5	"[20, 3, 13, 19, 24]"	0	"[]"	"False"	"white"	6	60
+"77"	"09.09.16"	36	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	0	"[]"	"False"	"white"	2	60
+"78"	"09.09.16"	37	"Erdos-Renyi-sparse"	"no_communication"	5	"[19, 12, 20, 4, 22]"	0	"[]"	"False"	"white"	9	60
+"79"	"09.09.16"	38	"Erdos-Renyi-dense"	"no_communication"	5	"[20, 23, 4, 6, 19]"	0	"[]"	"False"	"white"	10	60
+"80"	"09.09.16"	41	"Barabasi-Albert"	"no_communication"	0	"[]"	0	"[]"	"True"	"green"	0	26.798
+"81"	"09.09.16"	42	"Barabasi-Albert"	"no_communication"	2	"[13, 14]"	0	"[]"	"False"	"white"	2	60
+"82"	"09.09.16"	48	"Barabasi-Albert"	"no_communication"	2	"[0, 19]"	0	"[]"	"False"	"white"	10	60
+"83"	"09.09.16"	50	"Erdos-Renyi-sparse"	"no_communication"	2	"[4, 20]"	0	"[]"	"False"	"white"	9	60
+"84"	"09.09.16"	52	"Barabasi-Albert"	"no_communication"	2	"[2, 17]"	0	"[]"	"True"	"red"	0	29.671
+"85"	"09.09.16"	53	"Erdos-Renyi-sparse"	"no_communication"	2	"[5, 2]"	0	"[]"	"False"	"white"	9	60
+"86"	"09.09.16"	54	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	0	"[]"	"True"	"red"	0	12.858
+"112"	"09.30.16"	1	"Barabasi-Albert"	"no_communication"	5	"[18, 17, 19, 9, 5]"	0	"[]"	"True"	"green"	0	18.706
+"114"	"09.30.16"	7	"Barabasi-Albert"	"no_communication"	0	"[]"	0	"[]"	"True"	"green"	0	12.333
+"117"	"09.30.16"	18	"Erdos-Renyi-dense"	"no_communication"	2	"[21, 9]"	0	"[]"	"False"	"white"	4	60
+"123"	"09.30.16"	36	"Erdos-Renyi-sparse"	"no_communication"	5	"[16, 23, 22, 7, 8]"	0	"[]"	"False"	"white"	7	60
+"124"	"09.30.16"	40	"Erdos-Renyi-dense"	"no_communication"	2	"[8, 17]"	0	"[]"	"False"	"white"	1	60
+"128"	"10.14.16"	19	"Barabasi-Albert"	"no_communication"	2	"[5, 11]"	0	"[]"	"True"	"green"	0	52.333
+"129"	"10.14.16"	27	"Erdos-Renyi-dense"	"no_communication"	5	"[9, 15, 5, 16, 24]"	0	"[]"	"False"	"white"	7	60
+"131"	"10.14.16"	33	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	0	"[]"	"True"	"red"	0	55.87
+"135"	"10.14.16"	37	"Erdos-Renyi-dense"	"no_communication"	5	"[0, 13, 18, 23, 10]"	0	"[]"	"False"	"white"	5	60
+"136"	"10.14.16"	46	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	0	"[]"	"True"	"red"	0	15.339
+"137"	"10.14.16"	49	"Erdos-Renyi-sparse"	"no_communication"	2	"[2, 10]"	0	"[]"	"True"	"green"	0	36.262
+"525"	"03.10.17"	1	"Erdos-Renyi-sparse"	"no_communication"	2	"[1, 9]"	5	"[21, 19, 3, 11, 7]"	"False"	"white"	1	60
+"526"	"03.10.17"	2	"Barabasi-Albert"	"no_communication"	0	"[]"	2	"[3, 16]"	"True"	"red"	0	40.601
+"527"	"03.10.17"	3	"Barabasi-Albert"	"no_communication"	2	"[6, 10]"	1	"[9]"	"False"	"white"	8	60
+"528"	"03.10.17"	4	"Barabasi-Albert"	"no_communication"	5	"[6, 8, 9, 10, 13]"	2	"[20, 4]"	"False"	"white"	3	60
+"529"	"03.10.17"	5	"Barabasi-Albert"	"no_communication"	5	"[5, 6, 1, 22, 16]"	5	"[24, 18, 21, 2, 23]"	"False"	"white"	4	60
+"530"	"03.10.17"	6	"Barabasi-Albert"	"no_communication"	5	"[7, 12, 0, 23, 13]"	2	"[22, 5]"	"False"	"white"	7	60
+"531"	"03.10.17"	7	"Erdos-Renyi-sparse"	"no_communication"	5	"[16, 22, 18, 19, 24]"	5	"[23, 12, 1, 7, 4]"	"False"	"white"	4	60
+"533"	"03.10.17"	9	"Erdos-Renyi-dense"	"no_communication"	2	"[20, 11]"	2	"[0, 8]"	"False"	"white"	7	60
+"534"	"03.10.17"	10	"Erdos-Renyi-dense"	"no_communication"	5	"[6, 23, 5, 7, 8]"	1	"[9]"	"False"	"white"	10	60
+"535"	"03.10.17"	11	"Barabasi-Albert"	"no_communication"	5	"[15, 13, 12, 22, 10]"	1	"[21]"	"True"	"green"	0	42.758
+"536"	"03.10.17"	12	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	1	"[10]"	"False"	"white"	6	60
+"538"	"03.10.17"	14	"Erdos-Renyi-sparse"	"no_communication"	2	"[3, 6]"	2	"[11, 14]"	"False"	"white"	4	60
+"539"	"03.10.17"	15	"Barabasi-Albert"	"no_communication"	5	"[11, 9, 3, 6, 12]"	1	"[10]"	"True"	"green"	0	26.306
+"540"	"03.10.17"	16	"Erdos-Renyi-dense"	"no_communication"	5	"[12, 14, 23, 2, 7]"	5	"[5, 1, 16, 8, 4]"	"False"	"white"	2	60
+"543"	"03.10.17"	22	"Erdos-Renyi-dense"	"no_communication"	5	"[9, 7, 17, 4, 1]"	2	"[14, 21]"	"False"	"white"	9	60
+"544"	"03.10.17"	23	"Erdos-Renyi-dense"	"no_communication"	5	"[18, 9, 7, 2, 13]"	1	"[24]"	"False"	"white"	8	60
+"545"	"03.10.17"	24	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	1	"[6]"	"False"	"white"	5	60
+"546"	"03.10.17"	25	"Erdos-Renyi-sparse"	"no_communication"	5	"[12, 3, 21, 20, 24]"	5	"[22, 10, 2, 4, 15]"	"False"	"white"	10	60
+"547"	"03.10.17"	26	"Erdos-Renyi-sparse"	"no_communication"	2	"[5, 0]"	5	"[17, 10, 1, 9, 14]"	"False"	"white"	2	60
+"548"	"03.10.17"	27	"Barabasi-Albert"	"no_communication"	5	"[22, 10, 21, 5, 4]"	5	"[6, 13, 1, 0, 24]"	"True"	"green"	0	57.746
+"549"	"03.10.17"	28	"Barabasi-Albert"	"no_communication"	2	"[6, 9]"	2	"[3, 13]"	"True"	"green"	0	14.492
+"551"	"03.10.17"	30	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	5	"[5, 0, 14, 18, 11]"	"False"	"white"	8	60
+"553"	"03.10.17"	32	"Erdos-Renyi-dense"	"no_communication"	2	"[16, 13]"	5	"[3, 0, 14, 5, 10]"	"False"	"white"	5	60
+"555"	"03.10.17"	34	"Barabasi-Albert"	"no_communication"	2	"[10, 21]"	2	"[14, 11]"	"False"	"white"	2	60
+"556"	"03.10.17"	35	"Erdos-Renyi-dense"	"no_communication"	2	"[15, 18]"	2	"[19, 12]"	"False"	"white"	1	60
+"559"	"03.10.17"	38	"Barabasi-Albert"	"no_communication"	0	"[]"	1	"[6]"	"False"	"white"	2	60
+"560"	"03.10.17"	39	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	2	"[6, 3]"	"True"	"red"	0	16.156
+"561"	"03.10.17"	40	"Erdos-Renyi-sparse"	"no_communication"	5	"[19, 23, 13, 3, 22]"	2	"[2, 12]"	"False"	"white"	7	60
+"562"	"03.10.17"	43	"Barabasi-Albert"	"no_communication"	0	"[]"	5	"[8, 17, 5, 3, 7]"	"True"	"red"	0	52.278
+"563"	"03.10.17"	44	"Erdos-Renyi-dense"	"no_communication"	5	"[1, 17, 2, 18, 23]"	5	"[13, 22, 11, 6, 7]"	"False"	"white"	2	60
+"564"	"03.10.17"	45	"Erdos-Renyi-dense"	"no_communication"	2	"[13, 6]"	1	"[20]"	"False"	"white"	2	60
+"566"	"03.10.17"	47	"Erdos-Renyi-sparse"	"no_communication"	5	"[4, 13, 16, 21, 12]"	1	"[2]"	"False"	"white"	8	60
+"567"	"03.10.17"	48	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	1	"[2]"	"False"	"white"	2	60
+"568"	"03.10.17"	49	"Barabasi-Albert"	"no_communication"	0	"[]"	5	"[9, 12, 10, 13, 3]"	"False"	"white"	6	60
+"569"	"03.10.17"	50	"Erdos-Renyi-sparse"	"no_communication"	2	"[5, 17]"	2	"[12, 4]"	"False"	"white"	3	60
+"570"	"03.10.17"	51	"Erdos-Renyi-sparse"	"no_communication"	2	"[21, 0]"	1	"[13]"	"False"	"white"	9	60
+"571"	"03.10.17"	52	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	1	"[5]"	"False"	"white"	6	60
+"572"	"03.10.17"	53	"Barabasi-Albert"	"no_communication"	2	"[0, 4]"	5	"[12, 6, 20, 2, 3]"	"True"	"green"	0	57.465
+"573"	"03.10.17"	54	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	5	"[1, 17, 13, 16, 4]"	"True"	"red"	0	40.29
+"576"	"03.10.17"	57	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	2	"[14, 15]"	"True"	"green"	0	59.316
+"577"	"03.10.17"	58	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	5	"[18, 13, 0, 4, 11]"	"False"	"white"	9	60
+"579"	"03.10.17"	60	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	5	"[17, 11, 5, 16, 7]"	"True"	"red"	0	52.611
+"580"	"03.10.17"	61	"Erdos-Renyi-sparse"	"no_communication"	5	"[1, 17, 16, 10, 19]"	2	"[6, 14]"	"False"	"white"	7	60
+"581"	"03.10.17"	62	"Erdos-Renyi-dense"	"no_communication"	2	"[5, 9]"	1	"[7]"	"True"	"green"	0	36.281
+"582"	"03.10.17"	63	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	2	"[6, 7]"	"False"	"white"	7	60
+"583"	"03.10.17"	64	"Erdos-Renyi-sparse"	"no_communication"	5	"[12, 4, 1, 0, 17]"	1	"[9]"	"False"	"white"	10	60
+"584"	"03.10.17"	65	"Erdos-Renyi-dense"	"no_communication"	5	"[0, 3, 22, 23, 5]"	2	"[4, 14]"	"False"	"white"	8	60
+"585"	"03.10.17"	66	"Erdos-Renyi-sparse"	"no_communication"	2	"[11, 10]"	1	"[4]"	"False"	"white"	3	60
+"586"	"03.10.17"	67	"Barabasi-Albert"	"no_communication"	0	"[]"	2	"[0, 9]"	"False"	"white"	3	60
+"588"	"03.23.17"	1	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	2	"[10, 13]"	"True"	"green"	0	27.013
+"590"	"03.23.17"	3	"Erdos-Renyi-dense"	"no_communication"	5	"[14, 17, 10, 2, 12]"	1	"[8]"	"False"	"white"	6	60
+"591"	"03.23.17"	4	"Barabasi-Albert"	"no_communication"	0	"[]"	2	"[0, 16]"	"True"	"green"	0	10.209
+"592"	"03.23.17"	5	"Barabasi-Albert"	"no_communication"	5	"[15, 17, 7, 20, 23]"	1	"[6]"	"True"	"green"	0	52.836
+"593"	"03.23.17"	6	"Barabasi-Albert"	"no_communication"	5	"[7, 24, 1, 9, 20]"	5	"[11, 15, 4, 2, 10]"	"True"	"red"	0	19.223
+"594"	"03.23.17"	7	"Erdos-Renyi-dense"	"no_communication"	5	"[17, 21, 10, 12, 8]"	1	"[3]"	"True"	"red"	0	46.281
+"596"	"03.23.17"	9	"Erdos-Renyi-dense"	"no_communication"	2	"[8, 17]"	1	"[20]"	"False"	"white"	1	60
+"597"	"03.23.17"	10	"Barabasi-Albert"	"no_communication"	0	"[]"	2	"[0, 10]"	"True"	"red"	0	29.384
+"598"	"03.23.17"	11	"Erdos-Renyi-dense"	"no_communication"	5	"[6, 18, 14, 24, 13]"	2	"[15, 16]"	"False"	"white"	5	60
+"599"	"03.23.17"	13	"Barabasi-Albert"	"no_communication"	5	"[24, 23, 2, 11, 9]"	2	"[4, 17]"	"False"	"white"	3	60
+"600"	"03.23.17"	14	"Erdos-Renyi-sparse"	"no_communication"	5	"[12, 0, 6, 11, 14]"	2	"[2, 8]"	"False"	"white"	8	60
+"602"	"03.23.17"	16	"Barabasi-Albert"	"no_communication"	0	"[]"	5	"[13, 11, 19, 6, 9]"	"True"	"red"	0	23.333
+"603"	"03.23.17"	17	"Erdos-Renyi-sparse"	"no_communication"	5	"[17, 13, 9, 7, 8]"	2	"[0, 5]"	"False"	"white"	5	60
+"604"	"03.23.17"	19	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	5	"[6, 11, 5, 18, 1]"	"False"	"white"	3	60
+"605"	"03.23.17"	21	"Erdos-Renyi-dense"	"no_communication"	2	"[5, 19]"	2	"[1, 3]"	"True"	"red"	0	22.552
+"606"	"03.23.17"	22	"Erdos-Renyi-dense"	"no_communication"	2	"[15, 9]"	5	"[21, 16, 11, 18, 7]"	"False"	"white"	6	60
+"607"	"03.23.17"	23	"Barabasi-Albert"	"no_communication"	0	"[]"	5	"[14, 16, 7, 6, 2]"	"True"	"green"	0	18.737
+"608"	"03.23.17"	24	"Erdos-Renyi-dense"	"no_communication"	5	"[9, 22, 7, 1, 15]"	2	"[21, 13]"	"False"	"white"	3	60
+"610"	"03.23.17"	26	"Barabasi-Albert"	"no_communication"	5	"[13, 4, 7, 11, 8]"	2	"[19, 5]"	"False"	"white"	9	60
+"611"	"03.23.17"	27	"Barabasi-Albert"	"no_communication"	0	"[]"	1	"[19]"	"True"	"red"	0	16.58
+"612"	"03.23.17"	28	"Erdos-Renyi-sparse"	"no_communication"	2	"[2, 6]"	2	"[11, 1]"	"True"	"red"	0	58.803
+"614"	"03.23.17"	30	"Barabasi-Albert"	"no_communication"	2	"[0, 8]"	1	"[4]"	"True"	"green"	0	22.677
+"615"	"03.23.17"	31	"Erdos-Renyi-sparse"	"no_communication"	5	"[16, 13, 23, 24, 20]"	5	"[4, 2, 10, 5, 14]"	"False"	"white"	6	60
+"616"	"03.23.17"	32	"Erdos-Renyi-dense"	"no_communication"	2	"[1, 20]"	1	"[5]"	"True"	"green"	0	9.933
+"618"	"03.23.17"	34	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	1	"[5]"	"False"	"white"	5	60
+"620"	"03.23.17"	36	"Erdos-Renyi-sparse"	"no_communication"	2	"[13, 17]"	1	"[12]"	"False"	"white"	8	60
+"621"	"03.23.17"	37	"Barabasi-Albert"	"no_communication"	2	"[12, 15]"	5	"[21, 11, 1, 8, 6]"	"True"	"red"	0	12.232
+"622"	"03.23.17"	38	"Erdos-Renyi-sparse"	"no_communication"	2	"[9, 5]"	5	"[10, 7, 16, 11, 14]"	"True"	"green"	0	19.769
+"623"	"03.23.17"	39	"Erdos-Renyi-dense"	"no_communication"	2	"[11, 16]"	5	"[6, 0, 21, 18, 19]"	"True"	"red"	0	18.588
+"624"	"03.23.17"	40	"Erdos-Renyi-sparse"	"no_communication"	5	"[13, 8, 17, 21, 19]"	1	"[1]"	"False"	"white"	6	60
+"625"	"03.23.17"	41	"Erdos-Renyi-dense"	"no_communication"	5	"[21, 10, 9, 17, 2]"	5	"[19, 20, 23, 3, 0]"	"False"	"white"	5	60
+"626"	"03.23.17"	42	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	5	"[11, 15, 18, 10, 3]"	"True"	"red"	0	55.82
+"628"	"03.23.17"	44	"Barabasi-Albert"	"no_communication"	2	"[2, 1]"	5	"[10, 8, 3, 11, 21]"	"True"	"green"	0	13.576
+"629"	"03.23.17"	45	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	1	"[17]"	"True"	"red"	0	22.926
+"630"	"03.23.17"	46	"Erdos-Renyi-sparse"	"no_communication"	2	"[21, 10]"	2	"[0, 6]"	"True"	"green"	0	24.015
+"631"	"03.23.17"	47	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	1	"[11]"	"True"	"green"	0	55.176
+"632"	"03.23.17"	48	"Barabasi-Albert"	"no_communication"	5	"[23, 8, 19, 21, 20]"	5	"[11, 1, 7, 2, 12]"	"False"	"white"	4	60
+"633"	"03.23.17"	49	"Erdos-Renyi-sparse"	"no_communication"	2	"[10, 17]"	5	"[6, 11, 18, 14, 2]"	"True"	"green"	0	16.921
+"636"	"03.23.17"	52	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	2	"[11, 8]"	"True"	"red"	0	11.266
+"637"	"03.23.17"	53	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	1	"[9]"	"True"	"red"	0	22.235
+"638"	"03.23.17"	54	"Erdos-Renyi-sparse"	"no_communication"	2	"[7, 11]"	1	"[9]"	"False"	"white"	7	60
+"639"	"03.23.17"	55	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	2	"[9, 15]"	"False"	"white"	7	60
+"640"	"03.23.17"	56	"Barabasi-Albert"	"no_communication"	0	"[]"	1	"[3]"	"True"	"green"	0	18.677
+"641"	"03.23.17"	57	"Barabasi-Albert"	"no_communication"	2	"[2, 13]"	2	"[20, 8]"	"True"	"green"	0	12.74
+"642"	"03.23.17"	58	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	5	"[17, 7, 0, 15, 12]"	"True"	"green"	0	14.884
+"643"	"03.23.17"	60	"Erdos-Renyi-sparse"	"no_communication"	5	"[0, 20, 7, 11, 23]"	1	"[8]"	"False"	"white"	6	60
+"644"	"03.23.17"	61	"Erdos-Renyi-sparse"	"no_communication"	5	"[1, 8, 21, 16, 15]"	5	"[11, 12, 14, 20, 22]"	"False"	"white"	7	60
+"645"	"03.23.17"	62	"Erdos-Renyi-dense"	"no_communication"	5	"[6, 2, 24, 15, 23]"	5	"[21, 9, 17, 7, 5]"	"False"	"white"	9	60
+"647"	"03.23.17"	64	"Erdos-Renyi-dense"	"no_communication"	2	"[0, 4]"	2	"[19, 9]"	"False"	"white"	3	60
+"648"	"03.23.17"	65	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	2	"[15, 2]"	"False"	"white"	5	60
+"649"	"03.24.17"	1	"Barabasi-Albert"	"no_communication"	5	"[21, 12, 16, 9, 11]"	2	"[14, 22]"	"True"	"green"	0	13.861
+"650"	"03.24.17"	2	"Barabasi-Albert"	"no_communication"	5	"[15, 5, 11, 2, 13]"	1	"[7]"	"False"	"white"	8	60
+"651"	"03.24.17"	3	"Barabasi-Albert"	"no_communication"	5	"[24, 2, 4, 12, 7]"	5	"[19, 20, 1, 21, 16]"	"True"	"green"	0	37.264
+"653"	"03.24.17"	6	"Barabasi-Albert"	"no_communication"	0	"[]"	1	"[11]"	"True"	"green"	0	47.664
+"654"	"03.24.17"	7	"Erdos-Renyi-sparse"	"no_communication"	5	"[13, 21, 3, 15, 14]"	1	"[7]"	"False"	"white"	9	60
+"656"	"03.24.17"	9	"Barabasi-Albert"	"no_communication"	0	"[]"	2	"[1, 10]"	"True"	"red"	0	20.045
+"658"	"03.24.17"	11	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	5	"[10, 13, 12, 8, 2]"	"False"	"white"	5	60
+"659"	"03.24.17"	12	"Barabasi-Albert"	"no_communication"	0	"[]"	1	"[7]"	"True"	"green"	0	12.864
+"660"	"03.24.17"	13	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	1	"[5]"	"True"	"green"	0	12.788
+"661"	"03.24.17"	14	"Erdos-Renyi-sparse"	"no_communication"	2	"[12, 11]"	5	"[16, 10, 17, 6, 20]"	"False"	"white"	7	60
+"662"	"03.24.17"	15	"Erdos-Renyi-dense"	"no_communication"	2	"[10, 14]"	1	"[12]"	"False"	"white"	9	60
+"663"	"03.24.17"	16	"Erdos-Renyi-dense"	"no_communication"	5	"[2, 1, 22, 24, 14]"	2	"[20, 21]"	"False"	"white"	10	60
+"666"	"03.24.17"	22	"Erdos-Renyi-sparse"	"no_communication"	5	"[15, 3, 24, 11, 16]"	5	"[23, 6, 20, 7, 2]"	"False"	"white"	9	60
+"667"	"03.24.17"	23	"Erdos-Renyi-sparse"	"no_communication"	5	"[20, 10, 24, 23, 9]"	5	"[17, 14, 15, 22, 5]"	"False"	"white"	6	60
+"668"	"03.24.17"	24	"Barabasi-Albert"	"no_communication"	2	"[0, 15]"	5	"[1, 20, 7, 3, 6]"	"False"	"white"	1	60
+"669"	"03.24.17"	25	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	5	"[6, 4, 2, 19, 18]"	"True"	"red"	0	13.141
+"670"	"03.24.17"	26	"Barabasi-Albert"	"no_communication"	5	"[2, 21, 13, 12, 24]"	2	"[17, 19]"	"False"	"white"	8	60
+"671"	"03.24.17"	27	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	1	"[1]"	"False"	"white"	2	60
+"672"	"03.24.17"	28	"Barabasi-Albert"	"no_communication"	2	"[15, 17]"	1	"[11]"	"False"	"white"	9	60
+"673"	"03.24.17"	29	"Barabasi-Albert"	"no_communication"	5	"[11, 17, 0, 24, 20]"	5	"[16, 18, 22, 6, 9]"	"False"	"white"	8	60
+"674"	"03.24.17"	30	"Barabasi-Albert"	"no_communication"	0	"[]"	5	"[15, 1, 11, 18, 14]"	"True"	"red"	0	46.738
+"675"	"03.24.17"	31	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	2	"[9, 15]"	"True"	"red"	0	57.428
+"678"	"03.24.17"	34	"Erdos-Renyi-sparse"	"no_communication"	5	"[12, 19, 17, 14, 0]"	2	"[15, 3]"	"False"	"white"	7	60
+"679"	"03.24.17"	35	"Erdos-Renyi-sparse"	"no_communication"	2	"[6, 10]"	1	"[1]"	"False"	"white"	9	60
+"680"	"03.24.17"	36	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	2	"[2, 8]"	"True"	"red"	0	40.739
+"681"	"03.24.17"	37	"Erdos-Renyi-sparse"	"no_communication"	2	"[0, 3]"	5	"[1, 15, 10, 7, 5]"	"True"	"green"	0	23.903
+"682"	"03.24.17"	38	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	1	"[10]"	"False"	"white"	8	60
+"683"	"03.24.17"	39	"Erdos-Renyi-sparse"	"no_communication"	2	"[4, 9]"	2	"[7, 8]"	"False"	"white"	7	60
+"684"	"03.24.17"	41	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	5	"[8, 4, 17, 19, 14]"	"True"	"green"	0	22.969
+"685"	"03.24.17"	42	"Erdos-Renyi-sparse"	"no_communication"	2	"[19, 7]"	2	"[18, 3]"	"False"	"white"	3	60
+"686"	"03.24.17"	43	"Erdos-Renyi-sparse"	"no_communication"	5	"[7, 10, 20, 2, 14]"	2	"[21, 0]"	"False"	"white"	8	60
+"687"	"03.24.17"	46	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	2	"[14, 11]"	"True"	"green"	0	26.933
+"688"	"03.24.17"	47	"Erdos-Renyi-dense"	"no_communication"	5	"[20, 19, 11, 18, 24]"	1	"[21]"	"False"	"white"	9	60
+"689"	"03.24.17"	48	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	5	"[16, 10, 2, 19, 0]"	"False"	"white"	2	60
+"690"	"03.24.17"	49	"Erdos-Renyi-sparse"	"no_communication"	5	"[5, 24, 9, 19, 12]"	1	"[13]"	"False"	"white"	6	60
+"691"	"03.24.17"	50	"Barabasi-Albert"	"no_communication"	0	"[]"	2	"[15, 2]"	"True"	"green"	0	32.3
+"692"	"03.24.17"	51	"Erdos-Renyi-dense"	"no_communication"	2	"[2, 6]"	2	"[12, 19]"	"False"	"white"	1	60
+"693"	"03.24.17"	52	"Barabasi-Albert"	"no_communication"	0	"[]"	5	"[6, 4, 8, 11, 15]"	"False"	"white"	1	60
+"694"	"03.24.17"	55	"Erdos-Renyi-dense"	"no_communication"	5	"[18, 3, 13, 23, 15]"	1	"[1]"	"True"	"red"	0	18.519
+"695"	"03.24.17"	56	"Erdos-Renyi-dense"	"no_communication"	2	"[14, 20]"	5	"[12, 0, 21, 17, 7]"	"True"	"red"	0	32.694
+"696"	"03.24.17"	57	"Barabasi-Albert"	"no_communication"	2	"[17, 9]"	2	"[19, 21]"	"False"	"white"	9	60
+"698"	"03.24.17"	59	"Erdos-Renyi-sparse"	"no_communication"	2	"[11, 13]"	1	"[17]"	"False"	"white"	9	60
+"699"	"03.24.17"	60	"Erdos-Renyi-dense"	"no_communication"	5	"[6, 23, 11, 21, 17]"	5	"[15, 16, 19, 8, 2]"	"False"	"white"	6	60
+"700"	"03.24.17"	61	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	1	"[19]"	"False"	"white"	6	60
+"701"	"03.24.17"	62	"Barabasi-Albert"	"no_communication"	2	"[0, 8]"	1	"[4]"	"True"	"red"	0	15.856
+"702"	"03.24.17"	63	"Barabasi-Albert"	"no_communication"	2	"[10, 21]"	5	"[0, 13, 7, 2, 11]"	"False"	"white"	6	60
+"703"	"03.24.17"	64	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	2	"[1, 6]"	"True"	"green"	0	44.929
+"704"	"03.24.17"	65	"Barabasi-Albert"	"no_communication"	2	"[4, 0]"	2	"[16, 17]"	"False"	"white"	3	60
+"706"	"03.31.17"	2	"Erdos-Renyi-dense"	"no_communication"	5	"[22, 18, 1, 13, 24]"	5	"[12, 11, 19, 0, 21]"	"False"	"white"	10	60
+"707"	"03.31.17"	3	"Barabasi-Albert"	"no_communication"	5	"[8, 0, 21, 9, 20]"	2	"[15, 1]"	"True"	"red"	0	40.693
+"709"	"03.31.17"	5	"Erdos-Renyi-dense"	"no_communication"	2	"[2, 4]"	5	"[10, 16, 9, 20, 21]"	"True"	"red"	0	18.909
+"710"	"03.31.17"	6	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	2	"[14, 17]"	"True"	"green"	0	24.154
+"711"	"03.31.17"	7	"Barabasi-Albert"	"no_communication"	0	"[]"	1	"[12]"	"False"	"white"	1	60
+"712"	"03.31.17"	8	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	1	"[0]"	"True"	"green"	0	17.335
+"713"	"03.31.17"	9	"Erdos-Renyi-dense"	"no_communication"	2	"[21, 16]"	2	"[11, 4]"	"True"	"red"	0	21.908
+"714"	"03.31.17"	10	"Barabasi-Albert"	"no_communication"	0	"[]"	5	"[14, 18, 8, 3, 2]"	"False"	"white"	8	60
+"715"	"03.31.17"	12	"Barabasi-Albert"	"no_communication"	5	"[6, 10, 11, 1, 13]"	1	"[4]"	"False"	"white"	5	60
+"716"	"03.31.17"	13	"Erdos-Renyi-dense"	"no_communication"	5	"[24, 13, 9, 3, 8]"	2	"[23, 17]"	"False"	"white"	5	60
+"717"	"03.31.17"	14	"Erdos-Renyi-dense"	"no_communication"	2	"[7, 18]"	5	"[2, 11, 5, 4, 12]"	"True"	"red"	0	13.625
+"718"	"03.31.17"	15	"Barabasi-Albert"	"no_communication"	0	"[]"	1	"[7]"	"True"	"green"	0	14.902
+"719"	"03.31.17"	16	"Barabasi-Albert"	"no_communication"	2	"[20, 7]"	5	"[8, 2, 0, 6, 21]"	"True"	"red"	0	14.548
+"722"	"03.31.17"	19	"Erdos-Renyi-dense"	"no_communication"	2	"[1, 13]"	2	"[9, 0]"	"False"	"white"	1	60
+"723"	"03.31.17"	20	"Barabasi-Albert"	"no_communication"	2	"[1, 7]"	1	"[19]"	"True"	"green"	0	14.709
+"724"	"03.31.17"	21	"Erdos-Renyi-sparse"	"no_communication"	2	"[5, 18]"	2	"[1, 10]"	"False"	"white"	9	60
+"726"	"03.31.17"	23	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	2	"[15, 0]"	"False"	"white"	7	60
+"727"	"03.31.17"	24	"Erdos-Renyi-dense"	"no_communication"	2	"[16, 5]"	1	"[11]"	"True"	"green"	0	19.583
+"728"	"03.31.17"	25	"Erdos-Renyi-sparse"	"no_communication"	2	"[19, 20]"	1	"[14]"	"False"	"white"	3	60
+"729"	"03.31.17"	26	"Barabasi-Albert"	"no_communication"	2	"[0, 1]"	2	"[3, 15]"	"False"	"white"	3	60
+"731"	"03.31.17"	28	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	2	"[1, 7]"	"False"	"white"	8	60
+"732"	"03.31.17"	29	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	2	"[4, 16]"	"False"	"white"	8	60
+"734"	"03.31.17"	31	"Barabasi-Albert"	"no_communication"	2	"[7, 6]"	5	"[0, 12, 4, 19, 16]"	"True"	"green"	0	43.008
+"735"	"03.31.17"	32	"Barabasi-Albert"	"no_communication"	0	"[]"	2	"[17, 2]"	"True"	"green"	0	12.427
+"736"	"03.31.17"	33	"Erdos-Renyi-sparse"	"no_communication"	5	"[17, 2, 0, 11, 10]"	1	"[6]"	"False"	"white"	10	60
+"738"	"03.31.17"	35	"Barabasi-Albert"	"no_communication"	2	"[9, 3]"	5	"[8, 15, 1, 5, 18]"	"True"	"green"	0	8.479
+"739"	"03.31.17"	36	"Barabasi-Albert"	"no_communication"	2	"[0, 18]"	1	"[12]"	"False"	"white"	2	60
+"740"	"03.31.17"	37	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	1	"[8]"	"False"	"white"	7	60
+"741"	"03.31.17"	38	"Barabasi-Albert"	"no_communication"	2	"[1, 4]"	2	"[6, 14]"	"False"	"white"	3	60
+"743"	"03.31.17"	40	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	5	"[9, 2, 1, 19, 7]"	"False"	"white"	5	60
+"744"	"03.31.17"	41	"Barabasi-Albert"	"no_communication"	5	"[20, 10, 11, 0, 1]"	5	"[4, 2, 22, 8, 19]"	"True"	"red"	0	37.908
+"745"	"03.31.17"	42	"Barabasi-Albert"	"no_communication"	5	"[3, 20, 2, 7, 6]"	1	"[19]"	"False"	"white"	9	60
+"746"	"03.31.17"	43	"Barabasi-Albert"	"no_communication"	2	"[18, 1]"	1	"[3]"	"False"	"white"	10	60
+"747"	"03.31.17"	44	"Erdos-Renyi-dense"	"no_communication"	2	"[18, 11]"	1	"[16]"	"True"	"red"	0	58.066
+"748"	"03.31.17"	45	"Erdos-Renyi-dense"	"no_communication"	2	"[0, 19]"	2	"[1, 2]"	"False"	"white"	5	60
+"749"	"03.31.17"	46	"Erdos-Renyi-sparse"	"no_communication"	5	"[13, 2, 19, 15, 8]"	2	"[7, 5]"	"False"	"white"	4	60
+"750"	"03.31.17"	47	"Erdos-Renyi-sparse"	"no_communication"	2	"[6, 21]"	5	"[12, 0, 11, 8, 19]"	"True"	"green"	0	28.226
+"751"	"03.31.17"	48	"Barabasi-Albert"	"no_communication"	5	"[6, 16, 21, 11, 14]"	1	"[8]"	"True"	"green"	0	18.807
+"752"	"03.31.17"	49	"Barabasi-Albert"	"no_communication"	2	"[11, 10]"	1	"[17]"	"False"	"white"	3	60
+"753"	"03.31.17"	50	"Erdos-Renyi-dense"	"no_communication"	2	"[16, 9]"	1	"[4]"	"False"	"white"	4	60
+"754"	"03.31.17"	51	"Erdos-Renyi-sparse"	"no_communication"	5	"[12, 8, 7, 21, 5]"	5	"[18, 6, 13, 15, 0]"	"False"	"white"	7	60
+"755"	"03.31.17"	52	"Erdos-Renyi-dense"	"no_communication"	5	"[6, 4, 23, 7, 11]"	2	"[19, 24]"	"False"	"white"	6	60
+"756"	"03.31.17"	53	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	5	"[17, 10, 19, 0, 16]"	"False"	"white"	4	60
+"757"	"03.31.17"	54	"Erdos-Renyi-dense"	"no_communication"	2	"[7, 19]"	5	"[9, 4, 11, 2, 8]"	"False"	"white"	5	60
+"759"	"03.31.17"	56	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	5	"[16, 12, 9, 18, 14]"	"False"	"white"	6	60
+"760"	"03.31.17"	57	"Barabasi-Albert"	"no_communication"	0	"[]"	1	"[17]"	"True"	"green"	0	29.06
+"761"	"03.31.17"	58	"Erdos-Renyi-dense"	"no_communication"	5	"[13, 16, 5, 12, 24]"	2	"[23, 2]"	"False"	"white"	7	60
+"762"	"03.31.17"	59	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	5	"[10, 1, 15, 11, 8]"	"False"	"white"	6	60
+"763"	"03.31.17"	60	"Barabasi-Albert"	"no_communication"	2	"[7, 0]"	2	"[17, 6]"	"True"	"green"	0	15.961
+"764"	"03.31.17"	61	"Erdos-Renyi-dense"	"no_communication"	5	"[7, 12, 20, 3, 6]"	5	"[1, 8, 16, 0, 19]"	"False"	"white"	7	60
+"765"	"03.31.17"	62	"Erdos-Renyi-dense"	"no_communication"	5	"[20, 19, 11, 8, 16]"	5	"[15, 1, 12, 17, 4]"	"False"	"white"	6	60
+"766"	"03.31.17"	63	"Barabasi-Albert"	"no_communication"	5	"[10, 3, 24, 17, 8]"	1	"[5]"	"False"	"white"	1	60
+"767"	"03.31.17"	64	"Erdos-Renyi-dense"	"no_communication"	2	"[5, 3]"	5	"[7, 21, 18, 10, 20]"	"True"	"red"	0	25.886
+"768"	"03.31.17"	65	"Erdos-Renyi-dense"	"no_communication"	5	"[16, 3, 9, 12, 23]"	1	"[17]"	"False"	"white"	2	60
+"769"	"04.07.17"	1	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	5	"[16, 15, 11, 1, 7]"	"True"	"green"	0	19.759
+"770"	"04.07.17"	2	"Barabasi-Albert"	"no_communication"	0	"[]"	2	"[19, 5]"	"True"	"green"	0	42.017
+"771"	"04.07.17"	3	"Barabasi-Albert"	"no_communication"	2	"[14, 6]"	2	"[15, 0]"	"True"	"green"	0	29.934
+"772"	"04.07.17"	5	"Erdos-Renyi-sparse"	"no_communication"	2	"[21, 17]"	5	"[14, 10, 0, 3, 1]"	"False"	"white"	9	60
+"773"	"04.07.17"	6	"Erdos-Renyi-sparse"	"no_communication"	5	"[5, 12, 1, 20, 16]"	2	"[17, 13]"	"False"	"white"	7	60
+"774"	"04.07.17"	7	"Erdos-Renyi-dense"	"no_communication"	5	"[3, 24, 0, 1, 7]"	0	"[]"	"False"	"white"	1	60
+"775"	"04.07.17"	8	"Erdos-Renyi-dense"	"no_communication"	2	"[2, 21]"	0	"[]"	"True"	"red"	0	8.24
+"776"	"04.07.17"	9	"Erdos-Renyi-sparse"	"no_communication"	2	"[1, 10]"	0	"[]"	"True"	"red"	0	14.131
+"779"	"04.07.17"	12	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	0	"[]"	"True"	"green"	0	6.654
+"780"	"04.07.17"	13	"Erdos-Renyi-sparse"	"no_communication"	2	"[4, 11]"	5	"[0, 5, 21, 18, 15]"	"False"	"white"	1	60
+"781"	"04.07.17"	14	"Barabasi-Albert"	"no_communication"	0	"[]"	0	"[]"	"True"	"red"	0	59.066
+"782"	"04.07.17"	15	"Erdos-Renyi-sparse"	"no_communication"	5	"[13, 18, 16, 9, 1]"	1	"[10]"	"False"	"white"	9	60
+"784"	"04.07.17"	17	"Erdos-Renyi-sparse"	"no_communication"	5	"[10, 17, 3, 15, 4]"	5	"[22, 8, 0, 19, 18]"	"False"	"white"	5	60
+"787"	"04.07.17"	20	"Erdos-Renyi-sparse"	"no_communication"	2	"[19, 0]"	0	"[]"	"False"	"white"	2	60
+"788"	"04.07.17"	21	"Barabasi-Albert"	"no_communication"	2	"[4, 9]"	1	"[10]"	"True"	"green"	0	18.356
+"789"	"04.07.17"	22	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	2	"[18, 2]"	"True"	"green"	0	5.708
+"790"	"04.07.17"	23	"Erdos-Renyi-dense"	"no_communication"	2	"[18, 1]"	2	"[15, 20]"	"False"	"white"	4	60
+"792"	"04.07.17"	25	"Erdos-Renyi-sparse"	"no_communication"	5	"[1, 17, 0, 7, 24]"	5	"[20, 2, 14, 12, 6]"	"False"	"white"	7	60
+"793"	"04.07.17"	26	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	2	"[15, 4]"	"False"	"white"	3	60
+"794"	"04.07.17"	28	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	5	"[6, 7, 8, 2, 14]"	"False"	"white"	8	60
+"795"	"04.07.17"	29	"Barabasi-Albert"	"no_communication"	5	"[17, 9, 19, 22, 7]"	2	"[15, 4]"	"True"	"green"	0	52.744
+"796"	"04.07.17"	30	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	1	"[7]"	"True"	"red"	0	7.407
+"797"	"04.07.17"	31	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	1	"[7]"	"False"	"white"	9	60
+"798"	"04.07.17"	32	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	1	"[10]"	"True"	"green"	0	42.497
+"799"	"04.07.17"	33	"Erdos-Renyi-sparse"	"no_communication"	5	"[24, 9, 12, 17, 15]"	2	"[22, 16]"	"False"	"white"	8	60
+"803"	"04.07.17"	37	"Barabasi-Albert"	"no_communication"	5	"[2, 20, 9, 11, 0]"	1	"[22]"	"False"	"white"	6	60
+"804"	"04.07.17"	38	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	2	"[12, 0]"	"True"	"green"	0	45.43
+"805"	"04.07.17"	39	"Barabasi-Albert"	"no_communication"	5	"[22, 11, 3, 7, 9]"	0	"[]"	"True"	"green"	0	46.294
+"806"	"04.07.17"	40	"Erdos-Renyi-sparse"	"no_communication"	2	"[18, 14]"	1	"[11]"	"False"	"white"	2	60
+"807"	"04.07.17"	41	"Erdos-Renyi-dense"	"no_communication"	2	"[19, 21]"	0	"[]"	"True"	"green"	0	59.627
+"808"	"04.07.17"	42	"Barabasi-Albert"	"no_communication"	0	"[]"	5	"[18, 1, 4, 16, 11]"	"True"	"red"	0	29.271
+"809"	"04.07.17"	43	"Erdos-Renyi-dense"	"no_communication"	5	"[13, 24, 19, 15, 10]"	1	"[3]"	"False"	"white"	2	60
+"811"	"04.07.17"	45	"Erdos-Renyi-sparse"	"no_communication"	5	"[22, 17, 15, 12, 23]"	1	"[9]"	"False"	"white"	9	60
+"812"	"04.07.17"	46	"Barabasi-Albert"	"no_communication"	5	"[8, 17, 14, 0, 21]"	2	"[10, 9]"	"False"	"white"	3	60
+"813"	"04.07.17"	47	"Barabasi-Albert"	"no_communication"	0	"[]"	1	"[12]"	"True"	"red"	0	19.426
+"814"	"04.07.17"	48	"Erdos-Renyi-dense"	"no_communication"	5	"[1, 24, 8, 3, 0]"	1	"[22]"	"False"	"white"	10	60
+"815"	"04.07.17"	49	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	1	"[3]"	"True"	"red"	0	40.431
+"816"	"04.07.17"	50	"Erdos-Renyi-dense"	"no_communication"	2	"[20, 9]"	5	"[2, 13, 21, 0, 11]"	"True"	"red"	0	9.575
+"817"	"04.07.17"	51	"Erdos-Renyi-sparse"	"no_communication"	2	"[16, 4]"	0	"[]"	"False"	"white"	7	60
+"818"	"04.07.17"	52	"Erdos-Renyi-dense"	"no_communication"	5	"[10, 0, 16, 17, 15]"	5	"[13, 6, 9, 14, 23]"	"True"	"red"	0	43.207
+"820"	"04.07.17"	54	"Barabasi-Albert"	"no_communication"	2	"[7, 3]"	5	"[14, 0, 2, 9, 13]"	"True"	"green"	0	23.933
+"821"	"04.07.17"	55	"Erdos-Renyi-dense"	"no_communication"	2	"[10, 7]"	1	"[0]"	"True"	"red"	0	5.183
+"822"	"04.07.17"	56	"Erdos-Renyi-sparse"	"no_communication"	2	"[13, 21]"	2	"[9, 2]"	"False"	"white"	7	60
+"823"	"04.07.17"	57	"Erdos-Renyi-sparse"	"no_communication"	5	"[8, 22, 14, 7, 23]"	0	"[]"	"False"	"white"	4	60
+"824"	"04.07.17"	58	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	0	"[]"	"True"	"red"	0	8.954
+"825"	"04.07.17"	59	"Barabasi-Albert"	"no_communication"	0	"[]"	2	"[1, 10]"	"True"	"red"	0	19.128
+"826"	"04.07.17"	60	"Barabasi-Albert"	"no_communication"	0	"[]"	5	"[3, 18, 5, 14, 11]"	"True"	"green"	0	25.93
+"827"	"04.07.17"	61	"Erdos-Renyi-sparse"	"no_communication"	2	"[1, 20]"	1	"[0]"	"False"	"white"	8	60
+"828"	"04.07.17"	62	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	5	"[18, 13, 16, 19, 3]"	"True"	"red"	0	10.112
+"829"	"04.07.17"	63	"Erdos-Renyi-sparse"	"no_communication"	2	"[19, 2]"	2	"[11, 21]"	"False"	"white"	10	60
+"830"	"04.07.17"	64	"Barabasi-Albert"	"no_communication"	5	"[9, 10, 23, 1, 3]"	5	"[22, 0, 8, 5, 17]"	"False"	"white"	3	60
+"831"	"04.07.17"	65	"Erdos-Renyi-dense"	"no_communication"	5	"[22, 8, 3, 13, 0]"	2	"[14, 18]"	"False"	"white"	9	60
+"832"	"04.12.17"	1	"Erdos-Renyi-sparse"	"no_communication"	5	"[23, 1, 5, 4, 18]"	0	"[]"	"False"	"white"	8	60
+"833"	"04.12.17"	2	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	2	"[14, 1]"	"False"	"white"	1	60
+"835"	"04.12.17"	4	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	5	"[19, 12, 16, 9, 5]"	"True"	"red"	0	57.858
+"836"	"04.12.17"	5	"Barabasi-Albert"	"no_communication"	2	"[14, 12]"	0	"[]"	"True"	"red"	0	16.559
+"837"	"04.12.17"	6	"Barabasi-Albert"	"no_communication"	5	"[9, 15, 0, 1, 11]"	2	"[10, 24]"	"False"	"white"	5	60
+"838"	"04.12.17"	7	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	5	"[14, 4, 8, 11, 12]"	"True"	"red"	0	44.485
+"839"	"04.12.17"	10	"Erdos-Renyi-sparse"	"no_communication"	5	"[14, 20, 16, 9, 4]"	2	"[24, 21]"	"False"	"white"	4	60
+"840"	"04.12.17"	11	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	1	"[17]"	"False"	"white"	7	60
+"841"	"04.12.17"	12	"Erdos-Renyi-dense"	"no_communication"	5	"[13, 20, 21, 23, 9]"	1	"[22]"	"True"	"green"	0	59.073
+"842"	"04.12.17"	13	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	0	"[]"	"True"	"green"	0	56.328
+"843"	"04.12.17"	14	"Erdos-Renyi-sparse"	"no_communication"	2	"[6, 18]"	5	"[12, 19, 16, 9, 13]"	"False"	"white"	5	60
+"845"	"04.12.17"	16	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	5	"[15, 7, 14, 10, 2]"	"False"	"white"	6	60
+"846"	"04.12.17"	17	"Barabasi-Albert"	"no_communication"	5	"[20, 15, 6, 19, 5]"	2	"[2, 13]"	"False"	"white"	4	60
+"847"	"04.12.17"	18	"Erdos-Renyi-dense"	"no_communication"	2	"[21, 18]"	2	"[5, 8]"	"True"	"red"	0	12.667
+"848"	"04.12.17"	19	"Erdos-Renyi-sparse"	"no_communication"	2	"[15, 6]"	2	"[17, 11]"	"False"	"white"	4	60
+"849"	"04.12.17"	20	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	1	"[12]"	"False"	"white"	1	60
+"850"	"04.12.17"	21	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	2	"[0, 7]"	"False"	"white"	5	60
+"851"	"04.12.17"	22	"Barabasi-Albert"	"no_communication"	2	"[13, 8]"	0	"[]"	"False"	"white"	2	60
+"852"	"04.12.17"	23	"Erdos-Renyi-dense"	"no_communication"	2	"[12, 16]"	0	"[]"	"False"	"white"	6	60
+"857"	"04.12.17"	29	"Erdos-Renyi-dense"	"no_communication"	5	"[22, 6, 4, 7, 19]"	0	"[]"	"False"	"white"	6	60
+"858"	"04.12.17"	30	"Barabasi-Albert"	"no_communication"	5	"[3, 19, 0, 20, 8]"	0	"[]"	"False"	"white"	2	60
+"859"	"04.12.17"	31	"Barabasi-Albert"	"no_communication"	0	"[]"	0	"[]"	"True"	"red"	0	15.789
+"860"	"04.12.17"	32	"Barabasi-Albert"	"no_communication"	2	"[10, 1]"	5	"[19, 20, 15, 5, 3]"	"True"	"red"	0	13.717
+"861"	"04.12.17"	33	"Erdos-Renyi-dense"	"no_communication"	2	"[1, 16]"	1	"[18]"	"True"	"green"	0	7.137
+"862"	"04.12.17"	34	"Erdos-Renyi-dense"	"no_communication"	2	"[10, 18]"	5	"[21, 16, 12, 13, 9]"	"True"	"green"	0	19.026
+"863"	"04.12.17"	35	"Barabasi-Albert"	"no_communication"	2	"[6, 10]"	1	"[2]"	"False"	"white"	8	60
+"864"	"04.12.17"	36	"Erdos-Renyi-dense"	"no_communication"	2	"[13, 18]"	2	"[7, 2]"	"False"	"white"	5	60
+"865"	"04.12.17"	37	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	1	"[18]"	"True"	"green"	0	59.042
+"866"	"04.12.17"	38	"Erdos-Renyi-sparse"	"no_communication"	2	"[16, 15]"	1	"[4]"	"False"	"white"	9	60
+"867"	"04.12.17"	39	"Barabasi-Albert"	"no_communication"	2	"[14, 20]"	0	"[]"	"True"	"red"	0	18.904
+"868"	"04.12.17"	40	"Barabasi-Albert"	"no_communication"	0	"[]"	5	"[9, 5, 13, 15, 14]"	"True"	"red"	0	7.673
+"869"	"04.12.17"	41	"Barabasi-Albert"	"no_communication"	2	"[16, 14]"	2	"[7, 9]"	"False"	"white"	6	60
+"870"	"04.12.17"	42	"Erdos-Renyi-dense"	"no_communication"	5	"[19, 15, 10, 5, 7]"	5	"[22, 6, 8, 0, 4]"	"True"	"green"	0	23.938
+"871"	"04.12.17"	43	"Erdos-Renyi-sparse"	"no_communication"	5	"[12, 16, 5, 14, 9]"	5	"[8, 0, 11, 22, 7]"	"False"	"white"	9	60
+"872"	"04.12.17"	44	"Barabasi-Albert"	"no_communication"	5	"[4, 12, 6, 1, 22]"	5	"[5, 19, 8, 23, 13]"	"True"	"red"	0	51.519
+"873"	"04.12.17"	45	"Barabasi-Albert"	"no_communication"	5	"[12, 24, 2, 15, 20]"	5	"[8, 21, 18, 17, 11]"	"False"	"white"	7	60
+"874"	"04.12.17"	46	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	5	"[4, 18, 17, 6, 9]"	"False"	"white"	9	60
+"875"	"04.12.17"	47	"Barabasi-Albert"	"no_communication"	5	"[6, 7, 10, 12, 8]"	1	"[14]"	"True"	"green"	0	54.354
+"877"	"04.12.17"	49	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	2	"[4, 18]"	"True"	"green"	0	14.336
+"878"	"04.12.17"	50	"Erdos-Renyi-sparse"	"no_communication"	5	"[3, 22, 18, 15, 23]"	1	"[16]"	"False"	"white"	3	60
+"879"	"04.12.17"	51	"Erdos-Renyi-dense"	"no_communication"	2	"[6, 14]"	0	"[]"	"True"	"green"	0	21.934
+"881"	"04.12.17"	53	"Erdos-Renyi-sparse"	"no_communication"	2	"[8, 5]"	1	"[6]"	"False"	"white"	5	60
+"884"	"04.12.17"	56	"Erdos-Renyi-dense"	"no_communication"	5	"[10, 14, 22, 19, 8]"	0	"[]"	"False"	"white"	6	60
+"885"	"04.12.17"	57	"Erdos-Renyi-sparse"	"no_communication"	2	"[21, 5]"	2	"[14, 16]"	"False"	"white"	6	60
+"887"	"04.12.17"	59	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	2	"[8, 0]"	"False"	"white"	3	60
+"888"	"04.12.17"	60	"Erdos-Renyi-dense"	"no_communication"	5	"[7, 8, 23, 1, 11]"	1	"[15]"	"False"	"white"	3	60
+"889"	"04.12.17"	61	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	1	"[14]"	"True"	"green"	0	14.037
+"890"	"04.12.17"	62	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	0	"[]"	"True"	"red"	0	21.104
+"891"	"04.12.17"	63	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	0	"[]"	"True"	"green"	0	53.704
+"892"	"04.12.17"	64	"Barabasi-Albert"	"no_communication"	0	"[]"	1	"[16]"	"True"	"green"	0	53.578
+"893"	"04.12.17"	65	"Barabasi-Albert"	"no_communication"	0	"[]"	2	"[8, 19]"	"False"	"white"	7	60
+"894"	"04.21.17"	1	"Erdos-Renyi-sparse"	"no_communication"	5	"[18, 3, 20, 1, 19]"	0	"[]"	"False"	"white"	6	60
+"895"	"04.21.17"	2	"Barabasi-Albert"	"no_communication"	0	"[]"	0	"[]"	"False"	"white"	6	60
+"896"	"04.21.17"	3	"Barabasi-Albert"	"no_communication"	5	"[24, 3, 19, 1, 16]"	0	"[]"	"False"	"white"	3	60
+"897"	"04.21.17"	4	"Barabasi-Albert"	"no_communication"	0	"[]"	2	"[5, 17]"	"False"	"white"	3	60
+"899"	"04.21.17"	6	"Erdos-Renyi-dense"	"no_communication"	2	"[2, 4]"	0	"[]"	"False"	"white"	2	60
+"900"	"04.21.17"	7	"Erdos-Renyi-sparse"	"no_communication"	2	"[4, 16]"	0	"[]"	"False"	"white"	9	60
+"901"	"04.21.17"	8	"Barabasi-Albert"	"no_communication"	5	"[3, 6, 12, 7, 15]"	1	"[10]"	"False"	"white"	1	60
+"902"	"04.21.17"	9	"Barabasi-Albert"	"no_communication"	2	"[15, 4]"	1	"[21]"	"False"	"white"	10	60
+"903"	"04.21.17"	10	"Erdos-Renyi-sparse"	"no_communication"	2	"[0, 9]"	5	"[3, 8, 17, 19, 10]"	"False"	"white"	6	60
+"904"	"04.21.17"	11	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	2	"[19, 12]"	"False"	"white"	4	60
+"905"	"04.21.17"	12	"Barabasi-Albert"	"no_communication"	5	"[4, 14, 13, 7, 18]"	5	"[12, 21, 20, 10, 8]"	"False"	"white"	9	60
+"906"	"04.21.17"	13	"Erdos-Renyi-dense"	"no_communication"	5	"[6, 24, 2, 1, 5]"	5	"[8, 3, 11, 7, 13]"	"False"	"white"	7	60
+"907"	"04.21.17"	14	"Erdos-Renyi-sparse"	"no_communication"	5	"[2, 21, 20, 16, 12]"	1	"[0]"	"False"	"white"	7	60
+"908"	"04.21.17"	16	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	2	"[2, 8]"	"False"	"white"	8	60
+"909"	"04.21.17"	17	"Erdos-Renyi-sparse"	"no_communication"	2	"[19, 7]"	5	"[4, 0, 3, 5, 14]"	"False"	"white"	2	60
+"910"	"04.21.17"	18	"Barabasi-Albert"	"no_communication"	0	"[]"	1	"[5]"	"True"	"green"	0	20.089
+"911"	"04.21.17"	20	"Barabasi-Albert"	"no_communication"	0	"[]"	2	"[6, 10]"	"True"	"red"	0	35.264
+"912"	"04.21.17"	21	"Barabasi-Albert"	"no_communication"	5	"[17, 20, 16, 12, 4]"	2	"[5, 14]"	"False"	"white"	8	60
+"913"	"04.21.17"	22	"Erdos-Renyi-dense"	"no_communication"	5	"[21, 0, 13, 14, 2]"	2	"[12, 17]"	"False"	"white"	9	60
+"915"	"04.21.17"	24	"Erdos-Renyi-dense"	"no_communication"	5	"[3, 5, 24, 18, 12]"	1	"[19]"	"True"	"red"	0	44.427
+"916"	"04.21.17"	25	"Barabasi-Albert"	"no_communication"	0	"[]"	5	"[14, 9, 17, 19, 7]"	"False"	"white"	5	60
+"917"	"04.21.17"	26	"Erdos-Renyi-sparse"	"no_communication"	5	"[6, 16, 11, 1, 10]"	0	"[]"	"False"	"white"	9	60
+"918"	"04.21.17"	27	"Erdos-Renyi-sparse"	"no_communication"	2	"[18, 2]"	0	"[]"	"False"	"white"	9	60
+"919"	"04.21.17"	28	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	0	"[]"	"False"	"white"	9	60
+"920"	"04.21.17"	29	"Barabasi-Albert"	"no_communication"	0	"[]"	5	"[11, 15, 14, 16, 4]"	"False"	"white"	1	60
+"922"	"04.21.17"	31	"Erdos-Renyi-sparse"	"no_communication"	5	"[18, 24, 16, 10, 14]"	5	"[5, 12, 19, 2, 21]"	"False"	"white"	3	60
+"923"	"04.21.17"	32	"Erdos-Renyi-dense"	"no_communication"	5	"[21, 15, 18, 10, 9]"	2	"[1, 17]"	"False"	"white"	5	60
+"925"	"04.21.17"	34	"Erdos-Renyi-dense"	"no_communication"	2	"[9, 2]"	1	"[6]"	"False"	"white"	7	60
+"926"	"04.21.17"	35	"Barabasi-Albert"	"no_communication"	2	"[19, 15]"	2	"[21, 1]"	"True"	"green"	0	24.385
+"927"	"04.21.17"	38	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	1	"[16]"	"False"	"white"	4	60
+"928"	"04.21.17"	40	"Erdos-Renyi-dense"	"no_communication"	2	"[14, 0]"	5	"[3, 8, 7, 15, 11]"	"False"	"white"	8	60
+"929"	"04.21.17"	41	"Barabasi-Albert"	"no_communication"	2	"[4, 5]"	2	"[3, 0]"	"False"	"white"	1	60
+"931"	"04.21.17"	43	"Barabasi-Albert"	"no_communication"	5	"[16, 13, 24, 14, 22]"	1	"[2]"	"False"	"white"	6	60
+"932"	"04.21.17"	44	"Erdos-Renyi-sparse"	"no_communication"	5	"[10, 18, 14, 23, 3]"	2	"[7, 5]"	"False"	"white"	7	60
+"934"	"04.21.17"	46	"Barabasi-Albert"	"no_communication"	0	"[]"	1	"[3]"	"False"	"white"	1	60
+"935"	"04.21.17"	47	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	5	"[2, 1, 19, 7, 17]"	"False"	"white"	7	60
+"938"	"04.21.17"	50	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	0	"[]"	"False"	"white"	8	60
+"940"	"04.21.17"	52	"Erdos-Renyi-dense"	"no_communication"	5	"[24, 11, 21, 8, 10]"	2	"[9, 13]"	"False"	"white"	2	60
+"941"	"04.21.17"	53	"Barabasi-Albert"	"no_communication"	2	"[1, 3]"	5	"[18, 8, 13, 14, 5]"	"False"	"white"	6	60
+"942"	"04.21.17"	54	"Erdos-Renyi-dense"	"no_communication"	2	"[12, 2]"	5	"[10, 19, 7, 20, 15]"	"False"	"white"	2	60
+"944"	"04.21.17"	56	"Barabasi-Albert"	"no_communication"	2	"[8, 0]"	1	"[7]"	"False"	"white"	7	60
+"945"	"04.21.17"	57	"Erdos-Renyi-dense"	"no_communication"	5	"[0, 22, 20, 10, 1]"	5	"[7, 4, 23, 5, 3]"	"False"	"white"	4	60
+"946"	"04.21.17"	59	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	1	"[0]"	"False"	"white"	7	60
+"947"	"04.21.17"	60	"Erdos-Renyi-dense"	"no_communication"	2	"[4, 19]"	1	"[8]"	"False"	"white"	4	60
+"948"	"04.21.17"	61	"Erdos-Renyi-sparse"	"no_communication"	2	"[13, 14]"	2	"[2, 16]"	"False"	"white"	6	60
+"949"	"04.21.17"	62	"Erdos-Renyi-sparse"	"no_communication"	2	"[17, 12]"	1	"[1]"	"False"	"white"	9	60
+"950"	"04.21.17"	63	"Barabasi-Albert"	"no_communication"	2	"[14, 19]"	0	"[]"	"False"	"white"	10	60
+"951"	"04.21.17"	64	"Barabasi-Albert"	"no_communication"	5	"[6, 11, 7, 2, 1]"	5	"[19, 23, 15, 21, 24]"	"False"	"white"	8	60
+"952"	"04.21.17"	65	"Erdos-Renyi-sparse"	"no_communication"	5	"[3, 19, 20, 24, 13]"	2	"[18, 7]"	"False"	"white"	7	60
+"953"	"04.24.17"	1	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	0	"[]"	"False"	"white"	5	60
+"954"	"04.24.17"	2	"Erdos-Renyi-sparse"	"no_communication"	5	"[13, 3, 18, 12, 5]"	1	"[6]"	"True"	"green"	0	59.356
+"955"	"04.24.17"	4	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	1	"[13]"	"True"	"red"	0	55.388
+"956"	"04.24.17"	5	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	2	"[4, 18]"	"False"	"white"	6	60
+"958"	"04.24.17"	9	"Barabasi-Albert"	"no_communication"	2	"[5, 1]"	2	"[4, 14]"	"False"	"white"	3	60
+"959"	"04.24.17"	10	"Barabasi-Albert"	"no_communication"	0	"[]"	1	"[7]"	"False"	"white"	1	60
+"960"	"04.24.17"	11	"Erdos-Renyi-sparse"	"no_communication"	2	"[3, 20]"	2	"[5, 4]"	"False"	"white"	3	60
+"961"	"04.24.17"	12	"Barabasi-Albert"	"no_communication"	5	"[13, 18, 22, 14, 11]"	0	"[]"	"False"	"white"	3	60
+"962"	"04.24.17"	13	"Erdos-Renyi-sparse"	"no_communication"	5	"[17, 13, 4, 9, 23]"	5	"[20, 3, 8, 2, 15]"	"False"	"white"	8	60
+"964"	"04.24.17"	15	"Barabasi-Albert"	"no_communication"	2	"[14, 16]"	5	"[20, 12, 4, 19, 13]"	"False"	"white"	1	60
+"965"	"04.24.17"	18	"Erdos-Renyi-dense"	"no_communication"	2	"[6, 11]"	2	"[17, 8]"	"True"	"red"	0	58.713
+"966"	"04.24.17"	22	"Barabasi-Albert"	"no_communication"	5	"[11, 15, 24, 6, 23]"	1	"[21]"	"False"	"white"	6	60
+"968"	"04.24.17"	24	"Barabasi-Albert"	"no_communication"	0	"[]"	5	"[6, 4, 11, 3, 15]"	"False"	"white"	1	60
+"969"	"04.24.17"	25	"Erdos-Renyi-sparse"	"no_communication"	5	"[11, 8, 0, 5, 14]"	5	"[23, 1, 22, 3, 20]"	"False"	"white"	10	60
+"970"	"04.24.17"	26	"Barabasi-Albert"	"no_communication"	5	"[22, 2, 21, 6, 10]"	0	"[]"	"False"	"white"	8	60
+"971"	"04.24.17"	27	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	0	"[]"	"False"	"white"	1	60
+"972"	"04.24.17"	28	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	5	"[2, 9, 6, 15, 4]"	"True"	"green"	0	19.209
+"973"	"04.24.17"	29	"Erdos-Renyi-dense"	"no_communication"	5	"[21, 16, 17, 5, 1]"	1	"[11]"	"False"	"white"	9	60
+"974"	"04.24.17"	30	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	5	"[15, 13, 10, 5, 7]"	"False"	"white"	2	60
+"975"	"04.24.17"	31	"Erdos-Renyi-dense"	"no_communication"	5	"[21, 16, 3, 18, 17]"	5	"[15, 7, 0, 24, 10]"	"False"	"white"	3	60
+"977"	"04.24.17"	33	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	0	"[]"	"False"	"white"	4	60
+"978"	"04.24.17"	34	"Erdos-Renyi-dense"	"no_communication"	2	"[16, 5]"	1	"[13]"	"False"	"white"	7	60
+"979"	"04.24.17"	35	"Erdos-Renyi-dense"	"no_communication"	5	"[0, 22, 3, 10, 6]"	0	"[]"	"False"	"white"	8	60
+"980"	"04.24.17"	36	"Erdos-Renyi-dense"	"no_communication"	5	"[24, 22, 16, 18, 4]"	2	"[5, 21]"	"False"	"white"	2	60
+"981"	"04.24.17"	37	"Barabasi-Albert"	"no_communication"	2	"[14, 10]"	5	"[7, 6, 1, 17, 4]"	"False"	"white"	1	60
+"982"	"04.24.17"	38	"Erdos-Renyi-dense"	"no_communication"	2	"[9, 5]"	2	"[4, 15]"	"False"	"white"	1	60
+"983"	"04.24.17"	39	"Erdos-Renyi-dense"	"no_communication"	2	"[18, 20]"	5	"[4, 17, 8, 3, 12]"	"False"	"white"	2	60
+"985"	"04.24.17"	41	"Erdos-Renyi-dense"	"no_communication"	2	"[0, 3]"	2	"[2, 20]"	"False"	"white"	5	60
+"987"	"04.24.17"	45	"Erdos-Renyi-sparse"	"no_communication"	2	"[11, 19]"	1	"[14]"	"False"	"white"	7	60
+"988"	"04.24.17"	46	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	0	"[]"	"False"	"white"	2	60
+"989"	"04.24.17"	47	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	1	"[8]"	"False"	"white"	8	60
+"990"	"04.24.17"	48	"Erdos-Renyi-dense"	"no_communication"	2	"[12, 6]"	0	"[]"	"False"	"white"	7	60
+"991"	"04.24.17"	49	"Barabasi-Albert"	"no_communication"	0	"[]"	0	"[]"	"True"	"red"	0	54.614
+"992"	"04.24.17"	50	"Barabasi-Albert"	"no_communication"	0	"[]"	2	"[0, 2]"	"True"	"green"	0	41.227
+"993"	"04.24.17"	51	"Barabasi-Albert"	"no_communication"	5	"[10, 1, 9, 6, 18]"	5	"[16, 13, 20, 24, 22]"	"False"	"white"	5	60
+"994"	"04.24.17"	52	"Erdos-Renyi-dense"	"no_communication"	5	"[19, 24, 20, 12, 7]"	0	"[]"	"False"	"white"	5	60
+"995"	"04.24.17"	53	"Barabasi-Albert"	"no_communication"	2	"[13, 10]"	5	"[14, 8, 9, 19, 7]"	"False"	"white"	6	60
+"996"	"04.24.17"	55	"Barabasi-Albert"	"no_communication"	2	"[12, 15]"	0	"[]"	"True"	"green"	0	27.18
+"997"	"04.24.17"	56	"Erdos-Renyi-sparse"	"no_communication"	5	"[3, 20, 21, 23, 19]"	5	"[12, 13, 7, 8, 6]"	"False"	"white"	5	60
+"998"	"04.24.17"	57	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	5	"[19, 13, 4, 9, 18]"	"True"	"red"	0	34.414
+"999"	"04.24.17"	59	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	2	"[14, 15]"	"False"	"white"	6	60
+"1000"	"04.24.17"	60	"Barabasi-Albert"	"no_communication"	5	"[21, 24, 20, 2, 16]"	2	"[23, 7]"	"True"	"red"	0	48.854
+"1002"	"04.24.17"	62	"Erdos-Renyi-sparse"	"no_communication"	5	"[9, 15, 5, 2, 13]"	2	"[4, 7]"	"False"	"white"	9	60
+"1003"	"04.25.17"	1	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	2	"[3, 17]"	"False"	"white"	8	60
+"1004"	"04.25.17"	2	"Erdos-Renyi-dense"	"no_communication"	2	"[9, 11]"	0	"[]"	"False"	"white"	1	60
+"1005"	"04.25.17"	3	"Erdos-Renyi-sparse"	"no_communication"	2	"[8, 9]"	5	"[4, 19, 2, 6, 1]"	"False"	"white"	5	60
+"1006"	"04.25.17"	4	"Barabasi-Albert"	"no_communication"	2	"[19, 6]"	1	"[12]"	"True"	"red"	0	26.941
+"1008"	"04.25.17"	7	"Erdos-Renyi-sparse"	"no_communication"	2	"[7, 5]"	2	"[18, 19]"	"False"	"white"	4	60
+"1010"	"04.25.17"	9	"Barabasi-Albert"	"no_communication"	5	"[9, 17, 15, 24, 21]"	1	"[13]"	"False"	"white"	9	60
+"1011"	"04.25.17"	10	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	1	"[3]"	"False"	"white"	5	60
+"1012"	"04.25.17"	11	"Barabasi-Albert"	"no_communication"	0	"[]"	5	"[6, 4, 3, 15, 2]"	"False"	"white"	1	60
+"1013"	"04.25.17"	12	"Erdos-Renyi-dense"	"no_communication"	2	"[6, 3]"	1	"[4]"	"False"	"white"	2	60
+"1014"	"04.25.17"	14	"Erdos-Renyi-dense"	"no_communication"	5	"[15, 8, 4, 9, 5]"	5	"[6, 18, 2, 21, 12]"	"False"	"white"	5	60
+"1015"	"04.25.17"	16	"Barabasi-Albert"	"no_communication"	5	"[16, 22, 17, 15, 3]"	0	"[]"	"False"	"white"	9	60
+"1016"	"04.25.17"	17	"Erdos-Renyi-sparse"	"no_communication"	2	"[14, 11]"	1	"[6]"	"False"	"white"	2	60
+"1018"	"04.25.17"	20	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	2	"[10, 0]"	"False"	"white"	3	60
+"1019"	"04.25.17"	21	"Barabasi-Albert"	"no_communication"	5	"[5, 1, 15, 19, 10]"	5	"[13, 2, 7, 17, 4]"	"False"	"white"	10	60
+"1020"	"04.25.17"	22	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	0	"[]"	"False"	"white"	1	60
+"1021"	"04.25.17"	23	"Erdos-Renyi-sparse"	"no_communication"	2	"[2, 18]"	0	"[]"	"False"	"white"	7	60
+"1022"	"04.25.17"	24	"Erdos-Renyi-sparse"	"no_communication"	2	"[21, 12]"	1	"[3]"	"False"	"white"	10	60
+"1023"	"04.25.17"	25	"Barabasi-Albert"	"no_communication"	2	"[12, 10]"	1	"[2]"	"False"	"white"	4	60
+"1024"	"04.25.17"	27	"Barabasi-Albert"	"no_communication"	5	"[9, 13, 24, 3, 11]"	2	"[5, 20]"	"False"	"white"	9	60
+"1025"	"04.25.17"	28	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	1	"[2]"	"False"	"white"	3	60
+"1026"	"04.25.17"	29	"Barabasi-Albert"	"no_communication"	5	"[21, 8, 7, 1, 2]"	2	"[10, 23]"	"False"	"white"	7	60
+"1028"	"04.25.17"	31	"Barabasi-Albert"	"no_communication"	5	"[21, 20, 24, 0, 16]"	5	"[11, 4, 19, 8, 9]"	"False"	"white"	9	60
+"1029"	"04.25.17"	32	"Erdos-Renyi-dense"	"no_communication"	5	"[18, 21, 3, 7, 0]"	2	"[14, 5]"	"False"	"white"	5	60
+"1030"	"04.25.17"	33	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	5	"[4, 14, 5, 11, 15]"	"True"	"green"	0	54.265
+"1031"	"04.25.17"	36	"Erdos-Renyi-sparse"	"no_communication"	5	"[1, 15, 5, 23, 0]"	1	"[11]"	"False"	"white"	8	60
+"1032"	"04.25.17"	38	"Barabasi-Albert"	"no_communication"	2	"[0, 20]"	1	"[18]"	"False"	"white"	4	60
+"1033"	"04.25.17"	39	"Erdos-Renyi-dense"	"no_communication"	5	"[11, 0, 21, 23, 12]"	1	"[24]"	"False"	"white"	2	60
+"1034"	"04.25.17"	40	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	5	"[18, 2, 4, 10, 14]"	"False"	"white"	5	60
+"1035"	"04.25.17"	41	"Erdos-Renyi-sparse"	"no_communication"	2	"[2, 19]"	5	"[6, 18, 3, 16, 17]"	"True"	"red"	0	27.835
+"1036"	"04.25.17"	42	"Barabasi-Albert"	"no_communication"	0	"[]"	1	"[18]"	"True"	"red"	0	57.629
+"1037"	"04.25.17"	43	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	0	"[]"	"False"	"white"	2	60
+"1038"	"04.25.17"	44	"Erdos-Renyi-sparse"	"no_communication"	2	"[8, 13]"	0	"[]"	"False"	"white"	8	60
+"1039"	"04.25.17"	45	"Barabasi-Albert"	"no_communication"	2	"[4, 12]"	2	"[0, 14]"	"False"	"white"	5	60
+"1040"	"04.25.17"	46	"Erdos-Renyi-dense"	"no_communication"	5	"[1, 11, 20, 10, 15]"	0	"[]"	"False"	"white"	8	60
+"1041"	"04.25.17"	47	"Erdos-Renyi-sparse"	"no_communication"	5	"[1, 7, 19, 12, 23]"	0	"[]"	"False"	"white"	10	60
+"1042"	"04.25.17"	48	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	1	"[19]"	"False"	"white"	4	60
+"1043"	"04.25.17"	49	"Barabasi-Albert"	"no_communication"	0	"[]"	2	"[1, 18]"	"True"	"red"	0	37.295
+"1044"	"04.25.17"	50	"Erdos-Renyi-sparse"	"no_communication"	5	"[15, 14, 10, 12, 7]"	1	"[20]"	"False"	"white"	9	60
+"1045"	"04.25.17"	51	"Erdos-Renyi-sparse"	"no_communication"	5	"[7, 8, 22, 21, 11]"	1	"[20]"	"False"	"white"	10	60
+"1046"	"04.25.17"	53	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	5	"[8, 15, 10, 7, 4]"	"False"	"white"	6	60
+"1047"	"04.25.17"	54	"Erdos-Renyi-sparse"	"no_communication"	5	"[15, 9, 22, 0, 6]"	2	"[8, 2]"	"False"	"white"	7	60
+"1048"	"04.25.17"	55	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	2	"[10, 19]"	"False"	"white"	5	60
+"1049"	"04.25.17"	56	"Barabasi-Albert"	"no_communication"	0	"[]"	0	"[]"	"False"	"white"	8	60
+"1050"	"04.25.17"	57	"Erdos-Renyi-dense"	"no_communication"	5	"[15, 0, 11, 14, 18]"	5	"[9, 2, 10, 21, 4]"	"False"	"white"	4	60
+"1051"	"04.25.17"	58	"Erdos-Renyi-dense"	"no_communication"	2	"[15, 10]"	5	"[20, 7, 17, 5, 13]"	"True"	"green"	0	23.717
+"1052"	"04.25.17"	59	"Barabasi-Albert"	"no_communication"	2	"[17, 2]"	0	"[]"	"False"	"white"	4	60
+"1053"	"04.25.17"	60	"Barabasi-Albert"	"no_communication"	0	"[]"	0	"[]"	"True"	"red"	0	25.332
+"1054"	"04.25.17"	61	"Erdos-Renyi-sparse"	"no_communication"	5	"[12, 1, 11, 7, 16]"	0	"[]"	"False"	"white"	5	60
+"1055"	"04.25.17"	62	"Erdos-Renyi-sparse"	"no_communication"	2	"[9, 8]"	0	"[]"	"False"	"white"	10	60
+"1056"	"04.25.17"	63	"Erdos-Renyi-sparse"	"no_communication"	2	"[15, 18]"	5	"[21, 10, 12, 6, 9]"	"False"	"white"	6	60
+"1057"	"04.25.17"	64	"Erdos-Renyi-sparse"	"no_communication"	2	"[18, 21]"	2	"[12, 11]"	"False"	"white"	7	60
+"1058"	"04.25.17"	65	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	2	"[4, 15]"	"False"	"white"	3	60
+"1059"	"04.26.17"	7	"Erdos-Renyi-sparse"	"no_communication"	5	"[0, 8, 13, 6, 20]"	0	"[]"	"False"	"white"	8	60
+"1060"	"04.26.17"	9	"Barabasi-Albert"	"no_communication"	0	"[]"	2	"[9, 1]"	"True"	"red"	0	34.1
+"1061"	"04.26.17"	10	"Barabasi-Albert"	"no_communication"	0	"[]"	5	"[2, 19, 7, 12, 10]"	"True"	"green"	0	10.213
+"1062"	"04.26.17"	12	"Barabasi-Albert"	"no_communication"	2	"[2, 13]"	0	"[]"	"True"	"green"	0	6.594
+"1063"	"04.26.17"	13	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	1	"[18]"	"False"	"white"	4	60
+"1064"	"04.26.17"	14	"Barabasi-Albert"	"no_communication"	2	"[13, 2]"	5	"[20, 19, 14, 18, 5]"	"False"	"white"	3	60
+"1065"	"04.26.17"	16	"Erdos-Renyi-sparse"	"no_communication"	5	"[7, 10, 22, 0, 18]"	5	"[9, 17, 2, 1, 6]"	"True"	"green"	0	59.668
+"1066"	"04.26.17"	18	"Erdos-Renyi-dense"	"no_communication"	2	"[0, 15]"	5	"[4, 8, 3, 1, 14]"	"True"	"green"	0	51.188
+"1067"	"04.26.17"	20	"Erdos-Renyi-sparse"	"no_communication"	0	"[]"	0	"[]"	"False"	"white"	5	60
+"1068"	"04.26.17"	23	"Erdos-Renyi-dense"	"no_communication"	2	"[10, 1]"	2	"[8, 9]"	"False"	"white"	4	60
+"1069"	"04.26.17"	24	"Barabasi-Albert"	"no_communication"	0	"[]"	1	"[7]"	"True"	"red"	0	11.081
+"1070"	"04.26.17"	26	"Erdos-Renyi-dense"	"no_communication"	5	"[11, 5, 1, 24, 4]"	0	"[]"	"False"	"white"	8	60
+"1071"	"04.26.17"	33	"Barabasi-Albert"	"no_communication"	2	"[9, 3]"	2	"[13, 16]"	"False"	"white"	9	60
+"1072"	"04.26.17"	41	"Barabasi-Albert"	"no_communication"	5	"[20, 14, 17, 21, 18]"	0	"[]"	"False"	"white"	6	60
+"1073"	"04.26.17"	42	"Erdos-Renyi-sparse"	"no_communication"	5	"[7, 8, 15, 20, 9]"	2	"[4, 16]"	"False"	"white"	7	60
+"1074"	"04.26.17"	43	"Erdos-Renyi-dense"	"no_communication"	5	"[5, 14, 18, 6, 8]"	2	"[0, 4]"	"False"	"white"	9	60
+"1075"	"04.26.17"	45	"Barabasi-Albert"	"no_communication"	5	"[21, 1, 9, 19, 0]"	1	"[22]"	"False"	"white"	8	60
+"1076"	"04.26.17"	47	"Erdos-Renyi-dense"	"no_communication"	2	"[0, 4]"	0	"[]"	"False"	"white"	3	60
+"1077"	"04.26.17"	52	"Erdos-Renyi-dense"	"no_communication"	2	"[10, 15]"	1	"[19]"	"False"	"white"	10	60
+"1078"	"04.26.17"	55	"Erdos-Renyi-dense"	"no_communication"	0	"[]"	5	"[1, 2, 0, 8, 6]"	"True"	"green"	0	12.779
+"1079"	"04.26.17"	57	"Barabasi-Albert"	"no_communication"	0	"[]"	0	"[]"	"False"	"white"	1	60
+"1080"	"04.26.17"	62	"Erdos-Renyi-dense"	"no_communication"	5	"[18, 13, 0, 7, 22]"	1	"[14]"	"False"	"white"	7	60
