@@ -1,16 +1,24 @@
+
+### regular and visible players only, pre-determined visibles
+
 from __future__ import division
 import random
 import pickle
 import time
 import math
+import ast
 import pandas as pd
 import numpy as np
 from log import Log
 from utils import *
 from mesa import Agent, Model
 from mesa.time import RandomActivation
+from mesa.time import FollowVisibleActivation
+from mesa.time import SimultaneousActivation
 from multiprocessing import Pool
+from collections import defaultdict
 from mesa.datacollection import DataCollector
+import itertools
 
 random.seed(0)
 
@@ -25,17 +33,34 @@ class GameAgent(Agent):
         self.neighbors = neighbors
 
         # for each agent initial color is white
-        self.color = "white"
+        self.new_color = "white"
+        self.color = "white"            # still used by neighbors in the same time step
 
         self.visibleColorNodes = visibleColorNodes
 
         # probability to make a change
         self.p = inertia
+        self.regular_p = 0.84
 
         # randomize regular players' (excluding visibles)
         # decision
         self.beta = beta
 
+        self.numPlayers = self.game.numAgents
+
+        #added by Yifan
+        self.beta_majority = 0.77
+        self.beta_tie = 0.9
+        self.unique_id = unique_id
+
+        self.colorChanges = 0
+
+
+    def __hash__(self):
+        return hash(self.unique_id)
+
+    def __eq__(self, other):
+        return self.unique_id == other.unique_id
 
     def instantiateNeighbors(self, model):
         self.neighbors = [agent for agent in model.schedule.agents if
@@ -78,126 +103,279 @@ class GameAgent(Agent):
             dominant = False
             return (random.choice(["red", "green"]), dominant)
 
+    def getNonAdversarialNeighborMajorColor(self):
+        neighbor_color = {"red": 0, "green": 0}
+        nonAdversarialNeighbors = [neighbor for neighbor in self.neighbors if not neighbor.isAdversarial]   #regular neighbors
+        for a in nonAdversarialNeighbors:
+            if a.color != "white":
+                neighbor_color[a.color] += 1
 
+        # take one's own decision into account
+        if self.color != "white":
+            neighbor_color[self.color] += 1
+
+        if neighbor_color["red"] > neighbor_color["green"]:
+            # dominant = True if and only if red > green
+            dominant = True
+            return ("red", dominant)
+        elif neighbor_color["red"] < neighbor_color["green"]:
+            # dominant = True if and only if red < green
+            dominant = True
+            return ("green", dominant)
+        else:
+            # dominant != True if and only if red == green
+            dominant = False
+            return (random.choice(["red", "green"]), dominant)
 
     # return current majority color
     # this actually corresponds to different players' strategies
-    def decision(self):
+    def pickSubsequentColor(self):
+        mid_game = 0
+        end_game = 0
+        if self.game.time >= 45:
+            end_game = 1
+        elif self.game.time >= 30 and self.game.time <= 45:
+            mid_game = 1
+        neighbors = self.degree()
 
-        # regular node
-        if not self.isAdversarial and not self.isVisibleNode:
-            # if there is any visible color node in the neighbor
-            if self.hasVisibleColorNode():
-                    
-                visibleColor = [agent.color for agent in self.visibleColorNodes if agent.color != "white"]
-
-                # if no visible node makes choice
-                # this also make sure visible nodes
-                # move before other regular players
-                if len(visibleColor) == 0:
-
-                    # if there is indeed visible color node, but none of them
-                    # makes a decision, then the agent doesn't make any decision
-                    # either
-                    return self.color
-                else:
-                    if random.random() < self.beta:
-                        numRed = len([color for color in visibleColor if color == "red"])
-                        numGreen = len(visibleColor) - numRed
-                        if numRed > numGreen:
-                            return "red"
-                        elif numRed < numGreen:
-                            return "green"
-                        else:
-                            return random.choice(['red', 'green']) 
-                    else:
-                        pColor, dominant = self.getNeighborMajorColor()
-                        return pColor
-
-
-            # if no visible color node, follow majority
-            else:
-                pColor, dominant = self.getNeighborMajorColor()
-                return pColor
-
-
-        # visible nodes choose majority color, whereas adversarial
-        # nodes choose the opposite
+        vis_neighbors = [neighbor for neighbor in self.neighbors if neighbor.isVisibleNode]
+        neighbors_vis = float(len(vis_neighbors)) / float(neighbors)
+        if len(vis_neighbors) != 0:
+            opposite_local_vis = float(len([neighbor for neighbor in vis_neighbors if neighbor.color != "white" and neighbor.color != self.color])) / float(len(vis_neighbors))
+            current_local_vis = float(len([neighbor for neighbor in vis_neighbors if neighbor.color != "white" and neighbor.color == self.color])) / float(len(vis_neighbors))
         else:
-            # either visible node or adversarial node
-            assert self.isVisibleNode | self.isAdversarial == True
-            pColor, dominant = self.getNeighborMajorColor()
+            opposite_local_vis = 0
+            current_local_vis = 0
+        inv_neighbors = [neighbor for neighbor in self.neighbors if not neighbor.isVisibleNode]
+        neighbors_inv = float(len(inv_neighbors)) / float(neighbors)
+        if len(inv_neighbors) != 0:
+            opposite_local_inv = float(len([neighbor for neighbor in inv_neighbors if neighbor.color != "white" and neighbor.color != self.color])) / float(len(inv_neighbors))
+            current_local_inv = float(len([neighbor for neighbor in inv_neighbors if neighbor.color != "white" and neighbor.color == self.color])) / float(len(inv_neighbors))
+        else:
+            opposite_local_inv = 0
+            current_local_inv = 0
+        reg_neighbors = [neighbor for neighbor in self.neighbors if not neighbor.isVisibleNode and not neighbor.isAdversarial]
+        neighbors_reg = float(len(reg_neighbors)) / float(neighbors)
+        if len(reg_neighbors) != 0:
+            opposite_local_reg = float(len([neighbor for neighbor in reg_neighbors if neighbor.color != "white" and neighbor.color != self.color])) / float(len(reg_neighbors))
+            current_local_reg = float(len([neighbor for neighbor in reg_neighbors if neighbor.color != "white" and neighbor.color == self.color])) / float(len(reg_neighbors))
+        else:
+            opposite_local_reg = 0
+            current_local_reg = 0
 
+        if not self.isAdversarial and not self.isVisibleNode:
+            # regular node
+            if self.hasVisibleColorNode():
+                y = -3.75 + 1.12 * self.game.regularNodeAmplifier * opposite_local_inv + \
+                    1.4 * self.game.regularNodeAmplifier * opposite_local_vis - 0.85 * self.game.regularNodeAmplifier * current_local_inv   
+                prob_of_change = float(1) / float(1 + math.exp(-y))
+                if random.random() < prob_of_change:
+                    return "red" if self.color == "green" else "green"
+                else:
+                    return self.color
+            else:
+                y = -3.94 + 2.47 * self.game.regularNodeAmplifier * opposite_local_inv \
+                    - 0.51 * self.game.regularNodeAmplifier * current_local_inv  
+                prob_of_change = float(1) / float(1 + math.exp(-y))
+                if random.random() < prob_of_change:
+                    return "red" if self.color == "green" else "green"
+                else:
+                    return self.color
+
+        else:
             if self.isVisibleNode:
-                return pColor
+                #visible node
+                if self.hasVisibleColorNode():
+                    y = -4.06 + 1.36 * self.game.visibleNodeAmplifier * opposite_local_inv + 1.55 * self.game.visibleNodeAmplifier * opposite_local_vis  \
+                        -0.07 * neighbors_inv
+                    prob_of_change = float(1) / float(1 + math.exp(-y))
+                    if random.random() < prob_of_change:
+                        return "red" if self.color == "green" else "green"
+                    else:
+                        return self.color
+                else:
+                    y = -4.31 + 2.85 * self.game.visibleNodeAmplifier * opposite_local_inv
+                    prob_of_change = float(1) / float(1 + math.exp(-y))
+                    if random.random() < prob_of_change:
+                        return "red" if self.color == "green" else "green"
+                    else:
+                        return self.color
+            else:
+                #adversary node
+                if self.hasVisibleColorNode():
+                    y = -3.08 + 0.9 * self.game.adversaryNodeAmplifier * current_local_vis - 0.15 * neighbors_vis
+                    prob_of_change = float(1) / float(1 + math.exp(-y))
+                    if random.random() < prob_of_change:
+                        return "red" if self.color == "green" else "green"
+                    else:
+                        return self.color
+                else:
+                    y = -2.79 - 1.1 * self.game.adversaryNodeAmplifier * opposite_local_inv + 1.21 * self.game.adversaryNodeAmplifier * current_local_inv 
+                    prob_of_change = float(1) / float(1 + math.exp(-y))
+                    if random.random() < prob_of_change:
+                        return "red" if self.color == "green" else "green"
+                    else:
+                        return self.color
+
+    def pickInitialColor(self):
+
+        mid_game = 0
+        end_game = 0
+        if self.game.time >= 45:
+            end_game = 1
+        elif self.game.time >= 30 and self.game.time <= 45:
+            mid_game = 1
+        neighbors = self.degree()
+
+        # red_local = float((len([neighbor for neighbor in self.neighbors if neighbor.color == "red"]))) / float(len(self.neighbors))
+        # green_local = float((len([neighbor for neighbor in self.neighbors if neighbor.color == "green"]))) / float(len(self.neighbors))
+
+        vis_neighbors = [neighbor for neighbor in self.neighbors if neighbor.isVisibleNode]
+        neighbors_vis = float(len(vis_neighbors)) / float(neighbors)
+        if len(vis_neighbors) != 0:
+            green_local_vis = float(len([neighbor for neighbor in vis_neighbors if neighbor.color == "green"])) / float(len(vis_neighbors))
+            red_local_vis = float(len([neighbor for neighbor in vis_neighbors if neighbor.color == "red"])) / float(len(vis_neighbors))
+        else:
+            green_local_vis = 0
+            red_local_vis = 0
+        inv_neighbors = [neighbor for neighbor in self.neighbors if not neighbor.isVisibleNode]
+        neighbors_inv = float(len(inv_neighbors)) / float(neighbors)
+        if len(inv_neighbors) != 0:
+            green_local_inv = float(len([neighbor for neighbor in inv_neighbors if neighbor.color == "green"])) / float(len(inv_neighbors))
+            red_local_inv = float(len([neighbor for neighbor in inv_neighbors if neighbor.color == "red"])) / float(len(inv_neighbors))
+        else:
+            green_local_inv = 0
+            red_local_inv = 0
+        reg_neighbors = [neighbor for neighbor in self.neighbors if not neighbor.isVisibleNode and not neighbor.isAdversarial]
+        neighbors_reg = float(len(reg_neighbors)) / float(neighbors)
+        if len(reg_neighbors) != 0:
+            green_local_reg = float(len([neighbor for neighbor in reg_neighbors if neighbor.color == "green"])) / float(len(reg_neighbors))
+            red_local_reg = float(len([neighbor for neighbor in reg_neighbors if neighbor.color == "red"])) / float(len(reg_neighbors))
+        else:
+            green_local_reg = 0
+            red_local_reg = 0
+
+        diff_vis = abs(red_local_vis - green_local_vis)
+        diff_inv = abs(red_local_inv - green_local_inv)
+        diff_reg = abs(red_local_reg - green_local_reg)
+
+        if self.isAdversarial:
+            # adversarial node
+            if self.hasVisibleColorNode():
+                y = -2.68 - 0.04 * self.game.time + 1.03 * diff_vis + 1.01 * diff_inv + 0.21 * neighbors_vis  
+                prob_of_choose = float(1) / float(1 + math.exp(-y))
+                if random.random() < prob_of_choose:
+                    y2 = -0.37 + 0.83 * green_local_vis    
+                    prob_of_choose_color = float(1) / float(1 + math.exp(-y2))
+                    if random.random() < prob_of_choose_color:
+                        return "red"
+                    else:
+                        return "green"
+                else:
+                    return "white"
+            else:
+                y = -2.18 - 0.02 * self.game.time + 1.45 * diff_inv    #trained on all games (time only)
+                prob_of_choose = float(1) / float(1 + math.exp(-y))
+                if random.random() < prob_of_choose:
+                    y2 = -0.15 + 1.07 * green_local_inv - 0.69 * red_local_inv  #trained on all games (time only)
+                    prob_of_choose_color = float(1) / float(1 + math.exp(-y2))
+                    if random.random() < prob_of_choose_color:
+                        return "red"
+                    else:
+                        return "green"
+                else:
+                    return "white"
+
+        elif self.isVisibleNode:
+            # visible node
+            if self.hasVisibleColorNode():
+                y = -1.95 + 0.86 * diff_vis + 0.61 * diff_inv       #trained on all games (time only)
+                prob_of_choose = float(1) / float(1 + math.exp(-y))
+                if random.random() < prob_of_choose:
+                    y2 = 0.14 - 3.86 * green_local_inv - 1.6 * green_local_vis + 2.63 * red_local_inv + 2.41 * red_local_vis    #trained on all games (time only)
+                    prob_of_choose_color = float(1) / float(1 + math.exp(-y2))
+                    if random.random() < prob_of_choose_color:
+                        return "red"
+                    else:
+                        return "green"
+                else:
+                    return "white"
 
             else:
-                return "red" if pColor == "green" else "green"
+                y = -1.93 + 1.77 * diff_inv     #trained on all games (time only)
+                prob_of_choose = float(1) / float(1 + math.exp(-y))
+                if random.random() < prob_of_choose:
+                    y2 = 0.01 - 4.32 * green_local_inv + 4.32 * red_local_inv   #trained on all games (time only)
+                    prob_of_choose_color = float(1) / float(1 + math.exp(-y2))
+                    if random.random() < prob_of_choose_color:
+                        return "red"
+                    else:
+                        return "green"
+                else:
+                    return "white"
+        else:
+            # regular node
+            if self.hasVisibleColorNode():
+                y = -2.2 - 0.04 * self.game.time + 1.1 * diff_vis + 0.82 * diff_inv + 0.08 * neighbors_vis  #trained on all games (time only)
+                prob_of_choose = float(1) / float(1 + math.exp(-y))
+                if random.random() < prob_of_choose:
+                    y2 = -0.08 - 2.88 * green_local_inv - 2.07 * green_local_vis + 3.41 * red_local_inv + 1.76 * red_local_vis  #trained on all games (time only)
+                    prob_of_choose_color = float(1) / float(1 + math.exp(-y2))
+                    if random.random() < prob_of_choose_color:
+                        return "red"
+                    else:
+                        return "green"
+                else:
+                    return "white"
+            else:
+                y = -1.94 - 0.03 * self.game.time + 1.63 * diff_inv + 0.01 * neighbors_inv  #trained on all games (time only)
+                prob_of_choose = float(1) / float(1 + math.exp(-y))
+                if random.random() < prob_of_choose:
+                    y2 = - 4.95 * green_local_inv + 5.11 * red_local_inv     #trained on all games (time only)
+                    prob_of_choose_color = float(1) / float(1 + math.exp(-y2))
+                    if random.random() < prob_of_choose_color:
+                        return "red"
+                    else:
+                        return "green"
+                else:
+                    return "white"
 
 
     # make a decision
-    def step(self, order):
+    def step(self):
         # check game state
         current_color = getCurrentColor(self.game)
-        if current_color["red"] == 20 or current_color["green"] == 20:
+        # print("red: " + str(current_color["red"]) + ", green: " + str(current_color["green"]) + ", goal: " + str(self.numPlayers - self.game.numAdversarialNodes))
+        if current_color["red"] == (self.numPlayers - self.game.numAdversarialNodes) or current_color["green"] == (self.numPlayers - self.game.numAdversarialNodes):
             self.game.setTerminal()
         else:
-            decision_color = self.decision()
-            
-            if decision_color == "white":
-                # agents cannot go back to white once they
-                # choosed certain color
-                pass
+            if self.color != "white":
+                #if node already picked a color
+                decision_color = self.pickInitialColor()
+                # if random.random() > self.changing_p:
+                #     decision_color, dominant = self.getNeighborMajorColor()
+                if self.color != decision_color:
+                    self.game.colorChanges += 1
+                    if not self.isAdversarial:
+                        self.colorChanges += 1
+                    # print("self: " + str(self.unique_id) + " new_color: " + str(decision_color) + " at time: " + str(self.game.time))
+                self.new_color = decision_color
+
             else:
-                if random.random() > self.p:
-            
-                    # we don't record repeated same color change
-                    if self.color == "white" or ( decision_color != self.color and self.color != "white" ):
-                        ### record the decision
-                        if self.isAdversarial:
-                            role = 'adv'
-                        elif self.isVisibleNode:
-                            role = 'vis'
-                        else:
-                            role = 'reg'
+                # node has not yet picked a color
+                decision_color = self.pickSubsequentColor()
+                # if random.random() > self.choosing_p:
+                #     decision_color, dominant = self.getNeighborMajorColor()
+                if self.color != decision_color:
+                    self.game.colorChanges += 1
+                    self.game.hasSomeAgentChosenColor = True
+                    if not self.isAdversarial:
+                        self.colorChanges += 1
+                    # print("self: " + str(self.unique_id) + " new_color: " + str(decision_color) + " at time: " + str(self.game.time))
+                self.new_color = decision_color
 
-                        logMsg = "%d,%s,%i.%i,%s," % (self.unique_id, decision_color, self.game.time, order, role)
-                        if self.hasVisibleColorNode():
-                            hasVis = "hasVis,"
-                        else:
-                            hasVis = "noVis,"
-                        logMsg += hasVis
-
-                        self.game.addRecord(logMsg)
-                        ###
-
-                    #####
-                    # if a visible node makes decision and 
-                    # this decision is different from overall major
-                    # color at that time step, then we record this 
-                    if self.isVisibleNode:
-                        currColor = getCurrentColor(self.game)
-                        if currColor["red"] == currColor["green"]:
-                            pass
-                        else:
-                            if currColor["red"] > currColor["green"]:
-                                currMajorColor = "red"
-                            else:
-                                currMajorColor = "green"
-                            # there is a visible node whose decision
-                            # is against overall major color
-                            if decision_color != currMajorColor:
-                                self.game.hasConflict = True                                
-                    #####
-
-
-                    self.color = decision_color
-
-                # each agent has a small probability to not make
-                # any decision
-                else:
-                    # do nothing
-                    pass
+    def advance(self):
+        self.color = self.new_color
 
     def degree(self):
         return len(self.neighbors)
@@ -211,9 +389,13 @@ def getCurrentColor(model):
                 if a.unique_id in model.regularNodes]
     # a  = set(model.visibleColorNodes) & set(model.regularNodes) == set(model.visibleColorNodes)
     # print(a)
+    counter = 0
     for item in current_color:
         if item != "white":
+            if item == None:
+                print("unique id: " + str(model.schedule.agents[counter].unique_id))
             ret[item] += 1
+        counter += 1
     return ret
 
 
@@ -226,7 +408,7 @@ def getRed(model):
             red += 1
     return red
 
-# get the number of nodes selecting green in each time step
+
 def getGreen(model):
     green = 0
     current_color = [a.color for a in model.schedule.agents]
@@ -238,14 +420,15 @@ def getGreen(model):
 
 
 class DCGame(Model):
-    def __init__(self, adjMat, numVisibleColorNodes, numAdversarialNodes, inertia, beta):
+    def __init__(self, adjMat, G, numVisibleColorNodes, numAdversarialNodes, inertia, beta, delay, \
+            visibles, adversaries, visibleNodeAmplifier, adversaryNodeAmplifier, regularNodeAmplifier):
         self.adjMat = adjMat
         self.numVisibleColorNodes = numVisibleColorNodes
         self.numAdversarialNodes = numAdversarialNodes
         # self.adversarialNodes = []
         self.visibleColorNodes = []
         self.regularNodes = []
-        self.schedule = RandomActivation(self)
+        self.schedule = SimultaneousActivation(self)
         self.numAgents = len(adjMat)
         self.inertia = inertia
         # if there are 20 consensus colors then a
@@ -263,32 +446,158 @@ class DCGame(Model):
         # decision
         self.beta = beta
 
+        # a amount of time to delay ordinary players' decision
+        # ordinary players = players who are neither visibles
+        # nor has any visibles in their neighbor
+        self.delay = delay
+
+        # total number of color changes in a game
+        self.colorChanges = 0
+
+        # game elapsed time
+        self.elapsedTime = 0
+
+        # addded by Yifan
+        self.reach_of_adversaries = 0
+        self.reach_of_visibles = 0
+        self.total_cnt_of_adversaries = 0
+        self.total_cnt_of_visibles = 0
+        self.graph = G
+
+        # tune some parameters of the logistic regression
+        self.visibleNodeAmplifier = visibleNodeAmplifier
+        self.adversaryNodeAmplifier = adversaryNodeAmplifier
+        self.regularNodeAmplifier = regularNodeAmplifier
 
         # convert adjMat to adjList
         def getAdjList(adjMat):
             adjList = {key: [] for key in range(self.numAgents)}
             for node in range(self.numAgents):
-                adjList[node] = [idx for idx, value in enumerate(adjMat[node]) if value == True]
+                #adjList[node] = [idx for idx, value in enumerate(adjMat[node]) if value == True]
+                adjList[node] = [idx for idx, value in enumerate(adjMat[node]) if value == 'True']
             return adjList
 
         self.adjList = getAdjList(self.adjMat)
+        #return the subset of L availableNodes in G with the largest number of distinct neighbors
+        def getSubsetWithMaxDistinctNeighbors(availableNodes, G, L):
+            acc = []
+            max_cnt = 0
+            local_cnt = 0
+            hasBeenConsidered = [False for i in range(self.numAgents)]
+            graph = nx.convert.to_dict_of_lists(G)
+            for subset in itertools.combinations(availableNodes, L):
+                upper_bound = 0
+                for agent in subset:
+                    upper_bound += len(graph[agent])
+                if upper_bound < max_cnt:
+                    continue
+                # compute reach
+                for agent in subset:
+                    for neighbor in G.neighbors(agent):
+                        if neighbor not in subset and hasBeenConsidered[neighbor] == False:
+                            local_cnt += 1
+                            hasBeenConsidered[neighbor] = True
+                if local_cnt > max_cnt:
+                    max_cnt = local_cnt
+                    acc.clear()
+                    for agent in subset:
+                        acc.append(agent)
+                local_cnt = 0
+                hasBeenConsidered = [False for i in range(self.numAgents)]
+            return acc
 
+        #returns the connected component of visible players in descending order of degree
+        #recursive BFS
+        def getRecursiveConnectedNeighborhood(visibleCandidate, count):
+            if self.numVisibleColorNodes == 0:
+                return True
+            self.visibleColorNodes.append(visibleCandidate)
+            count += 1      #problem!?!?!?
+            if count == self.numVisibleColorNodes:
+                #base case
+                return True
+            else:
+                availableNeighbors = []
+                for neighbor in G.neighbors(visibleCandidate):
+                    if not neighbor in self.visibleColorNodes:
+                        availableNeighbors.append((neighbor, self.graph.degree(neighbor)))
 
-        ############# designate adversarial #############
-        # (node, degree)
+                if availableNeighbors == []:
+                    self.visibleColorNodes.remove(visibleCandidate)
+                    count -= 1
+                    return False        #reached a dead end
+
+                availableNeighbors.sort(key=lambda x : x[1], reverse=True)  #highest degree nodes first
+                
+                for pair in availableNeighbors:
+                    candidate = pair[0]
+                    if getRecursiveConnectedNeighborhood(candidate, count):
+                        return True
+                self.visibleColorNodes.remove(visibleCandidate)
+                return False
+
+        ############# designate visible #############
         node_deg = [(idx, count(adjMat[idx])) for idx in range(self.numAgents)]
-        # select the top-k nodes with largest degrees as adversarial
-        node_deg.sort(key=lambda x: x[1], reverse=True)
-        self.adversarialNodes = [item[0] for item in node_deg[:self.numAdversarialNodes]]
+        node_deg.sort(key=lambda x : x[1], reverse=True)       #highest degree nodes first
+        availableNodes = [item[0] for item in node_deg]
+        
+        # availableNodes.sort(key=lambda x : x)
+        # self.visibleColorNodes = getSubsetWithMaxDistinctNeighbors(availableNodes, G, numVisibleColorNodes)
+        # self.visibleColorNodes = [item for item in availableNodes[:self.numVisibleColorNodes]]
+        # tmpVisibleNode = availableNodes[0]
+        # getRecursiveConnectedNeighborhood(tmpVisibleNode, 0)
+        self.visibleColorNodes = visibles
+        for visibleNode in self.visibleColorNodes:
+            availableNodes.remove(visibleNode)
+
+        ############# designate adversarial ###############
+        #self.adversarialNodes = getSubsetWithMaxDistinctNeighbors(availableNodes, G, numAdversarialNodes)
+        #random.shuffle(availableNodes)
+        # self.adversarialNodes = [item for item in availableNodes[:self.numAdversarialNodes]]
+        self.adversarialNodes = adversaries
 
 
-        ############# designate visible nodes #############
-        availableNodes = shuffled(node_deg[self.numAdversarialNodes:])
-        self.visibleColorNodes = [item[0] for item in availableNodes[:self.numVisibleColorNodes]]
+        # ================ prev version: designate adversarial and visible nodes ===========
+        # node_deg = [(idx, count(adjMat[idx])) for idx in range(self.numAgents)]
+        # all_nodes = [item[0] for item in node_deg]
+        # random.shuffle(node_deg)
+        # self.adversarialNodes = [item[0] for item in node_deg[:self.numAdversarialNodes]]
+
+        # reach_of_adversaries = 0
+        # total_cnt_of_adversaries = 0
+        # hasBeenReached = dict.fromkeys(all_nodes, False)                
+        # for adversarialNode in self.adversarialNodes:
+        #     for neighbor in G.neighbors(adversarialNode):
+        #         if neighbor not in self.adversarialNodes:
+        #             total_cnt_of_adversaries += 1
+        #         if neighbor not in self.adversarialNodes and hasBeenReached[neighbor] == False:
+        #             reach_of_adversaries += 1
+        #             hasBeenReached[neighbor] = True
+        # self.reach_of_adversaries = reach_of_adversaries
+        # self.total_cnt_of_adversaries = total_cnt_of_adversaries
+
+        # ############# designate visible nodes #############
+        # availableNodes = shuffled(node_deg[self.numAdversarialNodes:])
+        # self.visibleColorNodes = [item[0] for item in availableNodes[:self.numVisibleColorNodes]]
+
+        # reach_of_visibles = 0
+        # total_cnt_of_visibles = 0
+        # hasBeenReached = dict.fromkeys(all_nodes, False)
+        # for visibleColorNode in self.visibleColorNodes:
+        #     for neighbor in G.neighbors(visibleColorNode):
+        #         if neighbor not in self.adversarialNodes and neighbor not in self.visibleColorNodes:
+        #             total_cnt_of_visibles += 1
+        #         if neighbor not in self.adversarialNodes and neighbor not in self.visibleColorNodes and hasBeenReached[neighbor] == False:
+        #             reach_of_visibles += 1
+        #             hasBeenReached[neighbor] = True
+        # self.reach_of_visibles = reach_of_visibles
+        # self.total_cnt_of_visibles = total_cnt_of_visibles
+
+        # ===============================
 
         self.regularNodes = [n for n in range(self.numAgents) if n not in self.adversarialNodes]
         # make sure we have 20 regular nodes
-        assert len(self.regularNodes) == 20
+        # assert len(self.regularNodes) ==20
 
         # adversarial nodes and regular nodes should not overlap
         assert set(self.adversarialNodes) & set(self.regularNodes) == set()
@@ -311,7 +620,6 @@ class DCGame(Model):
 
             neighbors = self.adjList[i]
 
-
             # visible color nodes in i's neighbors
             vNode = list(set(neighbors) & set(self.visibleColorNodes))
             
@@ -333,6 +641,18 @@ class DCGame(Model):
                         agent_reporters = {"agent_color": lambda a: a.color}
                         )
 
+    def getReachOfAdversaries(self):
+        return self.reach_of_adversaries
+
+    def getReachOfVisibles(self):
+        return self.reach_of_visibles
+
+    def getTotalCntOfAdversaries(self):
+        return self.total_cnt_of_adversaries
+
+    def getTotalCntOfVisibles(self):
+        return self.total_cnt_of_visibles
+
     # simulate the whole model for one step
     def step(self):
         # # # if either red or green reaches consensus, terminates!
@@ -345,14 +665,27 @@ class DCGame(Model):
     def simulate(self, simulationTimes):
         for i in range(simulationTimes):
             # update model's time
+            # print("simulation time: " + str(i))
             self.updateTime(i)
             terminate = self.step()
             if terminate:
                 break
+
+        #added by Yifan
+        isRegWhite = False
         # output log file to disk
+        if not terminate:
+            # did not reach consensus
+            for agent in self.schedule.agents:
+                if not agent.isAdversarial and not agent.isVisibleNode and agent.color == "white":
+                    #at least one regular player remained white
+                    isRegWhite = True
+
         self.log.outputLog('result/simResult.txt')
         simulatedResult = self.datacollector.get_model_vars_dataframe()
-        return simulatedResult
+        # record how long does this game take
+        self.elapsedTime = len(simulatedResult)
+        return (simulatedResult, isRegWhite)
 
     # update model's clock
     def updateTime(self, t):
@@ -376,132 +709,230 @@ class DCGame(Model):
 
 
 class BatchResult(object):
-    def __init__(self, data, dataOfConflict, args, arg_id):
-        # used to uniquely pair BatchResult and args
-        self.ret_id = arg_id
+    def __init__(self, data, dataOnGameLevel, args):
+        # self.data records data at each time step
         self.data = data
-
-        ###
-        self.dataOfConflict = dataOfConflict
-        ###
-
         self.args = args
-        self.gameTime = args[1]
-        self.numVisibleNodes = args[3]
-        self.numAdversarialNodes = args[4]
-        self.network = args[5]
+
+        # self.dataOnGameLevel records data on 
+        # each game level
+        self.dataOnGameLevel = dataOnGameLevel
+        ###
         self.consensus_ret = None
         self.dynamics_ret = None
         self.time_ret = None
+
+        self.columnNames = None
 
     def generateResult(self):
         # generate a DataFrame where each row corresponds
         # to a simulation
         consensus_ret = []
+        results_column = ['expDate', 'expNum', 'numVisibleNodes', 'numAdversarialNodes',\
+                          'network', 'elapsedTime', 'colorChange', 'whiteNode', 'visibleNodeAmplifier', 'adversaryNodeAmplifier', 'regularNodeAmplifier', 'consensus']
         for i in range(len(self.data)):
-            if_consensus = 1 if len(self.data[i]) < self.gameTime else 0
-            consensus_ret.append((self.numVisibleNodes, self.numAdversarialNodes,\
-                                  self.network, if_consensus, self.dataOfConflict[i]))
+            if_consensus = 1 if len(self.data[i]) < self.args['gameTime'] else 0
+            consensus_ret.append((self.args['expDate'], self.args['expNum'], self.args['numVisibleNodes'], self.args['numAdversarialNodes'],\
+                                  self.args['network'], self.dataOnGameLevel['elapsedTime'][i], self.dataOnGameLevel['colorChanges'][i], \
+                                  self.dataOnGameLevel['whiteNode'][i], self.args['visibleNodeAmplifier'], self.args['adversaryNodeAmplifier'],\
+                                  self.args['regularNodeAmplifier'], if_consensus))
         consensus_ret = pd.DataFrame(consensus_ret)
+        consensus_ret.columns = results_column
+        self.columnNames = results_column
         self.consensus_ret = consensus_ret
 
-        # generate detailed dynamics for each simulation
-        dynamics_ret = {}
-        for i in range(len(self.data)):
-            dynamics_ret[i] = self.data[i]
-        self.dynamics_ret = dynamics_ret
 
-        # generate time to consensus
-        time_ret = []
-        for i in range(len(self.data)):
-            t = len(self.data[i])
-            time_ret.append((self.numVisibleNodes, self.numAdversarialNodes, self.network, t))
-        time_ret = pd.DataFrame(time_ret)
-        self.time_ret = time_ret
+        # # generate detailed dynamics for each simulation
+        # dynamics_ret = {}
+        # for i in range(len(self.data)):
+        #     dynamics_ret[i] = self.data[i]
+        # self.dynamics_ret = dynamics_ret
+
+        # # generate time to consensus
+        # time_ret = []
+        # for i in range(len(self.data)):
+        #     t = len(self.data[i])
+        #     time_ret.append((self.numvisibles[i], self.numadversaries[i], self.networks[i], t))
+        # time_ret = pd.DataFrame(time_ret)
+        # self.time_ret = time_ret
 
     def getConsensusResult(self):
         return self.consensus_ret
+
+    def getColumnNames(self):
+        return self.columnNames
 
     def getDynamicsResult(self):
         return self.dynamics_ret
 
     def getTimeResult(self):
         return self.time_ret
+    
 
 
-def getAdjMat(net, numPlayers, numRegularPlayers, numAdversarialNodes):
-    # network parameters
-    ################################
-    ### CODE FROM Zlatko ###
-    # each new node is connected to m new nodes
-    m = 3
-    no_consensus_nodes_range = range(11)
-    # max degrees
-    maxDegree = 17
-    BA_edges = [(numRegularPlayers + no_consensus_nodes - 3) * m for \
-                            no_consensus_nodes in no_consensus_nodes_range]
-    ERD_edges = [edges_no for edges_no in BA_edges]
-    ERS_edges = [int(math.ceil(edges_no/2.0)) for edges_no in ERD_edges]
-    ################################ 
+# def getAdjMat(net, numPlayers, numRegularPlayers, numAdversarialNodes):
+#     # network parameters
+#     ################################
+#     ### CODE FROM Zlatko ###
+#     # each new node is connected to m new nodes
+#     m = 3
+#     no_consensus_nodes_range = range(11)
+#     # max degrees
+#     maxDegree = 17
+#     BA_edges = [(numRegularPlayers + no_consensus_nodes - 3) * m for \
+#                             no_consensus_nodes in no_consensus_nodes_range]
+#     ERD_edges = [edges_no for edges_no in BA_edges]
+#     ERS_edges = [int(math.ceil(edges_no/2.0)) for edges_no in ERD_edges]
+#     ################################ 
 
-    # generate adjMat according to network type
-    if net == 'Erdos-Renyi-dense':
-        adjMat = ErdosRenyi(numPlayers, ERD_edges[numAdversarialNodes], maxDegree)
-    elif net == 'Erdos-Renyi-sparse':
-        adjMat = ErdosRenyi(numPlayers, ERS_edges[numAdversarialNodes], maxDegree)
+#     # generate adjMat according to network type
+#     if net == 'Erdos-Renyi-dense':
+#         adjMat, G = ErdosRenyi(numPlayers, ERD_edges[numAdversarialNodes], maxDegree)
+#     elif net == 'Erdos-Renyi-sparse':
+#         adjMat, G = ErdosRenyi(numPlayers, ERS_edges[numAdversarialNodes], maxDegree)
+#     else:
+#         adjMat, G = AlbertBarabasi(numPlayers, m, maxDegree)
+
+#     return (adjMat, G)
+
+# def getAdjMat(net, numPlayers, numEdges):
+#     m = 3
+#     maxDegree = 17
+#     adjMat, G = ErdosRenyi(numPlayers, numEdges, maxDegree)
+#     return (adjMat, G)
+
+def getAdjMat(network_path, i):
+    matrices = []   #all matrices for this game
+    with open(network_path, "r") as f:
+        for row in f:
+            row = row.strip('\n')
+            row = row.split(' ')
+            matrices.append(row)
+
+    adjMat = [] #get the one you want
+    occ = [w for w, n in enumerate(matrices) if n[0] == '#']
+    assert(len(occ) != 0)
+    up = occ[i-1]   #index of first tag
+    if i == 1:
+        for x in range(up):
+            adjMat.append(matrices[x])
     else:
-        adjMat = AlbertBarabasi(numPlayers, m, maxDegree)
+        down = occ[i-2]
+        for x in range(down + 1, up):
+            adjMat.append(matrices[x])
 
-    return adjMat
+    fladjMat = [[0 for n in range(len(adjMat))] for k in range(len(adjMat))]  #create a binary eq of adjMat
+    for a in range(len(adjMat)):
+        for b in range(len(adjMat)):
+            if adjMat[a][b] == 'True':
+                fladjMat[a][b] = 1.
+            else:
+                fladjMat[a][b] = 0.
 
+    numadjMat = np.matrix(fladjMat)
+    G =nx.from_numpy_matrix(numadjMat)  #reconstruct the graph
+
+    return (adjMat, G)
+
+# read configurations from text files, and return
+# a list of combinations of parameters
+def readConfigurationFromFile(file_path):
+    config = pd.read_csv(file_path, sep='\t')
+    config.index = range(len(config))
+
+    params = []
+    for idx in config.index:
+        line = config.iloc[idx]
+
+        visibleNodes = ast.literal_eval(line["list_of_visibles"])
+        adversaryNodes = ast.literal_eval(line["list_of_adversaries"])
+
+        numVisibles = len(visibleNodes)
+        numAdversaries = len(adversaryNodes)
+
+        expDate = line['experiment']
+        expNum = line['game']
+
+        network = line['network']
+
+        adjMat_path = os.path.join('data_extraction/output/networks/', "%s_adjacency_matrix.txt" % expDate)
+        adjMat, G = getAdjMat(adjMat_path, expNum)
+
+        params.append({
+            'visibleNodes': visibleNodes,
+            'adversarialNodes': adversaryNodes,
+            'numVisibleNodes': numVisibles,
+            'numAdversarialNodes': numAdversaries,
+            'network': network,
+            'adjMat': adjMat,
+            'G': G,
+            'expDate': expDate,
+            'expNum': expNum
+            })
+    return params
 
 
 #define a wrapper function for multi-processing
 def simulationFunc(args):
     # dispatch arguments
-    numSimulation, gameTime, numRegularPlayers, numVisibleNodes, numAdversarialNodes, net, inertia, beta, arg_id = args
-
-    # calculate how many players we have
-    numPlayers = numRegularPlayers + numAdversarialNodes
+    numSimulation = args['numSimulation']
+    gameTime      = args['gameTime']
+    numVisibleNodes = args['numVisibleNodes']
+    numAdversarialNodes = args['numAdversarialNodes']
+    visibleNodes = args['visibleNodes']
+    adversarialNodes = args['adversarialNodes']
+    inertia = args['inertia']
+    beta = args['beta']
+    delay = args['delay']
+    visibleNodeAmplifier = args['visibleNodeAmplifier']
+    adversaryNodeAmplifier = args['adversaryNodeAmplifier']
+    regularNodeAmplifier = args['regularNodeAmplifier']
+    network = args['network']
+    adjMat = args['adjMat']
+    G = args['G']
+    expDate = args['expDate']
+    expNum = args['expNum']
+    outputPath = args['outputPath']
+    arg_id = args['arg_id']
 
     # ret contains simulated results
     ret = []
-    retOfConflict = []
+    retOnGameLevel = defaultdict(list)
+
     for j in range(numSimulation):
-        if j % 1000 == 0:
+        if j % 100 == 0:
             print("Current number of simulations: ", j)
 
-        adjMat = getAdjMat(net, numPlayers, numRegularPlayers, numAdversarialNodes)
-        model = DCGame(adjMat, numVisibleNodes, numAdversarialNodes, inertia, beta)
-        simulatedResult = model.simulate(gameTime)
+        model = DCGame(adjMat, G, numVisibleNodes, numAdversarialNodes, inertia, beta, \
+                delay, visibleNodes, adversarialNodes, visibleNodeAmplifier, adversaryNodeAmplifier, regularNodeAmplifier)
+        simulatedResult, isRegWhite = model.simulate(gameTime)
+
         ret.append(simulatedResult)
-
+        ### a game-level data collector
+        # retOnGameLevel['hasConflict'].append(model.hasConflict)
+        # retOnGameLevel['delay'].append(model.delay)
+        retOnGameLevel['elapsedTime'].append(model.elapsedTime)
+        retOnGameLevel['colorChanges'].append(model.colorChanges)
+        retOnGameLevel['whiteNode'].append(isRegWhite)
         ###
-        retOfConflict.append(model.hasConflict)
-        ###
-
-
-        # print(simulatedResult)
         model.outputAdjMat('result/adjMat.txt')
 
     # the collected data is actually an object
-    result = BatchResult(ret, retOfConflict, args, arg_id)
-    return result
-
+    result = BatchResult(ret, retOnGameLevel, args)
+    result.generateResult()
+    result.getConsensusResult().to_csv(os.path.join(outputPath, '%d.csv' % arg_id), index=None, sep=',')
 
 
 def combineResults(result, args, folder=None):
     if not os.path.exists(folder):
         os.makedirs(folder)
 
-    inertia = args[0][-3]
-    beta = args[0][-2]
     # result is returned from multi-processing 
     for ret in result:
         ret.generateResult()
 
-    consensus_ret = pd.concat([item.getConsensusResult() for item in result])
-    consensus_ret.columns = ['#visibleNodes', '#adversarial', 'network', 'ratio', 'hasConflict']
+    consensus_ret = pd.concat([item.getConsensusResult()[1] for item in result])
+    consensus_ret.columns = result[0].getColumnNames()
     p = os.path.join(folder, 'consensus_inertia=%.2f_beta=%.2f.csv' % (inertia, beta))
     consensus_ret.to_csv(p, index=None)
 
@@ -520,46 +951,78 @@ def combineResults(result, args, folder=None):
 
 if __name__ =="__main__":
     # iterate over all inertia values
-    for inertia in np.linspace(0.9, 0.9, 1):
+    for inertia in np.linspace(0.87, 0.87, 1):
         print("Current inertia: ", inertia)
-
         for beta in np.linspace(1.0, 1.0, 1):
 
             # experimental parameters
             ################################
-            numSimulation = 10000
+            numSimulation = 2000
             gameTime = 60
             # inertia = 0.5
             numRegularPlayers = 20
+            # numRegularPlayersList = [17 + (n * 3) for n in range(5)]
             ################################
 
-            args = []
             networks = ['Erdos-Renyi-dense', 'Erdos-Renyi-sparse', 'Barabasi-Albert']
-            # networks = ['Barabasi-Albert']
-            numVisibleNodes_ = [0, 1, 2, 5]
-            numAdversarialNodes_ = [0, 2, 5]
+            # networks = ['Erdos-Renyi']
+            numVisibleNodes_ = [0]
+            numAdversarialNodes_ = [0]
+            delayTime_ = [0]
+            # ER_edges = [23, 26, 45, 51]
+            ER_edges = [25 + 5 * i for i in range(15)]
 
+            args_from_file = readConfigurationFromFile('data_extraction/output/networks/nocomm.csv')
+            args = []
+            cnt = 0
+            outputPath = 'result/regular_amplifier'
+            for visibleNodeAmplifier in [1.0]:
+                for adversaryNodeAmplifier in [1.0]:
+                    for regularNodeAmplifier in [1.0, 1.1, 1.2, 1.3, 1.4, 1.5]:
+                        for item in args_from_file:
+                            args.append({
+                                'numSimulation': numSimulation,
+                                'gameTime': gameTime,
+                                'numVisibleNodes': item['numVisibleNodes'],
+                                'numAdversarialNodes': item['numAdversarialNodes'],
+                                'visibleNodes': item['visibleNodes'],
+                                'adversarialNodes': item['adversarialNodes'],
+                                'inertia': inertia,
+                                'beta': beta,
+                                'delay': 0,
+                                'visibleNodeAmplifier': visibleNodeAmplifier,
+                                'adversaryNodeAmplifier': adversaryNodeAmplifier,
+                                'regularNodeAmplifier': regularNodeAmplifier,
+                                'network': item['network'],
+                                'adjMat': item['adjMat'],
+                                'G': item['G'],
+                                'expDate': item['expDate'],
+                                'expNum': item['expNum'],
+                                'outputPath': outputPath, 
+                                'arg_id': cnt
+                                })
+                            cnt += 1
 
-            # get all combinations of parameters
-            counter = 0
-            for net in networks:
-                for numVisible in numVisibleNodes_:
-                    for numAdv in numAdversarialNodes_:
-                        print("Generate parameters combinations: ", (net, numVisible, numAdv))
-                        args.append((numSimulation, gameTime, numRegularPlayers, numVisible,
-                                         numAdv, net, inertia, beta, counter))
-                        counter += 1
-
-            # result = simulationFunc(args[0])
-            # combineResults([result], args, 'result/')
-            # a = result.getConsensusResult()
-            # a.columns = ['#visibleNodes', '#adversarial', 'network', 'ratio']
-
+            # # get all combinations of parameters
+            # counter = 0
+            # # for net in networks:
+            # for visibleNodeAmplifier in np.linspace(1.1, 1.5, 5):
+            #     for adversaryNodeAmplifier in np.linspace(1.1, 1.5, 5):
+            #         for numVisible in numVisibleNodes_:
+            #             for numAdv in numAdversarialNodes_:
+            #                 for delay in delayTime_:
+            #                     # for numRegularPlayers in numRegularPlayersList:
+            #                     args.append((numSimulation, gameTime, numVisible,
+            #                     			 numAdv, inertia, beta, delay, visibleNodeAmplifier, adversaryNodeAmplifier, counter))
+            #                     counter += 1
 
             # initialize processes pool
-            pool = Pool(processes=45)
-            result = pool.map(simulationFunc, args)
-            combineResults(result, args, 'result/newStrategy')
+            pool = Pool(processes=72)
+            pool.map(simulationFunc, args)
+            t1 = time.time()
+            #simulationFunc(args[0])
+            elapsedTime = time.time() - t1
+            #combineResults(result, args, 'result/visibleNode_adversaryNode_amplifier')
 
             pool.close()
             pool.join()
