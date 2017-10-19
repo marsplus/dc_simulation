@@ -1,6 +1,3 @@
-
-### regular and visible players only, pre-determined visibles
-
 from __future__ import division
 import random
 import pickle
@@ -127,6 +124,7 @@ class GameAgent(Agent):
             dominant = False
             return (random.choice(["red", "green"]), dominant)
 
+
     # return current majority color
     # this actually corresponds to different players' strategies
     def pickSubsequentColor(self):
@@ -166,16 +164,14 @@ class GameAgent(Agent):
         if not self.isAdversarial and not self.isVisibleNode:
             # regular node
             if self.hasVisibleColorNode():
-                y = -3.75 + 1.12 * self.game.regularNodeAmplifier * opposite_local_inv + \
-                    1.4 * self.game.regularNodeAmplifier * opposite_local_vis - 0.85 * self.game.regularNodeAmplifier * current_local_inv   
+                y = -3.75 + 1.12 * opposite_local_inv + 1.4 * opposite_local_vis - 0.85  * current_local_inv   
                 prob_of_change = float(1) / float(1 + math.exp(-y))
                 if random.random() < prob_of_change:
                     return "red" if self.color == "green" else "green"
                 else:
                     return self.color
             else:
-                y = -3.94 + 2.47 * self.game.regularNodeAmplifier * opposite_local_inv \
-                    - 0.51 * self.game.regularNodeAmplifier * current_local_inv  
+                y = -3.94 + 0.004 * self.game.time + 2.47 * opposite_local_inv - 0.51 * current_local_inv  
                 prob_of_change = float(1) / float(1 + math.exp(-y))
                 if random.random() < prob_of_change:
                     return "red" if self.color == "green" else "green"
@@ -186,15 +182,14 @@ class GameAgent(Agent):
             if self.isVisibleNode:
                 #visible node
                 if self.hasVisibleColorNode():
-                    y = -4.06 + 1.36 * self.game.visibleNodeAmplifier * opposite_local_inv + 1.55 * self.game.visibleNodeAmplifier * opposite_local_vis  \
-                        -0.07 * neighbors_inv
+                    y = -4.06 + 1.36 * opposite_local_inv + 1.55 * opposite_local_vis - 0.07 * neighbors_inv
                     prob_of_change = float(1) / float(1 + math.exp(-y))
                     if random.random() < prob_of_change:
                         return "red" if self.color == "green" else "green"
                     else:
                         return self.color
                 else:
-                    y = -4.31 + 2.85 * self.game.visibleNodeAmplifier * opposite_local_inv
+                    y = -4.31 + 2.85  * opposite_local_inv
                     prob_of_change = float(1) / float(1 + math.exp(-y))
                     if random.random() < prob_of_change:
                         return "red" if self.color == "green" else "green"
@@ -203,14 +198,14 @@ class GameAgent(Agent):
             else:
                 #adversary node
                 if self.hasVisibleColorNode():
-                    y = -3.08 + 0.9 * self.game.adversaryNodeAmplifier * current_local_vis - 0.15 * neighbors_vis
+                    y = -3.08 + 0.9 * current_local_vis - 0.15 * neighbors_vis
                     prob_of_change = float(1) / float(1 + math.exp(-y))
                     if random.random() < prob_of_change:
                         return "red" if self.color == "green" else "green"
                     else:
                         return self.color
                 else:
-                    y = -2.79 - 1.1 * self.game.adversaryNodeAmplifier * opposite_local_inv + 1.21 * self.game.adversaryNodeAmplifier * current_local_inv 
+                    y = -2.79 - 1.1 * opposite_local_inv + 1.21 * current_local_inv 
                     prob_of_change = float(1) / float(1 + math.exp(-y))
                     if random.random() < prob_of_change:
                         return "red" if self.color == "green" else "green"
@@ -226,9 +221,6 @@ class GameAgent(Agent):
         elif self.game.time >= 30 and self.game.time <= 45:
             mid_game = 1
         neighbors = self.degree()
-
-        # red_local = float((len([neighbor for neighbor in self.neighbors if neighbor.color == "red"]))) / float(len(self.neighbors))
-        # green_local = float((len([neighbor for neighbor in self.neighbors if neighbor.color == "green"]))) / float(len(self.neighbors))
 
         vis_neighbors = [neighbor for neighbor in self.neighbors if neighbor.isVisibleNode]
         neighbors_vis = float(len(vis_neighbors)) / float(neighbors)
@@ -274,7 +266,7 @@ class GameAgent(Agent):
                 else:
                     return "white"
             else:
-                y = -2.18 - 0.02 * self.game.time + 1.45 * diff_inv    #trained on all games (time only)
+                y = -2.18 - 0.016 * self.game.time + 1.45 * diff_inv    #trained on all games (time only)
                 prob_of_choose = float(1) / float(1 + math.exp(-y))
                 if random.random() < prob_of_choose:
                     y2 = -0.15 + 1.07 * green_local_inv - 0.69 * red_local_inv  #trained on all games (time only)
@@ -331,7 +323,7 @@ class GameAgent(Agent):
                 y = -1.94 - 0.03 * self.game.time + 1.63 * diff_inv + 0.01 * neighbors_inv  #trained on all games (time only)
                 prob_of_choose = float(1) / float(1 + math.exp(-y))
                 if random.random() < prob_of_choose:
-                    y2 = - 4.95 * green_local_inv + 5.11 * red_local_inv     #trained on all games (time only)
+                    y2 = -0.003 - 4.95 * green_local_inv + 5.11 * red_local_inv     #trained on all games (time only)
                     prob_of_choose_color = float(1) / float(1 + math.exp(-y2))
                     if random.random() < prob_of_choose_color:
                         return "red"
@@ -345,13 +337,13 @@ class GameAgent(Agent):
     def step(self):
         # check game state
         current_color = getCurrentColor(self.game)
-        # print("red: " + str(current_color["red"]) + ", green: " + str(current_color["green"]) + ", goal: " + str(self.numPlayers - self.game.numAdversarialNodes))
         if current_color["red"] == (self.numPlayers - self.game.numAdversarialNodes) or current_color["green"] == (self.numPlayers - self.game.numAdversarialNodes):
             self.game.setTerminal()
         else:
             if self.color != "white":
                 #if node already picked a color
                 decision_color = self.pickInitialColor()
+                print(decision_color)
                 # if random.random() > self.changing_p:
                 #     decision_color, dominant = self.getNeighborMajorColor()
                 if self.color != decision_color:
@@ -469,6 +461,7 @@ class DCGame(Model):
         self.adversaryNodeAmplifier = adversaryNodeAmplifier
         self.regularNodeAmplifier = regularNodeAmplifier
 
+
         # convert adjMat to adjList
         def getAdjList(adjMat):
             adjList = {key: [] for key in range(self.numAgents)}
@@ -478,6 +471,7 @@ class DCGame(Model):
             return adjList
 
         self.adjList = getAdjList(self.adjMat)
+
         #return the subset of L availableNodes in G with the largest number of distinct neighbors
         def getSubsetWithMaxDistinctNeighbors(availableNodes, G, L):
             acc = []
@@ -626,7 +620,6 @@ class DCGame(Model):
             inertia = self.inertia
             beta = self.beta
 
-            # print("Add agent:", (i, visibleNode, adversarial, neighbors, visibleColorNodes))
             a = GameAgent(i, isVisibleNode, isAdversarial, neighbors, vNode, inertia, beta, self)
             self.schedule.add(a)
 
@@ -634,7 +627,6 @@ class DCGame(Model):
         for agent in self.schedule.agents:
             agent.instantiateNeighbors(self)
             agent.instantiateVisibleColorNodes(self)
-
 
         self.datacollector = DataCollector(
                         model_reporters = {"red": getRed, "green": getGreen},
@@ -665,7 +657,6 @@ class DCGame(Model):
     def simulate(self, simulationTimes):
         for i in range(simulationTimes):
             # update model's time
-            # print("simulation time: " + str(i))
             self.updateTime(i)
             terminate = self.step()
             if terminate:
@@ -721,7 +712,6 @@ class BatchResult(object):
         self.consensus_ret = None
         self.dynamics_ret = None
         self.time_ret = None
-
         self.columnNames = None
 
     def generateResult(self):
@@ -740,7 +730,6 @@ class BatchResult(object):
         consensus_ret.columns = results_column
         self.columnNames = results_column
         self.consensus_ret = consensus_ret
-
 
         # # generate detailed dynamics for each simulation
         # dynamics_ret = {}
@@ -855,7 +844,7 @@ def readConfigurationFromFile(file_path):
 
         network = line['network']
 
-        adjMat_path = os.path.join('data_extraction/output/networks/', "%s_adjacency_matrix.txt" % expDate)
+        adjMat_path = os.path.join('data/adjacency_matrix/', "%s_adjacency_matrix.txt" % expDate)
         adjMat, G = getAdjMat(adjMat_path, expNum)
 
         params.append({
@@ -920,7 +909,8 @@ def simulationFunc(args):
     # the collected data is actually an object
     result = BatchResult(ret, retOnGameLevel, args)
     result.generateResult()
-    result.getConsensusResult().to_csv(os.path.join(outputPath, '%d.csv' % arg_id), index=None, sep=',')
+    return result.getConsensusResult()
+    # result.getConsensusResult().to_csv(os.path.join(outputPath, '%d.csv' % arg_id), index=None, sep=',')
 
 
 def combineResults(result, args, folder=None):
@@ -950,81 +940,81 @@ def combineResults(result, args, folder=None):
 
 
 if __name__ =="__main__":
-    # iterate over all inertia values
-    for inertia in np.linspace(0.87, 0.87, 1):
-        print("Current inertia: ", inertia)
-        for beta in np.linspace(1.0, 1.0, 1):
 
-            # experimental parameters
-            ################################
-            numSimulation = 2000
-            gameTime = 60
-            # inertia = 0.5
-            numRegularPlayers = 20
-            # numRegularPlayersList = [17 + (n * 3) for n in range(5)]
-            ################################
 
-            networks = ['Erdos-Renyi-dense', 'Erdos-Renyi-sparse', 'Barabasi-Albert']
-            # networks = ['Erdos-Renyi']
-            numVisibleNodes_ = [0]
-            numAdversarialNodes_ = [0]
-            delayTime_ = [0]
-            # ER_edges = [23, 26, 45, 51]
-            ER_edges = [25 + 5 * i for i in range(15)]
+    inertia = 0.87
+    beta = 1
+    # experimental parameters
+    ################################
+    numSimulation = 1000
+    gameTime = 60
+    # inertia = 0.5
+    numRegularPlayers = 20
+    # numRegularPlayersList = [17 + (n * 3) for n in range(5)]
+    ################################
 
-            args_from_file = readConfigurationFromFile('data_extraction/output/networks/nocomm.csv')
-            args = []
-            cnt = 0
-            outputPath = 'result/regular_amplifier'
-            for visibleNodeAmplifier in [1.0]:
-                for adversaryNodeAmplifier in [1.0]:
-                    for regularNodeAmplifier in [1.0, 1.1, 1.2, 1.3, 1.4, 1.5]:
-                        for item in args_from_file:
-                            args.append({
-                                'numSimulation': numSimulation,
-                                'gameTime': gameTime,
-                                'numVisibleNodes': item['numVisibleNodes'],
-                                'numAdversarialNodes': item['numAdversarialNodes'],
-                                'visibleNodes': item['visibleNodes'],
-                                'adversarialNodes': item['adversarialNodes'],
-                                'inertia': inertia,
-                                'beta': beta,
-                                'delay': 0,
-                                'visibleNodeAmplifier': visibleNodeAmplifier,
-                                'adversaryNodeAmplifier': adversaryNodeAmplifier,
-                                'regularNodeAmplifier': regularNodeAmplifier,
-                                'network': item['network'],
-                                'adjMat': item['adjMat'],
-                                'G': item['G'],
-                                'expDate': item['expDate'],
-                                'expNum': item['expNum'],
-                                'outputPath': outputPath, 
-                                'arg_id': cnt
-                                })
-                            cnt += 1
+    networks = ['Erdos-Renyi-dense', 'Erdos-Renyi-sparse', 'Barabasi-Albert']
+    # networks = ['Erdos-Renyi']
+    numVisibleNodes_ = [0]
+    numAdversarialNodes_ = [0]
+    delayTime_ = [0]
+    # ER_edges = [23, 26, 45, 51]
+    ER_edges = [25 + 5 * i for i in range(15)]
 
-            # # get all combinations of parameters
-            # counter = 0
-            # # for net in networks:
-            # for visibleNodeAmplifier in np.linspace(1.1, 1.5, 5):
-            #     for adversaryNodeAmplifier in np.linspace(1.1, 1.5, 5):
-            #         for numVisible in numVisibleNodes_:
-            #             for numAdv in numAdversarialNodes_:
-            #                 for delay in delayTime_:
-            #                     # for numRegularPlayers in numRegularPlayersList:
-            #                     args.append((numSimulation, gameTime, numVisible,
-            #                     			 numAdv, inertia, beta, delay, visibleNodeAmplifier, adversaryNodeAmplifier, counter))
-            #                     counter += 1
+    args_from_file = readConfigurationFromFile('data/nocomm.csv')
+    args = []
+    cnt = 0
+    outputPath = 'result/regular_amplifier'
+    for visibleNodeAmplifier in [1.0]:
+        for adversaryNodeAmplifier in [1.0]:
+            for regularNodeAmplifier in [1.0]:
+                for item in args_from_file:
+                    args.append({
+                        'numSimulation': numSimulation,
+                        'gameTime': gameTime,
+                        'numVisibleNodes': item['numVisibleNodes'],
+                        'numAdversarialNodes': item['numAdversarialNodes'],
+                        'visibleNodes': item['visibleNodes'],
+                        'adversarialNodes': item['adversarialNodes'],
+                        'inertia': inertia,
+                        'beta': beta,
+                        'delay': 0,
+                        'visibleNodeAmplifier': visibleNodeAmplifier,
+                        'adversaryNodeAmplifier': adversaryNodeAmplifier,
+                        'regularNodeAmplifier': regularNodeAmplifier,
+                        'network': item['network'],
+                        'adjMat': item['adjMat'],
+                        'G': item['G'],
+                        'expDate': item['expDate'],
+                        'expNum': item['expNum'],
+                        'outputPath': outputPath, 
+                        'arg_id': cnt
+                        })
+                    cnt += 1
 
-            # initialize processes pool
-            pool = Pool(processes=72)
-            pool.map(simulationFunc, args)
-            t1 = time.time()
-            #simulationFunc(args[0])
-            elapsedTime = time.time() - t1
-            #combineResults(result, args, 'result/visibleNode_adversaryNode_amplifier')
+    # # get all combinations of parameters
+    # counter = 0
+    # # for net in networks:
+    # for visibleNodeAmplifier in np.linspace(1.1, 1.5, 5):
+    #     for adversaryNodeAmplifier in np.linspace(1.1, 1.5, 5):
+    #         for numVisible in numVisibleNodes_:
+    #             for numAdv in numAdversarialNodes_:
+    #                 for delay in delayTime_:
+    #                     # for numRegularPlayers in numRegularPlayersList:
+    #                     args.append((numSimulation, gameTime, numVisible,
+    #                     			 numAdv, inertia, beta, delay, visibleNodeAmplifier, adversaryNodeAmplifier, counter))
+    #                     counter += 1
 
-            pool.close()
-            pool.join()
+    # initialize processes pool
+    pool = Pool(processes=7)
+    # pool.map(simulationFunc, args)
+    ret = simulationFunc(args[-1])
+    t1 = time.time()
+    #simulationFunc(args[0])
+    elapsedTime = time.time() - t1
+    #combineResults(result, args, 'result/visibleNode_adversaryNode_amplifier')
+
+    pool.close()
+    pool.join()
 
 
