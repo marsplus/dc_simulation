@@ -127,91 +127,6 @@ class GameAgent(Agent):
 
     # return current majority color
     # this actually corresponds to different players' strategies
-    def pickSubsequentColor(self):
-        mid_game = 0
-        end_game = 0
-        if self.game.time >= 45:
-            end_game = 1
-        elif self.game.time >= 30 and self.game.time <= 45:
-            mid_game = 1
-        neighbors = self.degree()
-
-        vis_neighbors = [neighbor for neighbor in self.neighbors if neighbor.isVisibleNode]
-        neighbors_vis = float(len(vis_neighbors)) / float(neighbors)
-        if len(vis_neighbors) != 0:
-            opposite_local_vis = float(len([neighbor for neighbor in vis_neighbors if neighbor.color != "white" and neighbor.color != self.color])) / float(len(vis_neighbors))
-            current_local_vis = float(len([neighbor for neighbor in vis_neighbors if neighbor.color != "white" and neighbor.color == self.color])) / float(len(vis_neighbors))
-        else:
-            opposite_local_vis = 0
-            current_local_vis = 0
-        inv_neighbors = [neighbor for neighbor in self.neighbors if not neighbor.isVisibleNode]
-        neighbors_inv = float(len(inv_neighbors)) / float(neighbors)
-        if len(inv_neighbors) != 0:
-            opposite_local_inv = float(len([neighbor for neighbor in inv_neighbors if neighbor.color != "white" and neighbor.color != self.color])) / float(len(inv_neighbors))
-            current_local_inv = float(len([neighbor for neighbor in inv_neighbors if neighbor.color != "white" and neighbor.color == self.color])) / float(len(inv_neighbors))
-        else:
-            opposite_local_inv = 0
-            current_local_inv = 0
-        reg_neighbors = [neighbor for neighbor in self.neighbors if not neighbor.isVisibleNode and not neighbor.isAdversarial]
-        neighbors_reg = float(len(reg_neighbors)) / float(neighbors)
-        if len(reg_neighbors) != 0:
-            opposite_local_reg = float(len([neighbor for neighbor in reg_neighbors if neighbor.color != "white" and neighbor.color != self.color])) / float(len(reg_neighbors))
-            current_local_reg = float(len([neighbor for neighbor in reg_neighbors if neighbor.color != "white" and neighbor.color == self.color])) / float(len(reg_neighbors))
-        else:
-            opposite_local_reg = 0
-            current_local_reg = 0
-
-        if not self.isAdversarial and not self.isVisibleNode:
-            # regular node
-            if self.hasVisibleColorNode():
-                y = -3.75 + 1.12 * opposite_local_inv + 1.4 * opposite_local_vis - 0.85  * current_local_inv   
-                prob_of_change = float(1) / float(1 + math.exp(-y))
-                if random.random() < prob_of_change:
-                    return "red" if self.color == "green" else "green"
-                else:
-                    return self.color
-            else:
-                y = -3.94 + 0.004 * self.game.time + 2.47 * opposite_local_inv - 0.51 * current_local_inv  
-                prob_of_change = float(1) / float(1 + math.exp(-y))
-                if random.random() < prob_of_change:
-                    return "red" if self.color == "green" else "green"
-                else:
-                    return self.color
-
-        else:
-            if self.isVisibleNode:
-                #visible node
-                if self.hasVisibleColorNode():
-                    y = -4.06 + 1.36 * opposite_local_inv + 1.55 * opposite_local_vis - 0.07 * neighbors_inv
-                    prob_of_change = float(1) / float(1 + math.exp(-y))
-                    if random.random() < prob_of_change:
-                        return "red" if self.color == "green" else "green"
-                    else:
-                        return self.color
-                else:
-                    y = -4.31 + 2.85  * opposite_local_inv
-                    prob_of_change = float(1) / float(1 + math.exp(-y))
-                    if random.random() < prob_of_change:
-                        return "red" if self.color == "green" else "green"
-                    else:
-                        return self.color
-            else:
-                #adversary node
-                if self.hasVisibleColorNode():
-                    y = -3.08 + 0.9 * current_local_vis - 0.15 * neighbors_vis
-                    prob_of_change = float(1) / float(1 + math.exp(-y))
-                    if random.random() < prob_of_change:
-                        return "red" if self.color == "green" else "green"
-                    else:
-                        return self.color
-                else:
-                    y = -2.79 - 1.1 * opposite_local_inv + 1.21 * current_local_inv 
-                    prob_of_change = float(1) / float(1 + math.exp(-y))
-                    if random.random() < prob_of_change:
-                        return "red" if self.color == "green" else "green"
-                    else:
-                        return self.color
-
     def pickInitialColor(self):
 
         mid_game = 0
@@ -221,6 +136,9 @@ class GameAgent(Agent):
         elif self.game.time >= 30 and self.game.time <= 45:
             mid_game = 1
         neighbors = self.degree()
+
+        # red_local = float((len([neighbor for neighbor in self.neighbors if neighbor.color == "red"]))) / float(len(self.neighbors))
+        # green_local = float((len([neighbor for neighbor in self.neighbors if neighbor.color == "green"]))) / float(len(self.neighbors))
 
         vis_neighbors = [neighbor for neighbor in self.neighbors if neighbor.isVisibleNode]
         neighbors_vis = float(len(vis_neighbors)) / float(neighbors)
@@ -254,10 +172,10 @@ class GameAgent(Agent):
         if self.isAdversarial:
             # adversarial node
             if self.hasVisibleColorNode():
-                y = -2.68 - 0.04 * self.game.time + 1.03 * diff_vis + 1.01 * diff_inv + 0.21 * neighbors_vis  
+                y = -2.68 - 0.04 * self.game.time + 1.03 * diff_vis + 1.01 * diff_inv + 0.21 * neighbors_vis    #trained on all games (time only)
                 prob_of_choose = float(1) / float(1 + math.exp(-y))
                 if random.random() < prob_of_choose:
-                    y2 = -0.37 + 0.83 * green_local_vis    
+                    y2 = -0.37 + 0.83 * green_local_vis     #trained on all games (time only)
                     prob_of_choose_color = float(1) / float(1 + math.exp(-y2))
                     if random.random() < prob_of_choose_color:
                         return "red"
@@ -306,7 +224,7 @@ class GameAgent(Agent):
                 else:
                     return "white"
         else:
-            # regular node
+            # regular player
             if self.hasVisibleColorNode():
                 y = -2.2 - 0.04 * self.game.time + 1.1 * diff_vis + 0.82 * diff_inv + 0.08 * neighbors_vis  #trained on all games (time only)
                 prob_of_choose = float(1) / float(1 + math.exp(-y))
@@ -332,6 +250,93 @@ class GameAgent(Agent):
                 else:
                     return "white"
 
+    def pickSubsequentColor(self):
+        mid_game = 0
+        end_game = 0
+        if self.game.time >= 45:
+            end_game = 1
+        elif self.game.time >= 30 and self.game.time <= 45:
+            mid_game = 1
+        neighbors = self.degree()
+
+        vis_neighbors = [neighbor for neighbor in self.neighbors if neighbor.isVisibleNode]
+        neighbors_vis = float(len(vis_neighbors)) / float(neighbors)
+        if len(vis_neighbors) != 0:
+            opposite_local_vis = float(len([neighbor for neighbor in vis_neighbors if neighbor.color != "white" and neighbor.color != self.color])) / float(len(vis_neighbors))
+            current_local_vis = float(len([neighbor for neighbor in vis_neighbors if neighbor.color != "white" and neighbor.color == self.color])) / float(len(vis_neighbors))
+        else:
+            opposite_local_vis = 0
+            current_local_vis = 0
+        inv_neighbors = [neighbor for neighbor in self.neighbors if not neighbor.isVisibleNode]
+        neighbors_inv = float(len(inv_neighbors)) / float(neighbors)
+        if len(inv_neighbors) != 0:
+            opposite_local_inv = float(len([neighbor for neighbor in inv_neighbors if neighbor.color != "white" and neighbor.color != self.color])) / float(len(inv_neighbors))
+            current_local_inv = float(len([neighbor for neighbor in inv_neighbors if neighbor.color != "white" and neighbor.color == self.color])) / float(len(inv_neighbors))
+        else:
+            opposite_local_inv = 0
+            current_local_inv = 0
+        reg_neighbors = [neighbor for neighbor in self.neighbors if not neighbor.isVisibleNode and not neighbor.isAdversarial]
+        neighbors_reg = float(len(reg_neighbors)) / float(neighbors)
+        if len(reg_neighbors) != 0:
+            opposite_local_reg = float(len([neighbor for neighbor in reg_neighbors if neighbor.color != "white" and neighbor.color != self.color])) / float(len(reg_neighbors))
+            current_local_reg = float(len([neighbor for neighbor in reg_neighbors if neighbor.color != "white" and neighbor.color == self.color])) / float(len(reg_neighbors))
+        else:
+            opposite_local_reg = 0
+            current_local_reg = 0
+
+        if not self.isAdversarial and not self.isVisibleNode:
+            # regular node
+            if self.hasVisibleColorNode():
+                y = -3.75 + 1.12 * opposite_local_inv + 1.4 * opposite_local_vis - 0.85 * current_local_inv     #trained on all games (time only)
+                prob_of_change = float(1) / float(1 + math.exp(-y))
+                if random.random() < prob_of_change:
+                    return "red" if self.color == "green" else "green"
+                else:
+                    return self.color
+            else:
+                y = -3.94 + 0.004 * self.game.time + 2.47 * opposite_local_inv - 0.51 * current_local_inv   #trained on all games (time only)
+                prob_of_change = float(1) / float(1 + math.exp(-y))
+                if random.random() < prob_of_change:
+                    return "red" if self.color == "green" else "green"
+                else:
+                    return self.color
+
+        else:
+
+            if self.isVisibleNode:
+                #visible node
+                # y = -4.04  - 0.41 * current_local_vis + 1.89 * opposite_local_reg + 0.93 * opposite_local_vis + 0.18 * neighbors_vis - 0.05  * neighbors_reg
+                if self.hasVisibleColorNode():
+                    y = -4.06 + 1.36 * opposite_local_inv + 1.55 * opposite_local_vis - 0.07 * neighbors_inv    #trained on all games (time only)
+                    prob_of_change = float(1) / float(1 + math.exp(-y))
+                    if random.random() < prob_of_change:
+                        return "red" if self.color == "green" else "green"
+                    else:
+                        return self.color
+                else:
+                    y = -4.31 + 2.85 * opposite_local_inv   #trained on all games (time only)
+                    prob_of_change = float(1) / float(1 + math.exp(-y))
+                    if random.random() < prob_of_change:
+                        return "red" if self.color == "green" else "green"
+                    else:
+                        return self.color
+            else:
+                #adversary node
+                if self.hasVisibleColorNode():
+                    y = -3.08 + 0.9 * current_local_vis - 0.15 * neighbors_vis    #trained on all games (time only)
+                    prob_of_change = float(1) / float(1 + math.exp(-y))
+                    if random.random() < prob_of_change:
+                        return "red" if self.color == "green" else "green"
+                    else:
+                        return self.color
+                else:
+                    y = -2.79 - 1.1 * opposite_local_inv + 1.21 * current_local_inv     #trained on al games (time only)
+                    prob_of_change = float(1) / float(1 + math.exp(-y))
+                    if random.random() < prob_of_change:
+                        return "red" if self.color == "green" else "green"
+                    else:
+                        return self.color
+
 
     # make a decision
     def step(self):
@@ -342,7 +347,7 @@ class GameAgent(Agent):
         else:
             if self.color != "white":
                 #if node already picked a color
-                decision_color = self.pickInitialColor()
+                decision_color = self.pickSubsequentColor()
                 # if random.random() > self.changing_p:
                 #     decision_color, dominant = self.getNeighborMajorColor()
                 if self.color != decision_color:
@@ -354,7 +359,7 @@ class GameAgent(Agent):
 
             else:
                 # node has not yet picked a color
-                decision_color = self.pickSubsequentColor()
+                decision_color = self.pickInitialColor()
                 # if random.random() > self.choosing_p:
                 #     decision_color, dominant = self.getNeighborMajorColor()
                 if self.color != decision_color:
@@ -908,7 +913,9 @@ def simulationFunc(args):
     # the collected data is actually an object
     result = BatchResult(ret, retOnGameLevel, args)
     return result
+    # result.generateResult()
     # result.getConsensusResult().to_csv(os.path.join(outputPath, '%d.csv' % arg_id), index=None, sep=',')
+    # return result.getConsensusResult()
 
 
 def combineResults(result, args, folder=None):
@@ -1004,9 +1011,9 @@ if __name__ =="__main__":
     #                     counter += 1
 
     # initialize processes pool
-    pool = Pool(processes=71)
+    pool = Pool(processes=1)
     result = pool.map(simulationFunc, args)
-    #ret = simulationFunc(args[-1])
+    # ret = simulationFunc(args[200])
     t1 = time.time()
     #simulationFunc(args[0])
     elapsedTime = time.time() - t1
