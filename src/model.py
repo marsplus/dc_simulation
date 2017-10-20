@@ -128,7 +128,6 @@ class GameAgent(Agent):
     # return current majority color
     # this actually corresponds to different players' strategies
     def pickInitialColor(self):
-
         mid_game = 0
         end_game = 0
         if self.game.time >= 45:
@@ -136,9 +135,6 @@ class GameAgent(Agent):
         elif self.game.time >= 30 and self.game.time <= 45:
             mid_game = 1
         neighbors = self.degree()
-
-        # red_local = float((len([neighbor for neighbor in self.neighbors if neighbor.color == "red"]))) / float(len(self.neighbors))
-        # green_local = float((len([neighbor for neighbor in self.neighbors if neighbor.color == "green"]))) / float(len(self.neighbors))
 
         vis_neighbors = [neighbor for neighbor in self.neighbors if neighbor.isVisibleNode]
         neighbors_vis = float(len(vis_neighbors)) / float(neighbors)
@@ -284,17 +280,38 @@ class GameAgent(Agent):
             opposite_local_reg = 0
             current_local_reg = 0
 
+        features = [1, self.game.time, opposite_local_inv, opposite_local_vis, current_local_inv, current_local_vis, neighbors_inv, neighbors_vis]
+        numFeatures = len(features)
+        feature_vector = np.asmatrix(features).reshape(numFeatures, 1)
+
+
         if not self.isAdversarial and not self.isVisibleNode:
             # regular node
             if self.hasVisibleColorNode():
-                y = -3.75 + 1.12 * opposite_local_inv + 1.4 * opposite_local_vis - 0.85 * current_local_inv     #trained on all games (time only)
+                w = [-3.75, 0, 1.12, 1.4, -0.85, 0, 0, 0]
+                assert(len(w) == numFeatures)
+                w = np.asmatrix(w).reshape(numFeatures, 1)
+                # amplifier certain weights in the logistic regression
+                assert(len(self.game.regularNodeAmplifier) == numFeatures)
+                w += self.game.regularNodeAmplifier
+                y = w.T * feature_vector
+                y = y[0, 0]
+                # y = -3.75 + 1.12 * opposite_local_inv + 1.4 * opposite_local_vis - 0.85 * current_local_inv    
                 prob_of_change = float(1) / float(1 + math.exp(-y))
                 if random.random() < prob_of_change:
                     return "red" if self.color == "green" else "green"
                 else:
                     return self.color
             else:
-                y = -3.94 + 0.004 * self.game.time + 2.47 * opposite_local_inv - 0.51 * current_local_inv   #trained on all games (time only)
+                w = [-3.94, 0.004, 2.47, 0, -0.51, 0, 0, 0]
+                assert(len(w) == numFeatures)
+                w = np.asmatrix(w).reshape(numFeatures, 1)
+                # amplifier certain weights in the logistic regression
+                assert(len(self.game.regularNodeAmplifier) == numFeatures)
+                w += self.game.regularNodeAmplifier
+                y = w.T * feature_vector
+                y = y[0, 0]
+                # y = -3.94 + 0.004 * self.game.time + 2.47 * opposite_local_inv - 0.51 * current_local_inv   #trained on all games (time only)
                 prob_of_change = float(1) / float(1 + math.exp(-y))
                 if random.random() < prob_of_change:
                     return "red" if self.color == "green" else "green"
@@ -305,16 +322,25 @@ class GameAgent(Agent):
 
             if self.isVisibleNode:
                 #visible node
-                # y = -4.04  - 0.41 * current_local_vis + 1.89 * opposite_local_reg + 0.93 * opposite_local_vis + 0.18 * neighbors_vis - 0.05  * neighbors_reg
                 if self.hasVisibleColorNode():
-                    y = -4.06 + 1.36 * opposite_local_inv + 1.55 * opposite_local_vis - 0.07 * neighbors_inv    #trained on all games (time only)
+                    w = [-4.06, 0, 1.36, 1.55, 0, 0, -0.07, 0]
+                    assert(len(w) == numFeatures)
+                    w = np.asmatrix(w).reshape(numFeatures, 1)
+                    y = w.T * feature_vector
+                    y = y[0, 0]
+                    # y = -4.06 + 1.36 * opposite_local_inv + 1.55 * opposite_local_vis - 0.07 * neighbors_inv    #trained on all games (time only)
                     prob_of_change = float(1) / float(1 + math.exp(-y))
                     if random.random() < prob_of_change:
                         return "red" if self.color == "green" else "green"
                     else:
                         return self.color
                 else:
-                    y = -4.31 + 2.85 * opposite_local_inv   #trained on all games (time only)
+                    w = [-4.31, 0, 2.85, 0, 0, 0, 0, 0]
+                    assert(len(w) == numFeatures)
+                    w = np.asmatrix(w).reshape(numFeatures, 1)
+                    y = w.T * feature_vector
+                    y = y[0, 0]
+                    # y = -4.31 + 2.85 * opposite_local_inv   #trained on all games (time only)
                     prob_of_change = float(1) / float(1 + math.exp(-y))
                     if random.random() < prob_of_change:
                         return "red" if self.color == "green" else "green"
@@ -323,14 +349,24 @@ class GameAgent(Agent):
             else:
                 #adversary node
                 if self.hasVisibleColorNode():
-                    y = -3.08 + 0.9 * current_local_vis - 0.15 * neighbors_vis    #trained on all games (time only)
+                    w = [-3.08, 0, 0, 0, 0, 0.9, 0, -0.15]
+                    assert(len(w) == numFeatures)
+                    w = np.asmatrix(w).reshape(numFeatures, 1)
+                    y = w.T * feature_vector
+                    y = y[0, 0]
+                    # y = -3.08 + 0.9 * current_local_vis - 0.15 * neighbors_vis    #trained on all games (time only)
                     prob_of_change = float(1) / float(1 + math.exp(-y))
                     if random.random() < prob_of_change:
                         return "red" if self.color == "green" else "green"
                     else:
                         return self.color
                 else:
-                    y = -2.79 - 1.1 * opposite_local_inv + 1.21 * current_local_inv     #trained on al games (time only)
+                    w = [-2.79, 0, -1.1, 0, 1.21, 0, 0, 0]
+                    assert(len(w) == numFeatures)
+                    w = np.asmatrix(w).reshape(numFeatures, 1)
+                    y = w.T * feature_vector
+                    y = y[0, 0]
+                    # y = -2.79 - 1.1 * opposite_local_inv + 1.21 * current_local_inv     #trained on al games (time only)
                     prob_of_change = float(1) / float(1 + math.exp(-y))
                     if random.random() < prob_of_change:
                         return "red" if self.color == "green" else "green"
@@ -417,7 +453,7 @@ def getGreen(model):
 
 class DCGame(Model):
     def __init__(self, adjMat, G, numVisibleColorNodes, numAdversarialNodes, inertia, beta, delay, \
-            visibles, adversaries, visibleNodeAmplifier, adversaryNodeAmplifier, regularNodeAmplifier):
+            visibles, adversaries):
         self.adjMat = adjMat
         self.numVisibleColorNodes = numVisibleColorNodes
         self.numAdversarialNodes = numAdversarialNodes
@@ -461,10 +497,7 @@ class DCGame(Model):
         self.graph = G
 
         # tune some parameters of the logistic regression
-        self.visibleNodeAmplifier = visibleNodeAmplifier
-        self.adversaryNodeAmplifier = adversaryNodeAmplifier
-        self.regularNodeAmplifier = regularNodeAmplifier
-
+        self.regularNodeAmplifier = None
 
         # convert adjMat to adjList
         def getAdjList(adjMat):
@@ -701,7 +734,8 @@ class DCGame(Model):
                 tline = ["1" if item else "0" for item in line]
                 fid.write(' '.join(tline) + '\n') 
 
-
+    def setRegularNodeAmplifier(self, amplifier):
+        self.regularNodeAmplifier = amplifier
 
 class BatchResult(object):
     def __init__(self, data, dataOnGameLevel, args):
@@ -723,13 +757,12 @@ class BatchResult(object):
         # to a simulation
         consensus_ret = []
         results_column = ['expDate', 'expNum', 'numVisibleNodes', 'numAdversarialNodes',\
-                          'network', 'elapsedTime', 'colorChange', 'whiteNode', 'visibleNodeAmplifier', 'adversaryNodeAmplifier', 'regularNodeAmplifier', 'consensus']
+                          'network', 'elapsedTime', 'colorChange', 'whiteNode', 'consensus']
         for i in range(len(self.data)):
             if_consensus = 1 if len(self.data[i]) < self.args['gameTime'] else 0
             consensus_ret.append((self.args['expDate'], self.args['expNum'], self.args['numVisibleNodes'], self.args['numAdversarialNodes'],\
                                   self.args['network'], self.dataOnGameLevel['elapsedTime'][i], self.dataOnGameLevel['colorChanges'][i], \
-                                  self.dataOnGameLevel['whiteNode'][i], self.args['visibleNodeAmplifier'], self.args['adversaryNodeAmplifier'],\
-                                  self.args['regularNodeAmplifier'], if_consensus))
+                                  self.dataOnGameLevel['whiteNode'][i], if_consensus))
         consensus_ret = pd.DataFrame(consensus_ret)
         consensus_ret.columns = results_column
         self.columnNames = results_column
@@ -877,8 +910,6 @@ def simulationFunc(args):
     inertia = args['inertia']
     beta = args['beta']
     delay = args['delay']
-    visibleNodeAmplifier = args['visibleNodeAmplifier']
-    adversaryNodeAmplifier = args['adversaryNodeAmplifier']
     regularNodeAmplifier = args['regularNodeAmplifier']
     network = args['network']
     adjMat = args['adjMat']
@@ -897,9 +928,11 @@ def simulationFunc(args):
             print("Current number of simulations: ", j)
 
         model = DCGame(adjMat, G, numVisibleNodes, numAdversarialNodes, inertia, beta, \
-                delay, visibleNodes, adversarialNodes, visibleNodeAmplifier, adversaryNodeAmplifier, regularNodeAmplifier)
-        simulatedResult, isRegWhite = model.simulate(gameTime)
+                delay, visibleNodes, adversarialNodes)
 
+        # set amplifier
+        model.setRegularNodeAmplifier(regularNodeAmplifier)
+        simulatedResult, isRegWhite = model.simulate(gameTime)
         ret.append(simulatedResult)
         ### a game-level data collector
         # retOnGameLevel['hasConflict'].append(model.hasConflict)
@@ -912,8 +945,12 @@ def simulationFunc(args):
 
     # the collected data is actually an object
     result = BatchResult(ret, retOnGameLevel, args)
-    return result
-    # result.generateResult()
+    result.generateResult()
+
+    # calculate and return consensus ratio
+    result = result.getConsensusResult()
+    consensus_ratio = result['consensus'].mean()
+    return consensus_ratio
     # result.getConsensusResult().to_csv(os.path.join(outputPath, '%d.csv' % arg_id), index=None, sep=',')
     # return result.getConsensusResult()
 
@@ -951,7 +988,7 @@ if __name__ =="__main__":
     beta = 1
     # experimental parameters
     ################################
-    numSimulation = 1000
+    numSimulation = 100
     gameTime = 60
     # inertia = 0.5
     numRegularPlayers = 20
@@ -969,55 +1006,73 @@ if __name__ =="__main__":
     args_from_file = readConfigurationFromFile('data/nocomm.csv')
     args = []
     cnt = 0
-    outputPath = 'result/regular_amplifier'
-    for visibleNodeAmplifier in [1.0]:
-        for adversaryNodeAmplifier in [1.0]:
-            for regularNodeAmplifier in [1.0]:
-                for item in args_from_file:
-                    args.append({
-                        'numSimulation': numSimulation,
-                        'gameTime': gameTime,
-                        'numVisibleNodes': item['numVisibleNodes'],
-                        'numAdversarialNodes': item['numAdversarialNodes'],
-                        'visibleNodes': item['visibleNodes'],
-                        'adversarialNodes': item['adversarialNodes'],
-                        'inertia': inertia,
-                        'beta': beta,
-                        'delay': 0,
-                        'visibleNodeAmplifier': visibleNodeAmplifier,
-                        'adversaryNodeAmplifier': adversaryNodeAmplifier,
-                        'regularNodeAmplifier': regularNodeAmplifier,
-                        'network': item['network'],
-                        'adjMat': item['adjMat'],
-                        'G': item['G'],
-                        'expDate': item['expDate'],
-                        'expNum': item['expNum'],
-                        'outputPath': outputPath, 
-                        'arg_id': cnt
-                        })
-                    cnt += 1
+    outputPath = 'result/noAdv'
+    for item in args_from_file:
+        # first no adversaries
+        if item['numAdversarialNodes'] == 0:
+            args.append({
+                'numSimulation': numSimulation,
+                'gameTime': gameTime,
+                'numVisibleNodes': item['numVisibleNodes'],
+                'numAdversarialNodes': item['numAdversarialNodes'],
+                'visibleNodes': item['visibleNodes'],
+                'adversarialNodes': item['adversarialNodes'],
+                'inertia': inertia,
+                'beta': beta,
+                'delay': 0,
+                'network': item['network'],
+                'adjMat': item['adjMat'],
+                'G': item['G'],
+                'expDate': item['expDate'],
+                'expNum': item['expNum'],
+                'outputPath': outputPath, 
+                'arg_id': cnt
+                })
+            cnt += 1
 
-    # # get all combinations of parameters
-    # counter = 0
-    # # for net in networks:
-    # for visibleNodeAmplifier in np.linspace(1.1, 1.5, 5):
-    #     for adversaryNodeAmplifier in np.linspace(1.1, 1.5, 5):
-    #         for numVisible in numVisibleNodes_:
-    #             for numAdv in numAdversarialNodes_:
-    #                 for delay in delayTime_:
-    #                     # for numRegularPlayers in numRegularPlayersList:
-    #                     args.append((numSimulation, gameTime, numVisible,
-    #                     			 numAdv, inertia, beta, delay, visibleNodeAmplifier, adversaryNodeAmplifier, counter))
-    #                     counter += 1
+    # split configurations into training and testing 
+    train_test_ratio = 0.7
+    np.random.shuffle(args)
+    train_args = args[:np.int(np.floor(len(args) * train_test_ratio))]
+    test_args = args[np.int(np.floor(len(args) * train_test_ratio)):]
+    assert(len(train_args) + len(test_args) == len(args))
 
-    # initialize processes pool
-    pool = Pool(processes=1)
-    result = pool.map(simulationFunc, args)
-    # ret = simulationFunc(args[200])
-    t1 = time.time()
-    #simulationFunc(args[0])
-    elapsedTime = time.time() - t1
-    combineResults(result, args, 'result/tmp')
+    # coordinate descent
+    # we first consider infinity norm
+    result = []
+    for budget in np.arange(0.1, 1.1, 0.1):
+        # budget = 2
+        numFeatures = 8
+        granularity = 50
+        pool = Pool(processes=70)
+        regularNodeAmplifier = np.asmatrix(np.zeros(numFeatures)).reshape(numFeatures, 1)
+        args[0]['regularNodeAmplifier'] = regularNodeAmplifier.copy()
+        baseline_consensus_ratio = simulationFunc(args[0])
+
+        # find optimal amplifier
+        train_consensus_ratio = baseline_consensus_ratio
+        for i in range(numFeatures):
+            for delta_i in np.linspace(-budget, budget, granularity):
+                tmp_amplifier = regularNodeAmplifier.copy()
+                tmp_amplifier[i] = delta_i
+                # args[0]['regularNodeAmplifier'] = tmp_amplifier
+                # ratio = simulationFunc(args[0])
+                for item in train_args:
+                    item['regularNodeAmplifier'] = tmp_amplifier
+                ratio = pool.map(simulationFunc, train_args)
+                if np.mean(ratio) > train_consensus_ratio:
+                    train_consensus_ratio = np.mean(ratio)
+                    regularNodeAmplifier[i] = delta_i
+                    print(train_consensus_ratio)
+
+
+        # test the optimal amplifier
+        for item in test_args:
+            item['regularNodeAmplifier'] = regularNodeAmplifier
+        test_ratio = pool.map(simulationFunc, test_args)
+        test_consensus_ratio = np.mean(test_ratio)
+
+        result.append((budget, baseline_consensus_ratio, train_consensus_ratio, test_consensus_ratio, regularNodeAmplifier))
 
     pool.close()
     pool.join()
