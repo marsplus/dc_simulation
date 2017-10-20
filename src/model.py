@@ -924,7 +924,7 @@ def simulationFunc(args):
     retOnGameLevel = defaultdict(list)
 
     for j in range(numSimulation):
-        if j % 100 == 0:
+        if j % 10 == 0:
             print("Current number of simulations: ", j)
 
         model = DCGame(adjMat, G, numVisibleNodes, numAdversarialNodes, inertia, beta, \
@@ -988,7 +988,7 @@ if __name__ =="__main__":
     beta = 1
     # experimental parameters
     ################################
-    numSimulation = 100
+    numSimulation = 50
     gameTime = 60
     # inertia = 0.5
     numRegularPlayers = 20
@@ -1044,6 +1044,7 @@ if __name__ =="__main__":
         # budget = 2
         numFeatures = 8
         granularity = 50
+        coord_iter = 5
         pool = Pool(processes=70)
         regularNodeAmplifier = np.asmatrix(np.zeros(numFeatures)).reshape(numFeatures, 1)
         args[0]['regularNodeAmplifier'] = regularNodeAmplifier.copy()
@@ -1051,19 +1052,20 @@ if __name__ =="__main__":
 
         # find optimal amplifier
         train_consensus_ratio = baseline_consensus_ratio
-        for i in range(numFeatures):
-            for delta_i in np.linspace(-budget, budget, granularity):
-                tmp_amplifier = regularNodeAmplifier.copy()
-                tmp_amplifier[i] = delta_i
-                # args[0]['regularNodeAmplifier'] = tmp_amplifier
-                # ratio = simulationFunc(args[0])
-                for item in train_args:
-                    item['regularNodeAmplifier'] = tmp_amplifier
-                ratio = pool.map(simulationFunc, train_args)
-                if np.mean(ratio) > train_consensus_ratio:
-                    train_consensus_ratio = np.mean(ratio)
-                    regularNodeAmplifier[i] = delta_i
-                    print(train_consensus_ratio)
+        for j in range(coord_iter):
+            for i in range(numFeatures):
+                for delta_i in np.linspace(-budget, budget, granularity):
+                    tmp_amplifier = regularNodeAmplifier.copy()
+                    tmp_amplifier[i] = delta_i
+                    # args[0]['regularNodeAmplifier'] = tmp_amplifier
+                    # ratio = simulationFunc(args[0])
+                    for item in train_args:
+                        item['regularNodeAmplifier'] = tmp_amplifier
+                    ratio = pool.map(simulationFunc, train_args)
+                    if np.mean(ratio) > train_consensus_ratio:
+                        train_consensus_ratio = np.mean(ratio)
+                        regularNodeAmplifier[i] = delta_i
+                        print(train_consensus_ratio)
 
 
         # test the optimal amplifier
