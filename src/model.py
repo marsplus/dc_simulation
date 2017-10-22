@@ -996,7 +996,7 @@ if __name__ =="__main__":
     beta = 1
     # experimental parameters
     ################################
-    numSimulation = 50
+    numSimulation = 30
     gameTime = 60
     # inertia = 0.5
     numRegularPlayers = 20
@@ -1048,24 +1048,23 @@ if __name__ =="__main__":
     # coordinate descent
     # we first consider infinity norm
     result = []
-    for budget in np.arange(0.1, 1.1, 0.1):
-        # budget = 2
-        numFeatures = 8
-        granularity = 30
-        coord_iter = 1
-        pool = Pool(processes=70)
-        regularNodeAmplifier = np.asmatrix(np.zeros(numFeatures)).reshape(numFeatures, 1)
-        visibleNodeAmplifier = np.asmatrix(np.zeros(numFeatures)).reshape(numFeatures, 1)
-        args[0]['regularNodeAmplifier'] = regularNodeAmplifier.copy()
-        args[0]['visibleNodeAmplifier'] = visibleNodeAmplifier.copy()
-        baseline_consensus_ratio = simulationFunc(args[0])
+    numFeatures = 8
+    coord_iter = 1
+    pool = Pool(processes=70)
+    regularNodeAmplifier = np.asmatrix(np.zeros(numFeatures)).reshape(numFeatures, 1)
+    visibleNodeAmplifier = np.asmatrix(np.zeros(numFeatures)).reshape(numFeatures, 1)
+    args[0]['regularNodeAmplifier'] = regularNodeAmplifier.copy()
+    args[0]['visibleNodeAmplifier'] = visibleNodeAmplifier.copy()
+    baseline_consensus_ratio = simulationFunc(args[0])
+    train_consensus_ratio = baseline_consensus_ratio
 
-        train_consensus_ratio = baseline_consensus_ratio
+    for budget in np.arange(0.1, 0.6, 0.1):
+        search_space = np.linspace(-budget, budget, int(budget * 100) + 1)
         for j in range(coord_iter):
             # find optimal amplifiers for regular nodes
             for i in range(numFeatures):
                 print("Current #feature: %i" % i)
-                for delta_i in np.linspace(-budget, budget, granularity):
+                for delta_i in search_space:
                     tmp_amplifier = regularNodeAmplifier.copy()
                     tmp_amplifier[i] = delta_i
                     # args[0]['regularNodeAmplifier'] = tmp_amplifier
@@ -1082,7 +1081,7 @@ if __name__ =="__main__":
             # find optimal amplifiers for visible nodes
             for i in rang(numFeatures):
                 print("Current #feature: %i" % i)
-                for delta_i in np.linspace(-budget, budget, granularity):
+                for delta_i in search_space:
                     tmp_amplifier = visibleNodeAmplifier.copy()
                     tmp_amplifier[i] = delta_i
                     # args[0]['regularNodeAmplifier'] = tmp_amplifier
