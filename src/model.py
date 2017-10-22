@@ -1064,6 +1064,7 @@ if __name__ =="__main__":
         for j in range(coord_iter):
             # find optimal amplifiers for regular nodes
             for i in range(numFeatures):
+                print("Current #feature: %i" % i)
                 for delta_i in np.linspace(-budget, budget, granularity):
                     tmp_amplifier = regularNodeAmplifier.copy()
                     tmp_amplifier[i] = delta_i
@@ -1080,6 +1081,7 @@ if __name__ =="__main__":
 
             # find optimal amplifiers for visible nodes
             for i in rang(numFeatures):
+                print("Current #feature: %i" % i)
                 for delta_i in np.linspace(-budget, budget, granularity):
                     tmp_amplifier = visibleNodeAmplifier.copy()
                     tmp_amplifier[i] = delta_i
@@ -1094,14 +1096,13 @@ if __name__ =="__main__":
                         visibleNodeAmplifier[i] = delta_i
                         print("visible nodes        #feature: %i        ratio: %.5f" %(i, train_consensus_ratio) )           
 
-
         # test the optimal amplifier
         for item in test_args:
             item['regularNodeAmplifier'] = regularNodeAmplifier
             item['visibleNodeAmplifier'] = visibleNodeAmplifier
         test_ratio = pool.map(simulationFunc, test_args)
         test_consensus_ratio = np.mean(test_ratio)
-        result.append((budget, baseline_consensus_ratio, train_consensus_ratio, test_consensus_ratio, regularNodeAmplifier))
+        result.append((budget, baseline_consensus_ratio, train_consensus_ratio, test_consensus_ratio, regularNodeAmplifier, visibleNodeAmplifier))
 
     pool.close()
     pool.join()
