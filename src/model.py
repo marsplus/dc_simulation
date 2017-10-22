@@ -498,6 +498,8 @@ class DCGame(Model):
 
         # tune some parameters of the logistic regression
         self.regularNodeAmplifier = None
+        self.visibleNodeAmplifier = None
+
 
         # convert adjMat to adjList
         def getAdjList(adjMat):
@@ -737,6 +739,9 @@ class DCGame(Model):
     def setRegularNodeAmplifier(self, amplifier):
         self.regularNodeAmplifier = amplifier
 
+    def setVisibleNodeAmplifier(self, amplifier):
+        self.visibleNodeAmplifier = amplifier    
+
 class BatchResult(object):
     def __init__(self, data, dataOnGameLevel, args):
         # self.data records data at each time step
@@ -911,6 +916,7 @@ def simulationFunc(args):
     beta = args['beta']
     delay = args['delay']
     regularNodeAmplifier = args['regularNodeAmplifier']
+    visibleNodeAmplifier = args['visibleNodeAmplifier']
     network = args['network']
     adjMat = args['adjMat']
     G = args['G']
@@ -924,14 +930,16 @@ def simulationFunc(args):
     retOnGameLevel = defaultdict(list)
 
     for j in range(numSimulation):
-        if j % 10 == 0:
-            print("Current number of simulations: ", j)
+        # if j % 10 == 0:
+        #     print("Current number of simulations: ", j)
 
         model = DCGame(adjMat, G, numVisibleNodes, numAdversarialNodes, inertia, beta, \
                 delay, visibleNodes, adversarialNodes)
 
         # set amplifier
         model.setRegularNodeAmplifier(regularNodeAmplifier)
+        model.setVisibleNodeAmplifier(visibleNodeAmplifier)
+
         simulatedResult, isRegWhite = model.simulate(gameTime)
         ret.append(simulatedResult)
         ### a game-level data collector
@@ -1043,16 +1051,18 @@ if __name__ =="__main__":
     for budget in np.arange(0.1, 1.1, 0.1):
         # budget = 2
         numFeatures = 8
-        granularity = 50
-        coord_iter = 5
+        granularity = 30
+        coord_iter = 1
         pool = Pool(processes=70)
         regularNodeAmplifier = np.asmatrix(np.zeros(numFeatures)).reshape(numFeatures, 1)
+        visibleNodeAmplifier = np.asmatrix(np.zeros(numFeatures)).reshape(numFeatures, 1)
         args[0]['regularNodeAmplifier'] = regularNodeAmplifier.copy()
+        args[0]['visibleNodeAmplifier'] = visibleNodeAmplifier.copy()
         baseline_consensus_ratio = simulationFunc(args[0])
 
-        # find optimal amplifier
         train_consensus_ratio = baseline_consensus_ratio
         for j in range(coord_iter):
+            # find optimal amplifiers for regular nodes
             for i in range(numFeatures):
                 for delta_i in np.linspace(-budget, budget, granularity):
                     tmp_amplifier = regularNodeAmplifier.copy()
@@ -1061,19 +1071,36 @@ if __name__ =="__main__":
                     # ratio = simulationFunc(args[0])
                     for item in train_args:
                         item['regularNodeAmplifier'] = tmp_amplifier
+                        item['visibleNodeAmplifier'] = visibleNodeAmplifier
                     ratio = pool.map(simulationFunc, train_args)
                     if np.mean(ratio) > train_consensus_ratio:
                         train_consensus_ratio = np.mean(ratio)
                         regularNodeAmplifier[i] = delta_i
-                        print(train_consensus_ratio)
+                        print("regular nodes        #feature: %i        ratio: %.5f" %(i, train_consensus_ratio) )
+
+            # find optimal amplifiers for visible nodes
+            for i in rang(numFeatures):
+                for delta_i in np.linspace(-budget, budget, granularity):
+                    tmp_amplifier = visibleNodeAmplifier.copy()
+                    tmp_amplifier[i] = delta_i
+                    # args[0]['regularNodeAmplifier'] = tmp_amplifier
+                    # ratio = simulationFunc(args[0])
+                    for item in train_args:
+                        item['regularNodeAmplifier'] = regularNodeAmplifier
+                        item['visibleNodeAmplifier'] = tmp_amplifier
+                    ratio = pool.map(simulationFunc, train_args)
+                    if np.mean(ratio) > train_consensus_ratio:
+                        train_consensus_ratio = np.mean(ratio)
+                        visibleNodeAmplifier[i] = delta_i
+                        print("visible nodes        #feature: %i        ratio: %.5f" %(i, train_consensus_ratio) )           
 
 
         # test the optimal amplifier
         for item in test_args:
             item['regularNodeAmplifier'] = regularNodeAmplifier
+            item['visibleNodeAmplifier'] = visibleNodeAmplifier
         test_ratio = pool.map(simulationFunc, test_args)
         test_consensus_ratio = np.mean(test_ratio)
-
         result.append((budget, baseline_consensus_ratio, train_consensus_ratio, test_consensus_ratio, regularNodeAmplifier))
 
     pool.close()
