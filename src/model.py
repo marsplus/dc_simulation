@@ -996,7 +996,7 @@ if __name__ =="__main__":
     beta = 1
     # experimental parameters
     ################################
-    numSimulation = 30
+    numSimulation = 20
     gameTime = 60
     # inertia = 0.5
     numRegularPlayers = 20
@@ -1016,8 +1016,7 @@ if __name__ =="__main__":
     cnt = 0
     outputPath = 'result/noAdv'
     for item in args_from_file:
-        # first no adversaries
-        if item['numAdversarialNodes'] == 0:
+        if item['numAdversarialNodes'] != 0:
             args.append({
                 'numSimulation': numSimulation,
                 'gameTime': gameTime,
@@ -1050,7 +1049,7 @@ if __name__ =="__main__":
     result = []
     numFeatures = 8
     coord_iter = 1
-    pool = Pool(processes=70)
+    pool = Pool(processes=71)
     regularNodeAmplifier = np.asmatrix(np.zeros(numFeatures)).reshape(numFeatures, 1)
     visibleNodeAmplifier = np.asmatrix(np.zeros(numFeatures)).reshape(numFeatures, 1)
     args[0]['regularNodeAmplifier'] = regularNodeAmplifier.copy()
@@ -1076,10 +1075,10 @@ if __name__ =="__main__":
                     if np.mean(ratio) > train_consensus_ratio:
                         train_consensus_ratio = np.mean(ratio)
                         regularNodeAmplifier[i] = delta_i
-                        print("regular nodes        #feature: %i        ratio: %.5f" %(i, train_consensus_ratio) )
+                        print("regular nodes        budget: %.2f        #feature: %i        ratio: %.5f" %(budget, i, train_consensus_ratio) )
 
             # find optimal amplifiers for visible nodes
-            for i in rang(numFeatures):
+            for i in range(numFeatures):
                 print("Current #feature: %i" % i)
                 for delta_i in search_space:
                     tmp_amplifier = visibleNodeAmplifier.copy()
@@ -1093,7 +1092,7 @@ if __name__ =="__main__":
                     if np.mean(ratio) > train_consensus_ratio:
                         train_consensus_ratio = np.mean(ratio)
                         visibleNodeAmplifier[i] = delta_i
-                        print("visible nodes        #feature: %i        ratio: %.5f" %(i, train_consensus_ratio) )           
+                        print("visible nodes        budget: %.2f        #feature: %i        ratio: %.5f" %(budget, i, train_consensus_ratio) )           
 
         # test the optimal amplifier
         for item in test_args:
