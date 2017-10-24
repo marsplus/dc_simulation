@@ -997,7 +997,7 @@ if __name__ =="__main__":
     beta = 1
     # experimental parameters
     ################################
-    numSimulation = 50
+    numSimulation = 30
     gameTime = 60
     # inertia = 0.5
     numRegularPlayers = 20
@@ -1017,7 +1017,7 @@ if __name__ =="__main__":
     cnt = 0
     outputPath = 'result/noAdv'
     for item in args_from_file:
-        if item['numAdversarialNodes'] != 0:
+        if item['numAdversarialNodes'] == 0:
             args.append({
                 'numSimulation': numSimulation,
                 'gameTime': gameTime,
@@ -1050,7 +1050,7 @@ if __name__ =="__main__":
     result = []
     numFeatures = 8
     coord_iter = 1
-    pool = Pool(processes=71)
+    pool = Pool(processes=30)
     regularNodeAmplifier = np.asmatrix(np.zeros(numFeatures)).reshape(numFeatures, 1)
     visibleNodeAmplifier = np.asmatrix(np.zeros(numFeatures)).reshape(numFeatures, 1)
     for item in train_args:
