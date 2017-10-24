@@ -15,6 +15,7 @@ from mesa.time import SimultaneousActivation
 from multiprocessing import Pool
 from collections import defaultdict
 from mesa.datacollection import DataCollector
+import numpy.linalg as LA
 import itertools
 
 random.seed(0)
@@ -1061,39 +1062,45 @@ if __name__ =="__main__":
     for budget in np.arange(0.1, 1.1, 0.1):
         search_space = np.linspace(-budget, budget, int(budget * 100) + 1)
         for j in range(coord_iter):
+            used_budget = 0
             # find optimal amplifiers for regular nodes
             for i in range(numFeatures):
                 print("Current #feature: %i" % i)
                 for delta_i in search_space:
                     tmp_amplifier = regularNodeAmplifier.copy()
                     tmp_amplifier[i] = delta_i
-                    # args[0]['regularNodeAmplifier'] = tmp_amplifier
-                    # ratio = simulationFunc(args[0])
-                    for item in train_args:
-                        item['regularNodeAmplifier'] = tmp_amplifier
-                        item['visibleNodeAmplifier'] = visibleNodeAmplifier
-                    ratio = pool.map(simulationFunc, train_args)
-                    if np.mean(ratio) > train_consensus_ratio:
-                        train_consensus_ratio = np.mean(ratio)
-                        regularNodeAmplifier[i] = delta_i
-                        print("regular nodes        budget: %.2f        #feature: %i        ratio: %.5f" % (budget, i, train_consensus_ratio) )
+                    if LA.norm(tmp_amplifier, 1) > budget:
+                        continue
+                    else:
+                        for item in train_args:
+                            item['regularNodeAmplifier'] = tmp_amplifier
+                            item['visibleNodeAmplifier'] = visibleNodeAmplifier
+                        ratio = pool.map(simulationFunc, train_args)
+                        if np.mean(ratio) > train_consensus_ratio:
+                            train_consensus_ratio = np.mean(ratio)
+                            regularNodeAmplifier[i] = delta_i
+                            print("regular nodes        budget: %.2f        #feature: %i        ratio: %.5f" % (budget, i, train_consensus_ratio) )
+            # budget used by regular nodes' amplifier
+            used_budget += LA.norm(regularNodeAmplifier, 1)
 
             # find optimal amplifiers for visible nodes
+            left_budget = budget - used_budget
             for i in range(numFeatures):
                 print("Current #feature: %i" % i)
                 for delta_i in search_space:
                     tmp_amplifier = visibleNodeAmplifier.copy()
                     tmp_amplifier[i] = delta_i
-                    # args[0]['regularNodeAmplifier'] = tmp_amplifier
-                    # ratio = simulationFunc(args[0])
-                    for item in train_args:
-                        item['regularNodeAmplifier'] = regularNodeAmplifier
-                        item['visibleNodeAmplifier'] = tmp_amplifier
-                    ratio = pool.map(simulationFunc, train_args)
-                    if np.mean(ratio) > train_consensus_ratio:
-                        train_consensus_ratio = np.mean(ratio)
-                        visibleNodeAmplifier[i] = delta_i
-                        print("visible nodes        budget: %.2f        #feature: %i        ratio: %.5f" % (budget, i, train_consensus_ratio) )           
+                    if LA.norm(tmp_amplifier, 1) > left_budget:
+                        continue
+                    else:
+                        for item in train_args:
+                            item['regularNodeAmplifier'] = regularNodeAmplifier
+                            item['visibleNodeAmplifier'] = tmp_amplifier
+                        ratio = pool.map(simulationFunc, train_args)
+                        if np.mean(ratio) > train_consensus_ratio:
+                            train_consensus_ratio = np.mean(ratio)
+                            visibleNodeAmplifier[i] = delta_i
+                            print("visible nodes        budget: %.2f        #feature: %i        ratio: %.5f" % (budget, i, train_consensus_ratio) )           
 
         # test the optimal amplifier
         for item in test_args:
