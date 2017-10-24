@@ -996,7 +996,7 @@ if __name__ =="__main__":
     beta = 1
     # experimental parameters
     ################################
-    numSimulation = 20
+    numSimulation = 50
     gameTime = 60
     # inertia = 0.5
     numRegularPlayers = 20
@@ -1038,7 +1038,7 @@ if __name__ =="__main__":
             cnt += 1
 
     # split configurations into training and testing 
-    train_test_ratio = 0.7
+    train_test_ratio = 0.5
     np.random.shuffle(args)
     train_args = args[:np.int(np.floor(len(args) * train_test_ratio))]
     test_args = args[np.int(np.floor(len(args) * train_test_ratio)):]
@@ -1052,12 +1052,13 @@ if __name__ =="__main__":
     pool = Pool(processes=71)
     regularNodeAmplifier = np.asmatrix(np.zeros(numFeatures)).reshape(numFeatures, 1)
     visibleNodeAmplifier = np.asmatrix(np.zeros(numFeatures)).reshape(numFeatures, 1)
-    args[0]['regularNodeAmplifier'] = regularNodeAmplifier.copy()
-    args[0]['visibleNodeAmplifier'] = visibleNodeAmplifier.copy()
-    baseline_consensus_ratio = simulationFunc(args[0])
-    train_consensus_ratio = baseline_consensus_ratio
+    for item in train_args:
+        item['regularNodeAmplifier'] = regularNodeAmplifier
+        item['visibleNodeAmplifier'] = visibleNodeAmplifier
+    baseline_consensus_ratio = pool.map(simulationFunc, train_args)
+    train_consensus_ratio = np.mean(baseline_consensus_ratio)
 
-    for budget in np.arange(0.1, 0.6, 0.1):
+    for budget in np.arange(0.1, 1.1, 0.1):
         search_space = np.linspace(-budget, budget, int(budget * 100) + 1)
         for j in range(coord_iter):
             # find optimal amplifiers for regular nodes
@@ -1075,7 +1076,7 @@ if __name__ =="__main__":
                     if np.mean(ratio) > train_consensus_ratio:
                         train_consensus_ratio = np.mean(ratio)
                         regularNodeAmplifier[i] = delta_i
-                        print("regular nodes        budget: %.2f        #feature: %i        ratio: %.5f" %(budget, i, train_consensus_ratio) )
+                        print("regular nodes        budget: %.2f        #feature: %i        ratio: %.5f" % (budget, i, train_consensus_ratio) )
 
             # find optimal amplifiers for visible nodes
             for i in range(numFeatures):
@@ -1092,7 +1093,7 @@ if __name__ =="__main__":
                     if np.mean(ratio) > train_consensus_ratio:
                         train_consensus_ratio = np.mean(ratio)
                         visibleNodeAmplifier[i] = delta_i
-                        print("visible nodes        budget: %.2f        #feature: %i        ratio: %.5f" %(budget, i, train_consensus_ratio) )           
+                        print("visible nodes        budget: %.2f        #feature: %i        ratio: %.5f" % (budget, i, train_consensus_ratio) )           
 
         # test the optimal amplifier
         for item in test_args:
