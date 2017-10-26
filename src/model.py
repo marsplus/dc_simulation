@@ -954,17 +954,17 @@ def simulationFunc(args):
 
     # the collected data is actually an object
     result = BatchResult(ret, retOnGameLevel, args)
-    result.generateResult()
 
-    # calculate and return consensus ratio
-    result = result.getConsensusResult()
-    consensus_ratio = result['consensus'].mean()
-    return consensus_ratio
-    # result.getConsensusResult().to_csv(os.path.join(outputPath, '%d.csv' % arg_id), index=None, sep=',')
-    # return result.getConsensusResult()
+    # # calculate and return consensus ratio
+    # result.generateResult()
+    # result = result.getConsensusResult()
+    # consensus_ratio = result['consensus'].mean()
+    # return consensus_ratio
+    
+    return result
 
 
-def combineResults(result, args, folder=None):
+def combineResults(result, outputName, folder=None):
     if not os.path.exists(folder):
         os.makedirs(folder)
 
@@ -974,7 +974,7 @@ def combineResults(result, args, folder=None):
 
     consensus_ret = pd.concat([item.getConsensusResult() for item in result])
     consensus_ret.columns = result[0].getColumnNames()
-    p = os.path.join(folder, 'consensus_inertia=%.2f_beta=%.2f.csv' % (inertia, beta))
+    p = os.path.join(folder, outputName)
     consensus_ret.to_csv(p, index=None)
 
 
@@ -988,53 +988,7 @@ def combineResults(result, args, folder=None):
     # with open(p, 'wb') as fid:
     #     pickle.dump(dynamics_ret, fid)
 
-
-
-if __name__ =="__main__":
-
-    # experimental parameters
-    ################################
-    numSimulation = 30
-    gameTime = 60
-    # inertia = 0.5
-    numRegularPlayers = 20
-    # numRegularPlayersList = [17 + (n * 3) for n in range(5)]
-    ################################
-
-    networks = ['Erdos-Renyi-dense', 'Erdos-Renyi-sparse', 'Barabasi-Albert']
-    # networks = ['Erdos-Renyi']
-    numVisibleNodes_ = [0]
-    numAdversarialNodes_ = [0]
-    delayTime_ = [0]
-    # ER_edges = [23, 26, 45, 51]
-    ER_edges = [25 + 5 * i for i in range(15)]
-
-    args_from_file = readConfigurationFromFile('data/nocomm.csv')
-    args = []
-    cnt = 0
-    outputPath = 'result/noAdv'
-    for item in args_from_file:
-        if item['numAdversarialNodes'] == 0:
-            args.append({
-                'numSimulation': numSimulation,
-                'gameTime': gameTime,
-                'numVisibleNodes': item['numVisibleNodes'],
-                'numAdversarialNodes': item['numAdversarialNodes'],
-                'visibleNodes': item['visibleNodes'],
-                'adversarialNodes': item['adversarialNodes'],
-                'inertia': inertia,
-                'beta': beta,
-                'delay': 0,
-                'network': item['network'],
-                'adjMat': item['adjMat'],
-                'G': item['G'],
-                'expDate': item['expDate'],
-                'expNum': item['expNum'],
-                'outputPath': outputPath, 
-                'arg_id': cnt
-                })
-            cnt += 1
-
+def coordinate_descent(args):
     # split configurations into training and testing 
     train_test_ratio = 0.5
     np.random.shuffle(args)
@@ -1046,7 +1000,7 @@ if __name__ =="__main__":
     result = []
     numFeatures = 8
     coord_iter = 1
-    pool = Pool(processes=30)
+    pool = Pool(processes=70)
     regularNodeAmplifier = np.asmatrix(np.zeros(numFeatures)).reshape(numFeatures, 1)
     visibleNodeAmplifier = np.asmatrix(np.zeros(numFeatures)).reshape(numFeatures, 1)
     for item in train_args:
@@ -1105,8 +1059,57 @@ if __name__ =="__main__":
         test_ratio = pool.map(simulationFunc, test_args)
         test_consensus_ratio = np.mean(test_ratio)
         result.append((budget, baseline_consensus_ratio, train_consensus_ratio, test_consensus_ratio, regularNodeAmplifier, visibleNodeAmplifier))
-
     pool.close()
     pool.join()
+    return result
+
+
+
+if __name__ =="__main__":
+
+    # experimental parameters
+    ################################
+    numSimulation = 30
+    gameTime = 60
+    # inertia = 0.5
+    numRegularPlayers = 20
+    # numRegularPlayersList = [17 + (n * 3) for n in range(5)]
+    ################################
+
+    networks = ['Erdos-Renyi-dense', 'Erdos-Renyi-sparse', 'Barabasi-Albert']
+    # networks = ['Erdos-Renyi']
+    numVisibleNodes_ = [0]
+    numAdversarialNodes_ = [0]
+    delayTime_ = [0]
+    # ER_edges = [23, 26, 45, 51]
+    ER_edges = [25 + 5 * i for i in range(15)]
+
+    args_from_file = readConfigurationFromFile('data/nocomm.csv')
+    args = []
+    cnt = 0
+    outputPath = 'result/noAdv'
+    for item in args_from_file:
+        if item['numAdversarialNodes'] == 0:
+            args.append({
+                'numSimulation': numSimulation,
+                'gameTime': gameTime,
+                'numVisibleNodes': item['numVisibleNodes'],
+                'numAdversarialNodes': item['numAdversarialNodes'],
+                'visibleNodes': item['visibleNodes'],
+                'adversarialNodes': item['adversarialNodes'],
+                'inertia': inertia,
+                'beta': beta,
+                'delay': 0,
+                'network': item['network'],
+                'adjMat': item['adjMat'],
+                'G': item['G'],
+                'expDate': item['expDate'],
+                'expNum': item['expNum'],
+                'outputPath': outputPath, 
+                'arg_id': cnt
+                })
+            cnt += 1
+
+
 
 
