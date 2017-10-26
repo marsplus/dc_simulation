@@ -1067,6 +1067,9 @@ def coordinate_descent(args):
 
 if __name__ =="__main__":
 
+    inertia = 0
+    delay = 0
+    beta = 0
     # experimental parameters
     ################################
     numSimulation = 1000
