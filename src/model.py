@@ -992,9 +992,6 @@ def combineResults(result, args, folder=None):
 
 if __name__ =="__main__":
 
-
-    inertia = 0.87
-    beta = 1
     # experimental parameters
     ################################
     numSimulation = 50
@@ -1046,7 +1043,6 @@ if __name__ =="__main__":
     assert(len(train_args) + len(test_args) == len(args))
 
     # coordinate descent
-    # we first consider infinity norm
     result = []
     numFeatures = 8
     coord_iter = 1
