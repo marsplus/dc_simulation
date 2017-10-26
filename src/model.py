@@ -15,6 +15,7 @@ from mesa.time import SimultaneousActivation
 from multiprocessing import Pool
 from collections import defaultdict
 from mesa.datacollection import DataCollector
+import numpy.linalg as LA
 import itertools
 
 random.seed(0)
@@ -953,17 +954,17 @@ def simulationFunc(args):
 
     # the collected data is actually an object
     result = BatchResult(ret, retOnGameLevel, args)
-    result.generateResult()
 
-    # calculate and return consensus ratio
-    result = result.getConsensusResult()
-    consensus_ratio = result['consensus'].mean()
-    return consensus_ratio
-    # result.getConsensusResult().to_csv(os.path.join(outputPath, '%d.csv' % arg_id), index=None, sep=',')
-    # return result.getConsensusResult()
+    # # calculate and return consensus ratio
+    # result.generateResult()
+    # result = result.getConsensusResult()
+    # consensus_ratio = result['consensus'].mean()
+    # return consensus_ratio
+    
+    return result
 
 
-def combineResults(result, args, folder=None):
+def combineResults(result, outputName, folder=None):
     if not os.path.exists(folder):
         os.makedirs(folder)
 
@@ -973,7 +974,7 @@ def combineResults(result, args, folder=None):
 
     consensus_ret = pd.concat([item.getConsensusResult() for item in result])
     consensus_ret.columns = result[0].getColumnNames()
-    p = os.path.join(folder, 'consensus_inertia=%.2f_beta=%.2f.csv' % (inertia, beta))
+    p = os.path.join(folder, outputName)
     consensus_ret.to_csv(p, index=None)
 
 
@@ -987,16 +988,88 @@ def combineResults(result, args, folder=None):
     # with open(p, 'wb') as fid:
     #     pickle.dump(dynamics_ret, fid)
 
+def coordinate_descent(args):
+    # split configurations into training and testing 
+    train_test_ratio = 0.5
+    np.random.shuffle(args)
+    train_args = args[:np.int(np.floor(len(args) * train_test_ratio))]
+    test_args = args[np.int(np.floor(len(args) * train_test_ratio)):]
+    assert(len(train_args) + len(test_args) == len(args))
+
+    # coordinate descent
+    result = []
+    numFeatures = 8
+    coord_iter = 1
+    pool = Pool(processes=70)
+    regularNodeAmplifier = np.asmatrix(np.zeros(numFeatures)).reshape(numFeatures, 1)
+    visibleNodeAmplifier = np.asmatrix(np.zeros(numFeatures)).reshape(numFeatures, 1)
+    for item in train_args:
+        item['regularNodeAmplifier'] = regularNodeAmplifier
+        item['visibleNodeAmplifier'] = visibleNodeAmplifier
+    baseline_consensus_ratio = pool.map(simulationFunc, train_args)
+    train_consensus_ratio = np.mean(baseline_consensus_ratio)
+
+    for budget in np.arange(0.1, 1.1, 0.1):
+        search_space = np.linspace(-budget, budget, int(budget * 100) + 1)
+        for j in range(coord_iter):
+            used_budget = 0
+            # find optimal amplifiers for regular nodes
+            for i in range(numFeatures):
+                print("Current #feature: %i" % i)
+                for delta_i in search_space:
+                    tmp_amplifier = regularNodeAmplifier.copy()
+                    tmp_amplifier[i] = delta_i
+                    if LA.norm(tmp_amplifier, 1) > budget:
+                        continue
+                    else:
+                        for item in train_args:
+                            item['regularNodeAmplifier'] = tmp_amplifier
+                            item['visibleNodeAmplifier'] = visibleNodeAmplifier
+                        ratio = pool.map(simulationFunc, train_args)
+                        if np.mean(ratio) > train_consensus_ratio:
+                            train_consensus_ratio = np.mean(ratio)
+                            regularNodeAmplifier[i] = delta_i
+                            print("regular nodes        budget: %.2f        #feature: %i        ratio: %.5f" % (budget, i, train_consensus_ratio) )
+            # budget used by regular nodes' amplifier
+            used_budget += LA.norm(regularNodeAmplifier, 1)
+
+            # find optimal amplifiers for visible nodes
+            left_budget = budget - used_budget
+            for i in range(numFeatures):
+                print("Current #feature: %i" % i)
+                for delta_i in search_space:
+                    tmp_amplifier = visibleNodeAmplifier.copy()
+                    tmp_amplifier[i] = delta_i
+                    if LA.norm(tmp_amplifier, 1) > left_budget:
+                        continue
+                    else:
+                        for item in train_args:
+                            item['regularNodeAmplifier'] = regularNodeAmplifier
+                            item['visibleNodeAmplifier'] = tmp_amplifier
+                        ratio = pool.map(simulationFunc, train_args)
+                        if np.mean(ratio) > train_consensus_ratio:
+                            train_consensus_ratio = np.mean(ratio)
+                            visibleNodeAmplifier[i] = delta_i
+                            print("visible nodes        budget: %.2f        #feature: %i        ratio: %.5f" % (budget, i, train_consensus_ratio) )           
+
+        # test the optimal amplifier
+        for item in test_args:
+            item['regularNodeAmplifier'] = regularNodeAmplifier
+            item['visibleNodeAmplifier'] = visibleNodeAmplifier
+        test_ratio = pool.map(simulationFunc, test_args)
+        test_consensus_ratio = np.mean(test_ratio)
+        result.append((budget, baseline_consensus_ratio, train_consensus_ratio, test_consensus_ratio, regularNodeAmplifier, visibleNodeAmplifier))
+    pool.close()
+    pool.join()
+    return result
+
 
 
 if __name__ =="__main__":
 
-
-    inertia = 0.87
-    beta = 1
     # experimental parameters
     ################################
-    numSimulation = 50
+    numSimulation = 1000
     gameTime = 60
     # inertia = 0.5
     numRegularPlayers = 20
@@ -1016,7 +1089,7 @@ if __name__ =="__main__":
     cnt = 0
     outputPath = 'result/noAdv'
     for item in args_from_file:
-        if item['numAdversarialNodes'] != 0:
+        if item['numAdversarialNodes'] == 0:
             args.append({
                 'numSimulation': numSimulation,
                 'gameTime': gameTime,
@@ -1037,73 +1110,18 @@ if __name__ =="__main__":
                 })
             cnt += 1
 
-    # split configurations into training and testing 
-    train_test_ratio = 0.5
-    np.random.shuffle(args)
-    train_args = args[:np.int(np.floor(len(args) * train_test_ratio))]
-    test_args = args[np.int(np.floor(len(args) * train_test_ratio)):]
-    assert(len(train_args) + len(test_args) == len(args))
+    with open('result/noAdv_infinityNorm_coordinateDescent.p', 'rb') as fid:
+        param = pickle.load(fid)
 
-    # coordinate descent
-    # we first consider infinity norm
-    result = []
-    numFeatures = 8
-    coord_iter = 1
-    pool = Pool(processes=71)
-    regularNodeAmplifier = np.asmatrix(np.zeros(numFeatures)).reshape(numFeatures, 1)
-    visibleNodeAmplifier = np.asmatrix(np.zeros(numFeatures)).reshape(numFeatures, 1)
-    for item in train_args:
-        item['regularNodeAmplifier'] = regularNodeAmplifier
-        item['visibleNodeAmplifier'] = visibleNodeAmplifier
-    baseline_consensus_ratio = pool.map(simulationFunc, train_args)
-    train_consensus_ratio = np.mean(baseline_consensus_ratio)
-
-    for budget in np.arange(0.1, 1.1, 0.1):
-        search_space = np.linspace(-budget, budget, int(budget * 100) + 1)
-        for j in range(coord_iter):
-            # find optimal amplifiers for regular nodes
-            for i in range(numFeatures):
-                print("Current #feature: %i" % i)
-                for delta_i in search_space:
-                    tmp_amplifier = regularNodeAmplifier.copy()
-                    tmp_amplifier[i] = delta_i
-                    # args[0]['regularNodeAmplifier'] = tmp_amplifier
-                    # ratio = simulationFunc(args[0])
-                    for item in train_args:
-                        item['regularNodeAmplifier'] = tmp_amplifier
-                        item['visibleNodeAmplifier'] = visibleNodeAmplifier
-                    ratio = pool.map(simulationFunc, train_args)
-                    if np.mean(ratio) > train_consensus_ratio:
-                        train_consensus_ratio = np.mean(ratio)
-                        regularNodeAmplifier[i] = delta_i
-                        print("regular nodes        budget: %.2f        #feature: %i        ratio: %.5f" % (budget, i, train_consensus_ratio) )
-
-            # find optimal amplifiers for visible nodes
-            for i in range(numFeatures):
-                print("Current #feature: %i" % i)
-                for delta_i in search_space:
-                    tmp_amplifier = visibleNodeAmplifier.copy()
-                    tmp_amplifier[i] = delta_i
-                    # args[0]['regularNodeAmplifier'] = tmp_amplifier
-                    # ratio = simulationFunc(args[0])
-                    for item in train_args:
-                        item['regularNodeAmplifier'] = regularNodeAmplifier
-                        item['visibleNodeAmplifier'] = tmp_amplifier
-                    ratio = pool.map(simulationFunc, train_args)
-                    if np.mean(ratio) > train_consensus_ratio:
-                        train_consensus_ratio = np.mean(ratio)
-                        visibleNodeAmplifier[i] = delta_i
-                        print("visible nodes        budget: %.2f        #feature: %i        ratio: %.5f" % (budget, i, train_consensus_ratio) )           
-
-        # test the optimal amplifier
-        for item in test_args:
-            item['regularNodeAmplifier'] = regularNodeAmplifier
-            item['visibleNodeAmplifier'] = visibleNodeAmplifier
-        test_ratio = pool.map(simulationFunc, test_args)
-        test_consensus_ratio = np.mean(test_ratio)
-        result.append((budget, baseline_consensus_ratio, train_consensus_ratio, test_consensus_ratio, regularNodeAmplifier, visibleNodeAmplifier))
-
+    pool = Pool(processes=70)
+    for item in param:
+        budget = param[0]
+        regularNodeAmplifier = param[-2]
+        visibleNodeAmplifier = param[-1]
+        for arg in args:
+            arg['regularNodeAmplifier'] = regularNodeAmplifier
+            arg['visibleNodeAmplifier'] = visibleNodeAmplifier
+        result = pool.map(simulationFunc, args)
+        combineResults(result, 'noAdv_infinityNorm_%.1f.csv' % budget, 'result/noAdv')
     pool.close()
     pool.join()
-
-
