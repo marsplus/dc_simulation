@@ -931,8 +931,8 @@ def simulationFunc(args):
     retOnGameLevel = defaultdict(list)
 
     for j in range(numSimulation):
-        # if j % 10 == 0:
-        #     print("Current number of simulations: ", j)
+        if j % 100 == 0:
+            print("Current number of simulations: ", j)
 
         model = DCGame(adjMat, G, numVisibleNodes, numAdversarialNodes, inertia, beta, \
                 delay, visibleNodes, adversarialNodes)
@@ -965,6 +965,9 @@ def simulationFunc(args):
 
 
 def combineResults(result, outputName, folder=None):
+    if type(result) != list:
+        result = [result]
+
     if not os.path.exists(folder):
         os.makedirs(folder)
 
@@ -1113,18 +1116,26 @@ if __name__ =="__main__":
                 })
             cnt += 1
 
-    with open('result/noAdv_infinityNorm_coordinateDescent.p', 'rb') as fid:
-        param = pickle.load(fid)
-
     pool = Pool(processes=70)
-    for item in param:
-        budget = param[0]
-        regularNodeAmplifier = param[-2]
-        visibleNodeAmplifier = param[-1]
-        for arg in args:
-            arg['regularNodeAmplifier'] = regularNodeAmplifier
-            arg['visibleNodeAmplifier'] = visibleNodeAmplifier
-        result = pool.map(simulationFunc, args)
-        combineResults(result, 'noAdv_infinityNorm_%.1f.csv' % budget, 'result/noAdv')
+    for arg in args:
+        arg['regularNodeAmplifier'] = np.asmatrix(np.zeros(8)).reshape(8, 1)
+        arg['visibleNodeAmplifier'] = np.asmatrix(np.zeros(8)).reshape(8, 1)
+    result = pool.map(simulationFunc, args)
+    combineResults(result, 'noAdv_baseline.csv', 'result/baseline')
+ 
+    #with open('result/withAdv_L1Norm_coordinateDescent.p', 'rb') as fid:
+    #    param = pickle.load(fid)
+
+    #pool = Pool(processes=70)
+    #for item in param:
+    #    budget = item[0]
+    #    regularNodeAmplifier = item[-2]
+    #    visibleNodeAmplifier = item[-1]
+    #    for arg in args:
+    #        arg['regularNodeAmplifier'] = regularNodeAmplifier
+    #        arg['visibleNodeAmplifier'] = visibleNodeAmplifier
+    #    result = pool.map(simulationFunc, args)
+    #    #result = simulationFunc(args[0])
+    #    combineResults(result, 'withAdv_L1Norm_%.1f.csv' % budget, 'result/withAdv')
     pool.close()
     pool.join()
