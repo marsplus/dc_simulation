@@ -952,16 +952,17 @@ def simulationFunc(args):
         ###
         model.outputAdjMat('result/adjMat.txt')
 
-    # the collected data is actually an object
-    result = BatchResult(ret, retOnGameLevel, args)
+    # # the collected data is actually an object
+    # result = BatchResult(ret, retOnGameLevel, args)
+    # return result
 
-    # # calculate and return consensus ratio
-    # result.generateResult()
-    # result = result.getConsensusResult()
-    # consensus_ratio = result['consensus'].mean()
-    # return consensus_ratio
+    # calculate and return consensus ratio
+    result = BatchResult(ret, retOnGameLevel, args)
+    result.generateResult()
+    result = result.getConsensusResult()
+    consensus_ratio = result['consensus'].mean()
+    return consensus_ratio
     
-    return result
 
 
 def combineResults(result, outputName, folder=None):
@@ -1011,8 +1012,9 @@ def coordinate_descent(args):
         item['visibleNodeAmplifier'] = visibleNodeAmplifier
     baseline_consensus_ratio = pool.map(simulationFunc, train_args)
     train_consensus_ratio = np.mean(baseline_consensus_ratio)
+    average_baseline_consensus_ratio = np.mean(baseline_consensus_ratio)
 
-    for budget in np.arange(0.1, 1.1, 0.1):
+    for budget in np.arange(0.1, 0.6, 0.1):
         search_space = np.linspace(-budget, budget, int(budget * 100) + 1)
         for j in range(coord_iter):
             used_budget = 0
@@ -1061,7 +1063,8 @@ def coordinate_descent(args):
             item['visibleNodeAmplifier'] = visibleNodeAmplifier
         test_ratio = pool.map(simulationFunc, test_args)
         test_consensus_ratio = np.mean(test_ratio)
-        result.append((budget, baseline_consensus_ratio, train_consensus_ratio, test_consensus_ratio, regularNodeAmplifier, visibleNodeAmplifier))
+
+        result.append((budget, average_baseline_consensus_ratio, train_consensus_ratio, test_consensus_ratio, regularNodeAmplifier.copy(), visibleNodeAmplifier.copy()))
     pool.close()
     pool.join()
     return result
@@ -1075,7 +1078,7 @@ if __name__ =="__main__":
     beta = 0
     # experimental parameters
     ################################
-    numSimulation = 1000
+    numSimulation = 15
     gameTime = 60
     # inertia = 0.5
     numRegularPlayers = 20
@@ -1095,7 +1098,7 @@ if __name__ =="__main__":
     cnt = 0
     outputPath = 'result/noAdv'
     for item in args_from_file:
-        if item['numAdversarialNodes'] == 0:
+        if item['numAdversarialNodes'] != 0:
             args.append({
                 'numSimulation': numSimulation,
                 'gameTime': gameTime,
@@ -1116,18 +1119,20 @@ if __name__ =="__main__":
                 })
             cnt += 1
 
-    pool = Pool(processes=70)
-    for arg in args:
-        arg['regularNodeAmplifier'] = np.asmatrix(np.zeros(8)).reshape(8, 1)
-        arg['visibleNodeAmplifier'] = np.asmatrix(np.zeros(8)).reshape(8, 1)
-    result = pool.map(simulationFunc, args)
-    combineResults(result, 'noAdv_baseline.csv', 'result/baseline')
+    result = coordinate_descent(args)
+
+    # pool = Pool(processes=70)
+    # for arg in args:
+    #     arg['regularNodeAmplifier'] = np.asmatrix(np.zeros(8)).reshape(8, 1)
+    #     arg['visibleNodeAmplifier'] = np.asmatrix(np.zeros(8)).reshape(8, 1)
+    # result = pool.map(simulationFunc, args)
+    # combineResults(result, 'noAdv_baseline.csv', 'result/baseline')
  
-    #with open('result/withAdv_L1Norm_coordinateDescent.p', 'rb') as fid:
+    # with open('result/withAdv_L1Norm_coordinateDescent.p', 'rb') as fid:
     #    param = pickle.load(fid)
 
-    #pool = Pool(processes=70)
-    #for item in param:
+    # pool = Pool(processes=70)
+    # for item in param:
     #    budget = item[0]
     #    regularNodeAmplifier = item[-2]
     #    visibleNodeAmplifier = item[-1]
@@ -1137,5 +1142,8 @@ if __name__ =="__main__":
     #    result = pool.map(simulationFunc, args)
     #    #result = simulationFunc(args[0])
     #    combineResults(result, 'withAdv_L1Norm_%.1f.csv' % budget, 'result/withAdv')
-    pool.close()
-    pool.join()
+    # pool.close()
+    # pool.join()
+
+
+
