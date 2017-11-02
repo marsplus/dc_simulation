@@ -931,8 +931,8 @@ def simulationFunc(args):
     retOnGameLevel = defaultdict(list)
 
     for j in range(numSimulation):
-        if j % 100 == 0:
-            print("Current number of simulations: ", j)
+        #if j % 100 == 0:
+        #    print("Current number of simulations: ", j)
 
         model = DCGame(adjMat, G, numVisibleNodes, numAdversarialNodes, inertia, beta, \
                 delay, visibleNodes, adversarialNodes)
@@ -1003,8 +1003,8 @@ def coordinate_descent(args):
     # coordinate descent
     result = []
     numFeatures = 8
-    coord_iter = 1
-    pool = Pool(processes=70)
+    coord_iter = 5
+    pool = Pool(processes=71)
     regularNodeAmplifier = np.asmatrix(np.zeros(numFeatures)).reshape(numFeatures, 1)
     visibleNodeAmplifier = np.asmatrix(np.zeros(numFeatures)).reshape(numFeatures, 1)
     for item in train_args:
@@ -1098,7 +1098,7 @@ if __name__ =="__main__":
     cnt = 0
     outputPath = 'result/noAdv'
     for item in args_from_file:
-        if item['numAdversarialNodes'] != 0:
+        if item['numAdversarialNodes'] == 0:
             args.append({
                 'numSimulation': numSimulation,
                 'gameTime': gameTime,
