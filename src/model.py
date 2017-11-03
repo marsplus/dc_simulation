@@ -575,20 +575,22 @@ class DCGame(Model):
         node_deg.sort(key=lambda x : x[1], reverse=True)       #highest degree nodes first
         availableNodes = [item[0] for item in node_deg]
         
-        # availableNodes.sort(key=lambda x : x)
-        # self.visibleColorNodes = getSubsetWithMaxDistinctNeighbors(availableNodes, G, numVisibleColorNodes)
+        availableNodes.sort(key=lambda x : x)
+        self.visibleColorNodes = getSubsetWithMaxDistinctNeighbors(availableNodes, G, numVisibleColorNodes)
+        
         # self.visibleColorNodes = [item for item in availableNodes[:self.numVisibleColorNodes]]
         # tmpVisibleNode = availableNodes[0]
         # getRecursiveConnectedNeighborhood(tmpVisibleNode, 0)
-        self.visibleColorNodes = visibles
+        # self.visibleColorNodes = visibles
         for visibleNode in self.visibleColorNodes:
             availableNodes.remove(visibleNode)
 
         ############# designate adversarial ###############
-        #self.adversarialNodes = getSubsetWithMaxDistinctNeighbors(availableNodes, G, numAdversarialNodes)
+        self.adversarialNodes = getSubsetWithMaxDistinctNeighbors(availableNodes, G, numAdversarialNodes)
+        
         #random.shuffle(availableNodes)
         # self.adversarialNodes = [item for item in availableNodes[:self.numAdversarialNodes]]
-        self.adversarialNodes = adversaries
+        # self.adversarialNodes = adversaries
 
 
         # ================ prev version: designate adversarial and visible nodes ===========
@@ -1076,7 +1078,7 @@ if __name__ =="__main__":
     beta = 0
     # experimental parameters
     ################################
-    numSimulation = 15
+    numSimulation = 1000
     gameTime = 60
     # inertia = 0.5
     numRegularPlayers = 20
@@ -1117,17 +1119,17 @@ if __name__ =="__main__":
                 })
             cnt += 1
 
-    result = coordinate_descent(args)
+    # result = coordinate_descent(args)
 
-    # pool = Pool(processes=70)
-    # for arg in args:
-    #     arg['regularNodeAmplifier'] = np.asmatrix(np.zeros(8)).reshape(8, 1)
-    #     arg['visibleNodeAmplifier'] = np.asmatrix(np.zeros(8)).reshape(8, 1)
-    # result = pool.map(simulationFunc, args)
-    # combineResults(result, 'noAdv_baseline.csv', 'result/baseline')
- 
-    # with open('result/withAdv_L1Norm_coordinateDescent.p', 'rb') as fid:
-    #    param = pickle.load(fid)
+    pool = Pool(processes=70)
+    for arg in args:
+        arg['regularNodeAmplifier'] = np.asmatrix(np.zeros(8)).reshape(8, 1)
+        arg['visibleNodeAmplifier'] = np.asmatrix(np.zeros(8)).reshape(8, 1)
+    result = pool.map(simulationFunc, args)
+    combineResults(result, 'noAdv_baseline.csv', 'result/baseline')
+    pool.close()
+    pool.join()
+
 
     # pool = Pool(processes=70)
     # for item in param:
