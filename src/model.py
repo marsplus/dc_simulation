@@ -933,8 +933,8 @@ def simulationFunc(args):
     retOnGameLevel = defaultdict(list)
 
     for j in range(numSimulation):
-        #if j % 100 == 0:
-        #    print("Current number of simulations: ", j)
+        if j % 100 == 0:
+            print("Current number of simulations: ", j)
 
         model = DCGame(adjMat, G, numVisibleNodes, numAdversarialNodes, inertia, beta, \
                 delay, visibleNodes, adversarialNodes)
@@ -954,16 +954,16 @@ def simulationFunc(args):
         ###
         model.outputAdjMat('result/adjMat.txt')
 
-    # # the collected data is actually an object
-    # result = BatchResult(ret, retOnGameLevel, args)
-    # return result
-
-    # calculate and return consensus ratio
+    # the collected data is actually an object
     result = BatchResult(ret, retOnGameLevel, args)
-    result.generateResult()
-    result = result.getConsensusResult()
-    consensus_ratio = result['consensus'].mean()
-    return consensus_ratio
+    return result
+
+    ## calculate and return consensus ratio
+    #result = BatchResult(ret, retOnGameLevel, args)
+    #result.generateResult()
+    #result = result.getConsensusResult()
+    #consensus_ratio = result['consensus'].mean()
+    #return consensus_ratio
     
 
 
@@ -1098,7 +1098,7 @@ if __name__ =="__main__":
     cnt = 0
     outputPath = 'result/noAdv'
     for item in args_from_file:
-        if item['numAdversarialNodes'] != 0:
+        if item['numAdversarialNodes'] == 0:
             args.append({
                 'numSimulation': numSimulation,
                 'gameTime': gameTime,
@@ -1126,7 +1126,7 @@ if __name__ =="__main__":
         arg['regularNodeAmplifier'] = np.asmatrix(np.zeros(8)).reshape(8, 1)
         arg['visibleNodeAmplifier'] = np.asmatrix(np.zeros(8)).reshape(8, 1)
     result = pool.map(simulationFunc, args)
-    combineResults(result, 'noAdv_baseline.csv', 'result/baseline')
+    combineResults(result, 'noAdv.csv', 'result/placement')
     pool.close()
     pool.join()
 
