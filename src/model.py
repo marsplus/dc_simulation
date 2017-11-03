@@ -1098,7 +1098,7 @@ if __name__ =="__main__":
     cnt = 0
     outputPath = 'result/noAdv'
     for item in args_from_file:
-        if item['numAdversarialNodes'] == 0:
+        if item['numAdversarialNodes'] != 0:
             args.append({
                 'numSimulation': numSimulation,
                 'gameTime': gameTime,
