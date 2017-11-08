@@ -572,25 +572,21 @@ class DCGame(Model):
 
         ############# designate visible #############
         node_deg = [(idx, count(adjMat[idx])) for idx in range(self.numAgents)]
-        node_deg.sort(key=lambda x : x[1], reverse=True)       #highest degree nodes first
         availableNodes = [item[0] for item in node_deg]
         
-        availableNodes.sort(key=lambda x : x)
         self.visibleColorNodes = getSubsetWithMaxDistinctNeighbors(availableNodes, G, numVisibleColorNodes)
+       
+        #random.shuffle(availableNodes) 
+        #self.visibleColorNodes = [item for item in availableNodes[:self.numVisibleColorNodes]]
         
-        # self.visibleColorNodes = [item for item in availableNodes[:self.numVisibleColorNodes]]
-        # tmpVisibleNode = availableNodes[0]
-        # getRecursiveConnectedNeighborhood(tmpVisibleNode, 0)
-        # self.visibleColorNodes = visibles
         for visibleNode in self.visibleColorNodes:
             availableNodes.remove(visibleNode)
 
         ############# designate adversarial ###############
-        self.adversarialNodes = getSubsetWithMaxDistinctNeighbors(availableNodes, G, numAdversarialNodes)
+        #self.adversarialNodes = getSubsetWithMaxDistinctNeighbors(availableNodes, G, numAdversarialNodes)
         
-        #random.shuffle(availableNodes)
-        # self.adversarialNodes = [item for item in availableNodes[:self.numAdversarialNodes]]
-        # self.adversarialNodes = adversaries
+        random.shuffle(availableNodes)
+        self.adversarialNodes = [item for item in availableNodes[:self.numAdversarialNodes]]
 
 
         # ================ prev version: designate adversarial and visible nodes ===========
@@ -1078,7 +1074,7 @@ if __name__ =="__main__":
     beta = 0
     # experimental parameters
     ################################
-    numSimulation = 1000
+    numSimulation = 5000
     gameTime = 60
     # inertia = 0.5
     numRegularPlayers = 20
@@ -1126,7 +1122,7 @@ if __name__ =="__main__":
         arg['regularNodeAmplifier'] = np.asmatrix(np.zeros(8)).reshape(8, 1)
         arg['visibleNodeAmplifier'] = np.asmatrix(np.zeros(8)).reshape(8, 1)
     result = pool.map(simulationFunc, args)
-    combineResults(result, 'noAdv.csv', 'result/placement')
+    combineResults(result, 'noAdv_visibleOpt.csv', 'result/placement')
     pool.close()
     pool.join()
 
