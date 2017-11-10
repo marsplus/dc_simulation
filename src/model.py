@@ -293,8 +293,10 @@ class GameAgent(Agent):
                 assert(len(w) == numFeatures)
                 w = np.asmatrix(w).reshape(numFeatures, 1)
                 # amplifier certain weights in the logistic regression
-                assert(len(self.game.regularNodeAmplifier) == numFeatures)
-                w += self.game.regularNodeAmplifier
+                #assert(len(self.game.regularNodeAmplifier) == numFeatures)
+                regularNodeAmplifier_hasVisibleNeighbor = self.game.regularNodeAmplifier[:numFeatures, :]
+                #w += self.game.regularNodeAmplifier
+                w += regularNodeAmplifier_hasVisibleNeighbor
                 y = w.T * feature_vector
                 y = y[0, 0]
                 # y = -3.75 + 1.12 * opposite_local_inv + 1.4 * opposite_local_vis - 0.85 * current_local_inv    
@@ -308,8 +310,10 @@ class GameAgent(Agent):
                 assert(len(w) == numFeatures)
                 w = np.asmatrix(w).reshape(numFeatures, 1)
                 # amplifier certain weights in the logistic regression
-                assert(len(self.game.regularNodeAmplifier) == numFeatures)
-                w += self.game.regularNodeAmplifier
+                #assert(len(self.game.regularNodeAmplifier) == numFeatures)
+                regularNodeAmplifier_noVisibleNeighbor = self.game.regularNodeAmplifier[numFeatures:, :]
+                #w += self.game.regularNodeAmplifier
+                w += regularNodeAmplifier_noVisibleNeighbor
                 y = w.T * feature_vector
                 y = y[0, 0]
                 # y = -3.94 + 0.004 * self.game.time + 2.47 * opposite_local_inv - 0.51 * current_local_inv   #trained on all games (time only)
@@ -327,6 +331,8 @@ class GameAgent(Agent):
                     w = [-4.06, 0, 1.36, 1.55, 0, 0, -0.07, 0]
                     assert(len(w) == numFeatures)
                     w = np.asmatrix(w).reshape(numFeatures, 1)
+                    visibleNodeAmplifier_hasVisibleNeighbor = self.game.visibleNodeAmplifier[:numFeatures, :]
+                    w += visibleNodeAmplifier_hasVisibleNeighbor
                     y = w.T * feature_vector
                     y = y[0, 0]
                     # y = -4.06 + 1.36 * opposite_local_inv + 1.55 * opposite_local_vis - 0.07 * neighbors_inv    #trained on all games (time only)
@@ -339,6 +345,8 @@ class GameAgent(Agent):
                     w = [-4.31, 0, 2.85, 0, 0, 0, 0, 0]
                     assert(len(w) == numFeatures)
                     w = np.asmatrix(w).reshape(numFeatures, 1)
+                    visibleNodeAmplifier_noVisibleNeighbor = self.game.visibleNodeAmplifier[numFeatures:, :]
+                    w += visibleNodeAmplifier_noVisibleNeighbor
                     y = w.T * feature_vector
                     y = y[0, 0]
                     # y = -4.31 + 2.85 * opposite_local_inv   #trained on all games (time only)
@@ -926,6 +934,7 @@ def simulationFunc(args):
     outputPath = args['outputPath']
     arg_id = args['arg_id']
 
+
     # ret contains simulated results
     ret = []
     retOnGameLevel = defaultdict(list)
@@ -997,16 +1006,16 @@ def coordinate_descent(args):
     train_test_ratio = 0.5
     np.random.shuffle(args)
     train_args = args[:np.int(np.floor(len(args) * train_test_ratio))]
-    test_args = args[np.int(np.floor(len(args) * train_test_ratio)):]
-    assert(len(train_args) + len(test_args) == len(args))
+    #test_args = args[np.int(np.floor(len(args) * train_test_ratio)):]
+    #assert(len(train_args) + len(test_args) == len(args))
 
     # coordinate descent
     result = []
-    numFeatures = 8
-    coord_iter = 3
+    numCombinedFeatures = 16
+    coord_iter = 2
     pool = Pool(processes=71)
-    regularNodeAmplifier = np.asmatrix(np.zeros(numFeatures)).reshape(numFeatures, 1)
-    visibleNodeAmplifier = np.asmatrix(np.zeros(numFeatures)).reshape(numFeatures, 1)
+    regularNodeAmplifier = np.asmatrix(np.zeros(numCombinedFeatures)).reshape(numCombinedFeatures, 1)
+    visibleNodeAmplifier = np.asmatrix(np.zeros(numCombinedFeatures)).reshape(numCombinedFeatures, 1)
     for item in train_args:
         item['regularNodeAmplifier'] = regularNodeAmplifier
         item['visibleNodeAmplifier'] = visibleNodeAmplifier
@@ -1018,7 +1027,9 @@ def coordinate_descent(args):
         search_space = np.linspace(-budget, budget, int(budget * 100) + 1)
         for j in range(coord_iter):
             # used_budget = 0
-            for i in range(numFeatures):
+            for i in range(numCombinedFeatures):
+                if i in [0, 8]:
+                    continue
                 print("Current #feature: %i" % i)
                 for delta_i in search_space:
                     tmp_amplifier = regularNodeAmplifier.copy()
@@ -1038,7 +1049,9 @@ def coordinate_descent(args):
             # used_budget += LA.norm(regularNodeAmplifier, 1)
 
             # left_budget = budget - used_budget
-            for i in range(numFeatures):
+            for i in range(numCombinedFeatures):
+                if i in [0, 8]:
+                    continue
                 print("Current #feature: %i" % i)
                 for delta_i in search_space:
                     tmp_amplifier = visibleNodeAmplifier.copy()
@@ -1055,14 +1068,14 @@ def coordinate_descent(args):
                         visibleNodeAmplifier[i] = delta_i
                         print("visible nodes        budget: %.2f        #feature: %i        ratio: %.5f" % (budget, i, train_consensus_ratio) )           
 
-        # test the optimal amplifier
-        for item in test_args:
-            item['regularNodeAmplifier'] = regularNodeAmplifier
-            item['visibleNodeAmplifier'] = visibleNodeAmplifier
-        test_ratio = pool.map(simulationFunc, test_args)
-        test_consensus_ratio = np.mean(test_ratio)
+        ## test the optimal amplifier
+        #for item in test_args:
+        #    item['regularNodeAmplifier'] = regularNodeAmplifier
+        #    item['visibleNodeAmplifier'] = visibleNodeAmplifier
+        #test_ratio = pool.map(simulationFunc, test_args)
+        #test_consensus_ratio = np.mean(test_ratio)
 
-        result.append((budget, average_baseline_consensus_ratio, train_consensus_ratio, test_consensus_ratio, regularNodeAmplifier.copy(), visibleNodeAmplifier.copy()))
+        result.append((budget, average_baseline_consensus_ratio, train_consensus_ratio,  regularNodeAmplifier.copy(), visibleNodeAmplifier.copy()))
     pool.close()
     pool.join()
     return result
@@ -1116,7 +1129,7 @@ if __name__ =="__main__":
                 'arg_id': cnt
                 })
             cnt += 1
-
+    
     result = coordinate_descent(args)
 
     # pool = Pool(processes=70)
