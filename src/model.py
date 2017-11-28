@@ -289,7 +289,8 @@ class GameAgent(Agent):
         if not self.isAdversarial and not self.isVisibleNode:
             # regular node
             if self.hasVisibleColorNode():
-                w = [-3.75, 0, 1.12, 1.4, -0.85, 0, 0, 0]
+                # w = [-3.75, 0, 1.12, 1.4, -0.85, 0, 0, 0]
+                w = self.game.hasVisibleColorNeighbor['regularNode']
                 assert(len(w) == numFeatures)
                 w = np.asmatrix(w).reshape(numFeatures, 1)
                 # amplifier certain weights in the logistic regression
@@ -304,7 +305,8 @@ class GameAgent(Agent):
                 else:
                     return self.color
             else:
-                w = [-3.94, 0.004, 2.47, 0, -0.51, 0, 0, 0]
+                # w = [-3.94, 0.004, 2.47, 0, -0.51, 0, 0, 0]
+                w = self.game.noVisibleColorNeighbor['regularNode']
                 assert(len(w) == numFeatures)
                 w = np.asmatrix(w).reshape(numFeatures, 1)
                 # amplifier certain weights in the logistic regression
@@ -324,7 +326,8 @@ class GameAgent(Agent):
             if self.isVisibleNode:
                 #visible node
                 if self.hasVisibleColorNode():
-                    w = [-4.06, 0, 1.36, 1.55, 0, 0, -0.07, 0]
+                    # w = [-4.06, 0, 1.36, 1.55, 0, 0, -0.07, 0]
+                    w = self.game.hasVisibleColorNeighbor['visibleNode']
                     assert(len(w) == numFeatures)
                     w = np.asmatrix(w).reshape(numFeatures, 1)
                     y = w.T * feature_vector
@@ -336,7 +339,8 @@ class GameAgent(Agent):
                     else:
                         return self.color
                 else:
-                    w = [-4.31, 0, 2.85, 0, 0, 0, 0, 0]
+                    # w = [-4.31, 0, 2.85, 0, 0, 0, 0, 0]
+                    w = self.game.noVisibleColorNeighbor['visibleNode']
                     assert(len(w) == numFeatures)
                     w = np.asmatrix(w).reshape(numFeatures, 1)
                     y = w.T * feature_vector
@@ -350,7 +354,8 @@ class GameAgent(Agent):
             else:
                 #adversary node
                 if self.hasVisibleColorNode():
-                    w = [-3.08, 0, 0, 0, 0, 0.9, 0, -0.15]
+                    # w = [-3.08, 0, 0, 0, 0, 0.9, 0, -0.15]
+                    w = self.game.hasVisibleColorNeighbor['adversarialNode']
                     assert(len(w) == numFeatures)
                     w = np.asmatrix(w).reshape(numFeatures, 1)
                     y = w.T * feature_vector
@@ -362,7 +367,8 @@ class GameAgent(Agent):
                     else:
                         return self.color
                 else:
-                    w = [-2.79, 0, -1.1, 0, 1.21, 0, 0, 0]
+                    # w = [-2.79, 0, -1.1, 0, 1.21, 0, 0, 0]
+                    w = self.game.noVisibleColorNeighbor['adversarialNode']
                     assert(len(w) == numFeatures)
                     w = np.asmatrix(w).reshape(numFeatures, 1)
                     y = w.T * feature_vector
@@ -500,6 +506,10 @@ class DCGame(Model):
         # tune some parameters of the logistic regression
         self.regularNodeAmplifier = None
         self.visibleNodeAmplifier = None
+
+        # players' coefficients
+        self.hasVisibleColorNeighbor = dict()
+        self.noVisibleColorNeighbor = dict()
 
 
         # convert adjMat to adjList
@@ -743,6 +753,13 @@ class DCGame(Model):
     def setVisibleNodeAmplifier(self, amplifier):
         self.visibleNodeAmplifier = amplifier    
 
+    def set_hasVisibleNeighbor(self, coeff):
+        self.hasVisibleColorNeighbor = coeff
+
+    def set_noVisibleNeighbor(self, coeff):
+        self.noVisibleColorNeighbor = coeff
+
+
 class BatchResult(object):
     def __init__(self, data, dataOnGameLevel, args):
         # self.data records data at each time step
@@ -924,6 +941,8 @@ def simulationFunc(args):
     expDate = args['expDate']
     expNum = args['expNum']
     outputPath = args['outputPath']
+    hasVisibleColorNeighborCoeff = args['hasVisibleColorNeighborCoeff']
+    noVisibleColorNeighborCoeff  = args['noVisibleColorNeighborCoeff']
     arg_id = args['arg_id']
 
     # ret contains simulated results
@@ -936,6 +955,10 @@ def simulationFunc(args):
 
         model = DCGame(adjMat, G, numVisibleNodes, numAdversarialNodes, inertia, beta, \
                 delay, visibleNodes, adversarialNodes)
+
+        # set coeffs
+        model.set_hasVisibleNeighbor(hasVisibleColorNeighborCoeff)
+        model.set_noVisibleNeighbor(noVisibleColorNeighborCoeff)
 
         # set amplifier
         model.setRegularNodeAmplifier(regularNodeAmplifier)
@@ -1068,6 +1091,22 @@ def coordinate_descent(args):
     return result
 
 
+def readCoeffFile(fPath):
+    hasVisibleColorNeighborCoeff = dict()
+    noVisibleColorNeighborCoeff = dict()
+
+    coeff = pd.read_csv(fPath, sep=',')
+    hasVisible = coeff[coeff['hasVisibleNeighbor'].isin([1])].iloc[:, :-1].values
+    noVisible = coeff[coeff['hasVisibleNeighbor'].isin([0])].iloc[:, :-1].values
+
+    hasVisibleColorNeighborCoeff['regularNode'] = hasVisible[0, :]
+    hasVisibleColorNeighborCoeff['visibleNode'] = hasVisible[1, :]
+    hasVisibleColorNeighborCoeff['adversarialNode'] = hasVisible[2, :]
+    
+    noVisibleColorNeighborCoeff['regularNode'] = noVisible[0, :]
+    noVisibleColorNeighborCoeff['visibleNode'] = noVisible[1, :]
+    noVisibleColorNeighborCoeff['adversarialNode'] = noVisible[2, :]
+    return hasVisibleColorNeighborCoeff, noVisibleColorNeighborCoeff
 
 if __name__ =="__main__":
 
@@ -1091,6 +1130,9 @@ if __name__ =="__main__":
     # ER_edges = [23, 26, 45, 51]
     ER_edges = [25 + 5 * i for i in range(15)]
 
+
+    hasVisibleColorNeighborCoeff, noVisibleColorNeighborCoeff = readCoeffFile('data/coeff.txt')
+
     args_from_file = readConfigurationFromFile('data/nocomm.csv')
     args = []
     cnt = 0
@@ -1112,18 +1154,21 @@ if __name__ =="__main__":
                 'G': item['G'],
                 'expDate': item['expDate'],
                 'expNum': item['expNum'],
-                'outputPath': outputPath, 
+                'outputPath': outputPath,
+                'hasVisibleColorNeighborCoeff': hasVisibleColorNeighborCoeff,
+                'noVisibleColorNeighborCoeff': noVisibleColorNeighborCoeff,  
                 'arg_id': cnt
                 })
             cnt += 1
 
     result = coordinate_descent(args)
 
-    # pool = Pool(processes=70)
-    # for arg in args:
-    #     arg['regularNodeAmplifier'] = np.asmatrix(np.zeros(8)).reshape(8, 1)
-    #     arg['visibleNodeAmplifier'] = np.asmatrix(np.zeros(8)).reshape(8, 1)
-    # result = pool.map(simulationFunc, args)
+    #pool = Pool(processes=1)
+    #for arg in args:
+    #    arg['regularNodeAmplifier'] = np.asmatrix(np.zeros(8)).reshape(8, 1)
+    #    arg['visibleNodeAmplifier'] = np.asmatrix(np.zeros(8)).reshape(8, 1)
+    #result = simulationFunc(args[0])
+    #result = pool.map(simulationFunc, args)
     # combineResults(result, 'noAdv_baseline.csv', 'result/baseline')
  
     # with open('result/withAdv_L1Norm_coordinateDescent.p', 'rb') as fid:
