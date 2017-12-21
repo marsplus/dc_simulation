@@ -166,14 +166,31 @@ class GameAgent(Agent):
         diff_inv = abs(red_local_inv - green_local_inv)
         diff_reg = abs(red_local_reg - green_local_reg)
 
+        features_pickInitColor = [1, self.game.time, diff_inv, diff_vis, neighbors_inv, neighbors_vis]
+        numFeatures_pickInitColor = len(features_pickInitColor)
+        features_pickInitColor = np.asmatrix(features_pickInitColor).reshape(numFeatures_pickInitColor, 1)
+
+        features_pickRed = [1, self.game.time, green_local_inv, green_local_vis, red_local_inv, red_local_vis]
+        numFeatures_pickRed = len(features_pickRed)
+        features_pickRed = np.asmatrix(features_pickRed).reshape(numFeatures_pickRed, 1)
+
+
         if self.isAdversarial:
             # adversarial node
             if self.hasVisibleColorNode():
-                y = -2.68 - 0.04 * self.game.time + 1.03 * diff_vis + 1.01 * diff_inv + 0.21 * neighbors_vis    #trained on all games (time only)
+                w = self.game.hasVisibleColorNeighbor_pickInitColor['adversarialNode']
+                assert(len(w) == numFeatures_pickInitColor)
+                w = np.asmatrix(w).reshape(numFeatures_pickInitColor, 1)
+                y = w.T * features_pickInitColor
+                y = y[0, 0]
                 prob_of_choose = float(1) / float(1 + math.exp(-y))
                 if random.random() < prob_of_choose:
-                    y2 = -0.37 + 0.83 * green_local_vis     #trained on all games (time only)
-                    prob_of_choose_color = float(1) / float(1 + math.exp(-y2))
+                    w = self.game.hasVisibleColorNeighbor_pickRed['adversarialNode']
+                    assert(len(w) == numFeatures_pickRed)
+                    w = np.asmatrix(w).reshape(numFeatures_pickRed, 1)
+                    y = w.T * features_pickRed
+                    y = y[0, 0]
+                    prob_of_choose_color = float(1) / float(1 + math.exp(-y))
                     if random.random() < prob_of_choose_color:
                         return "red"
                     else:
@@ -181,11 +198,19 @@ class GameAgent(Agent):
                 else:
                     return "white"
             else:
-                y = -2.18 - 0.016 * self.game.time + 1.45 * diff_inv    #trained on all games (time only)
+                w = self.game.noVisibleColorNeighbor_pickInitColor['adversarialNode']
+                assert(len(w) == numFeatures_pickInitColor)
+                w = np.asmatrix(w).reshape(numFeatures_pickInitColor, 1)
+                y = w.T * features_pickInitColor
+                y = y[0, 0]
                 prob_of_choose = float(1) / float(1 + math.exp(-y))
                 if random.random() < prob_of_choose:
-                    y2 = -0.15 + 1.07 * green_local_inv - 0.69 * red_local_inv  #trained on all games (time only)
-                    prob_of_choose_color = float(1) / float(1 + math.exp(-y2))
+                    w = self.game.noVisibleColorNeighbor_pickRed['adversarialNode']
+                    assert(len(w) == numFeatures_pickRed)
+                    w = np.asmatrix(w).reshape(numFeatures_pickRed, 1)
+                    y = w.T * features_pickRed
+                    y = y[0, 0]
+                    prob_of_choose_color = float(1) / float(1 + math.exp(-y))
                     if random.random() < prob_of_choose_color:
                         return "red"
                     else:
@@ -194,26 +219,41 @@ class GameAgent(Agent):
                     return "white"
 
         elif self.isVisibleNode:
-            # visible node
+            # visible node 
             if self.hasVisibleColorNode():
-                y = -1.95 + 0.86 * diff_vis + 0.61 * diff_inv       #trained on all games (time only)
+                w = self.game.hasVisibleColorNeighbor_pickInitColor['visibleNode']
+                assert(len(w) == numFeatures_pickInitColor)
+                w = np.asmatrix(w).reshape(numFeatures_pickInitColor, 1)
+                y = w.T * features_pickInitColor
+                y = y[0, 0]
                 prob_of_choose = float(1) / float(1 + math.exp(-y))
                 if random.random() < prob_of_choose:
-                    y2 = 0.14 - 3.86 * green_local_inv - 1.6 * green_local_vis + 2.63 * red_local_inv + 2.41 * red_local_vis    #trained on all games (time only)
-                    prob_of_choose_color = float(1) / float(1 + math.exp(-y2))
+                    w = self.game.hasVisibleColorNeighbor_pickRed['visibleNode']
+                    assert(len(w) == numFeatures_pickRed)
+                    w = np.asmatrix(w).reshape(numFeatures_pickRed, 1)
+                    y = w.T * features_pickRed
+                    y = y[0, 0]
+                    prob_of_choose_color = float(1) / float(1 + math.exp(-y))
                     if random.random() < prob_of_choose_color:
                         return "red"
                     else:
                         return "green"
                 else:
                     return "white"
-
             else:
-                y = -1.93 + 1.77 * diff_inv     #trained on all games (time only)
+                w = self.game.noVisibleColorNeighbor_pickInitColor['visibleNode']
+                assert(len(w) == numFeatures_pickInitColor)
+                w = np.asmatrix(w).reshape(numFeatures_pickRed, 1)
+                y = w.T * features_pickInitColor
+                y = y[0, 0]
                 prob_of_choose = float(1) / float(1 + math.exp(-y))
                 if random.random() < prob_of_choose:
-                    y2 = 0.01 - 4.32 * green_local_inv + 4.32 * red_local_inv   #trained on all games (time only)
-                    prob_of_choose_color = float(1) / float(1 + math.exp(-y2))
+                    w = self.game.noVisibleColorNeighbor_pickRed['visibleNode']
+                    assert(len(w) == numFeatures_pickRed)
+                    w = np.asmatrix(w).reshape(numFeatures_pickRed, 1)
+                    y = w.T * features_pickRed
+                    y = y[0, 0]
+                    prob_of_choose_color = float(1) / float(1 + math.exp(-y))
                     if random.random() < prob_of_choose_color:
                         return "red"
                     else:
@@ -223,11 +263,19 @@ class GameAgent(Agent):
         else:
             # regular player
             if self.hasVisibleColorNode():
-                y = -2.2 - 0.04 * self.game.time + 1.1 * diff_vis + 0.82 * diff_inv + 0.08 * neighbors_vis  #trained on all games (time only)
+                w = self.game.hasVisibleColorNeighbor_pickInitColor['regularNode']
+                assert(len(w) == numFeatures_pickInitColor)
+                w = np.asmatrix(w).reshape(numFeatures_pickInitColor, 1)
+                y = w.T * features_pickInitColor
+                y = y[0, 0]
                 prob_of_choose = float(1) / float(1 + math.exp(-y))
                 if random.random() < prob_of_choose:
-                    y2 = -0.08 - 2.88 * green_local_inv - 2.07 * green_local_vis + 3.41 * red_local_inv + 1.76 * red_local_vis  #trained on all games (time only)
-                    prob_of_choose_color = float(1) / float(1 + math.exp(-y2))
+                    w = self.game.hasVisibleColorNeighbor_pickRed['regularNode']
+                    assert(len(w) == numFeatures_pickRed)
+                    w = np.asmatrix(w).reshape(numFeatures_pickRed, 1)
+                    y = w.T * features_pickRed
+                    y = y[0, 0]
+                    prob_of_choose_color = float(1) / float(1 + math.exp(-y))
                     if random.random() < prob_of_choose_color:
                         return "red"
                     else:
@@ -235,17 +283,27 @@ class GameAgent(Agent):
                 else:
                     return "white"
             else:
-                y = -1.94 - 0.03 * self.game.time + 1.63 * diff_inv + 0.01 * neighbors_inv  #trained on all games (time only)
+                w = self.game.noVisibleColorNeighbor_pickInitColor['regularNode']
+                assert(len(w) == numFeatures_pickInitColor)
+                w = np.asmatrix(w).reshape(numFeatures_pickInitColor, 1)
+                y = w.T * features_pickInitColor
+                y = y[0, 0]
                 prob_of_choose = float(1) / float(1 + math.exp(-y))
                 if random.random() < prob_of_choose:
-                    y2 = -0.003 - 4.95 * green_local_inv + 5.11 * red_local_inv     #trained on all games (time only)
-                    prob_of_choose_color = float(1) / float(1 + math.exp(-y2))
+                    w = self.game.noVisibleColorNeighbor_pickRed['regularNode']
+                    assert(len(w) == numFeatures_pickRed)
+                    w = np.asmatrix(w).reshape(numFeatures_pickRed, 1)
+                    y = w.T * features_pickRed
+                    y = y[0, 0]
+                    prob_of_choose_color = float(1) / float(1 + math.exp(-y))
                     if random.random() < prob_of_choose_color:
                         return "red"
                     else:
                         return "green"
                 else:
                     return "white"
+
+
 
     def pickSubsequentColor(self):
         mid_game = 0
@@ -289,8 +347,7 @@ class GameAgent(Agent):
         if not self.isAdversarial and not self.isVisibleNode:
             # regular node
             if self.hasVisibleColorNode():
-                # w = [-3.75, 0, 1.12, 1.4, -0.85, 0, 0, 0]
-                w = self.game.hasVisibleColorNeighbor['regularNode']
+                w = self.game.hasVisibleColorNeighbor_pickSubsequentColor['regularNode']
                 assert(len(w) == numFeatures)
                 w = np.asmatrix(w).reshape(numFeatures, 1)
                 # amplifier certain weights in the logistic regression
@@ -305,8 +362,7 @@ class GameAgent(Agent):
                 else:
                     return self.color
             else:
-                # w = [-3.94, 0.004, 2.47, 0, -0.51, 0, 0, 0]
-                w = self.game.noVisibleColorNeighbor['regularNode']
+                w = self.game.noVisibleColorNeighbor_pickSubsequentColor['regularNode']
                 assert(len(w) == numFeatures)
                 w = np.asmatrix(w).reshape(numFeatures, 1)
                 # amplifier certain weights in the logistic regression
@@ -326,8 +382,7 @@ class GameAgent(Agent):
             if self.isVisibleNode:
                 #visible node
                 if self.hasVisibleColorNode():
-                    # w = [-4.06, 0, 1.36, 1.55, 0, 0, -0.07, 0]
-                    w = self.game.hasVisibleColorNeighbor['visibleNode']
+                    w = self.game.hasVisibleColorNeighbor_pickSubsequentColor['visibleNode']
                     assert(len(w) == numFeatures)
                     w = np.asmatrix(w).reshape(numFeatures, 1)
                     y = w.T * feature_vector
@@ -339,8 +394,7 @@ class GameAgent(Agent):
                     else:
                         return self.color
                 else:
-                    # w = [-4.31, 0, 2.85, 0, 0, 0, 0, 0]
-                    w = self.game.noVisibleColorNeighbor['visibleNode']
+                    w = self.game.noVisibleColorNeighbor_pickSubsequentColor['visibleNode']
                     assert(len(w) == numFeatures)
                     w = np.asmatrix(w).reshape(numFeatures, 1)
                     y = w.T * feature_vector
@@ -354,8 +408,7 @@ class GameAgent(Agent):
             else:
                 #adversary node
                 if self.hasVisibleColorNode():
-                    # w = [-3.08, 0, 0, 0, 0, 0.9, 0, -0.15]
-                    w = self.game.hasVisibleColorNeighbor['adversarialNode']
+                    w = self.game.hasVisibleColorNeighbor_pickSubsequentColor['adversarialNode']
                     assert(len(w) == numFeatures)
                     w = np.asmatrix(w).reshape(numFeatures, 1)
                     y = w.T * feature_vector
@@ -367,8 +420,7 @@ class GameAgent(Agent):
                     else:
                         return self.color
                 else:
-                    # w = [-2.79, 0, -1.1, 0, 1.21, 0, 0, 0]
-                    w = self.game.noVisibleColorNeighbor['adversarialNode']
+                    w = self.game.noVisibleColorNeighbor_pickSubsequentColor['adversarialNode']
                     assert(len(w) == numFeatures)
                     w = np.asmatrix(w).reshape(numFeatures, 1)
                     y = w.T * feature_vector
@@ -508,8 +560,13 @@ class DCGame(Model):
         self.visibleNodeAmplifier = None
 
         # players' coefficients
-        self.hasVisibleColorNeighbor = dict()
-        self.noVisibleColorNeighbor = dict()
+        self.hasVisibleColorNeighbor_pickInitColor = dict()
+        self.hasVisibleColorNeighbor_pickRed = dict()
+        self.hasVisibleColorNeighbor_pickSubsequentColor = dict()
+
+        self.noVisibleColorNeighbor_pickInitColor = dict()
+        self.noVisibleColorNeighbor_pickRed = dict()
+        self.noVisibleColorNeighbor_pickSubsequentColor = dict()
 
 
         # convert adjMat to adjList
@@ -753,11 +810,23 @@ class DCGame(Model):
     def setVisibleNodeAmplifier(self, amplifier):
         self.visibleNodeAmplifier = amplifier    
 
-    def set_hasVisibleNeighbor(self, coeff):
-        self.hasVisibleColorNeighbor = coeff
+    def set_hasVisibleNeighbor_pickInitColor(self, coeff):
+        self.hasVisibleColorNeighbor_pickInitColor = coeff
 
-    def set_noVisibleNeighbor(self, coeff):
-        self.noVisibleColorNeighbor = coeff
+    def set_hasVisibleNeighbor_pickRed(self, coeff):
+        self.hasVisibleColorNeighbor_pickRed = coeff
+
+    def set_hasVisibleNeighbor_pickSubsequentColor(self, coeff):
+        self.hasVisibleColorNeighbor_pickSubsequentColor = coeff
+
+    def set_noVisibleNeighbor_pickInitColor(self, coeff):
+        self.noVisibleColorNeighbor_pickInitColor = coeff
+
+    def set_noVisibleNeighbor_pickRed(self, coeff):
+        self.noVisibleColorNeighbor_pickRed = coeff
+
+    def set_noVisibleNeighbor_pickSubsequentColor(self, coeff):
+        self.noVisibleColorNeighbor_pickSubsequentColor = coeff
 
 
 class BatchResult(object):
@@ -941,8 +1010,14 @@ def simulationFunc(args):
     expDate = args['expDate']
     expNum = args['expNum']
     outputPath = args['outputPath']
-    hasVisibleColorNeighborCoeff = args['hasVisibleColorNeighborCoeff']
-    noVisibleColorNeighborCoeff  = args['noVisibleColorNeighborCoeff']
+    hasVisibleColorNeighbor_pickSubsequentColor = args['hasVisibleColorNeighbor_pickSubsequentColor']
+    hasVisibleColorNeighbor_pickInitColor = args['hasVisibleColorNeighbor_pickInitColor']
+    hasVisibleColorNeighbor_pickRed = args['hasVisibleColorNeighbor_pickRed']
+
+    noVisibleColorNeighbor_pickSubsequentColor  = args['noVisibleColorNeighbor_pickSubsequentColor']
+    noVisibleColorNeighbor_pickInitColor  = args['noVisibleColorNeighbor_pickInitColor']
+    noVisibleColorNeighbor_pickRed  = args['noVisibleColorNeighbor_pickRed']
+
     arg_id = args['arg_id']
 
     # ret contains simulated results
@@ -950,15 +1025,21 @@ def simulationFunc(args):
     retOnGameLevel = defaultdict(list)
 
     for j in range(numSimulation):
-        #if j % 100 == 0:
-        #    print("Current number of simulations: ", j)
+        if j % 100 == 0:
+           print("Current number of simulations: ", j)
 
         model = DCGame(adjMat, G, numVisibleNodes, numAdversarialNodes, inertia, beta, \
                 delay, visibleNodes, adversarialNodes)
 
         # set coeffs
-        model.set_hasVisibleNeighbor(hasVisibleColorNeighborCoeff)
-        model.set_noVisibleNeighbor(noVisibleColorNeighborCoeff)
+        model.set_hasVisibleNeighbor_pickSubsequentColor(hasVisibleColorNeighbor_pickSubsequentColor)
+        model.set_hasVisibleNeighbor_pickInitColor(hasVisibleColorNeighbor_pickInitColor)
+        model.set_hasVisibleNeighbor_pickRed(hasVisibleColorNeighbor_pickRed)
+
+        model.set_noVisibleNeighbor_pickSubsequentColor(noVisibleColorNeighbor_pickSubsequentColor)
+        model.set_noVisibleNeighbor_pickInitColor(noVisibleColorNeighbor_pickInitColor)
+        model.set_noVisibleNeighbor_pickRed(noVisibleColorNeighbor_pickRed)
+
 
         # set amplifier
         model.setRegularNodeAmplifier(regularNodeAmplifier)
@@ -975,16 +1056,16 @@ def simulationFunc(args):
         ###
         model.outputAdjMat('result/adjMat.txt')
 
-    # # the collected data is actually an object
-    # result = BatchResult(ret, retOnGameLevel, args)
-    # return result
-
-    # calculate and return consensus ratio
+    # the collected data is actually an object
     result = BatchResult(ret, retOnGameLevel, args)
-    result.generateResult()
-    result = result.getConsensusResult()
-    consensus_ratio = result['consensus'].mean()
-    return consensus_ratio
+    return result
+
+    # # calculate and return consensus ratio
+    # result = BatchResult(ret, retOnGameLevel, args)
+    # result.generateResult()
+    # result = result.getConsensusResult()
+    # consensus_ratio = result['consensus'].mean()
+    # return consensus_ratio
     
 
 
@@ -1108,6 +1189,8 @@ def readCoeffFile(fPath):
     noVisibleColorNeighborCoeff['adversarialNode'] = noVisible[2, :]
     return hasVisibleColorNeighborCoeff, noVisibleColorNeighborCoeff
 
+
+
 if __name__ =="__main__":
 
     inertia = 0
@@ -1131,14 +1214,17 @@ if __name__ =="__main__":
     ER_edges = [25 + 5 * i for i in range(15)]
 
 
-    hasVisibleColorNeighborCoeff, noVisibleColorNeighborCoeff = readCoeffFile('data/coeff.txt')
+    hasVisibleColorNeighbor_pickInitColor, noVisibleColorNeighbor_pickInitColor = readCoeffFile('data/coeff_pickInitColor.txt')
+    hasVisibleColorNeighbor_pickSubsequentColor, noVisibleColorNeighbor_pickSubsequentColor = readCoeffFile('data/coeff_pickSubsequentColor.txt')
+    hasVisibleColorNeighbor_pickRed, noVisibleColorNeighbor_pickRed = readCoeffFile('data/coeff_pickRed.txt')
+
 
     args_from_file = readConfigurationFromFile('data/nocomm.csv')
     args = []
     cnt = 0
     outputPath = 'result/noAdv'
     for item in args_from_file:
-        if item['numAdversarialNodes'] != 0:
+        if item['numAdversarialNodes'] == 0:
             args.append({
                 'numSimulation': numSimulation,
                 'gameTime': gameTime,
@@ -1155,21 +1241,25 @@ if __name__ =="__main__":
                 'expDate': item['expDate'],
                 'expNum': item['expNum'],
                 'outputPath': outputPath,
-                'hasVisibleColorNeighborCoeff': hasVisibleColorNeighborCoeff,
-                'noVisibleColorNeighborCoeff': noVisibleColorNeighborCoeff,  
+                'hasVisibleColorNeighbor_pickInitColor': hasVisibleColorNeighbor_pickInitColor,
+                'hasVisibleColorNeighbor_pickSubsequentColor': hasVisibleColorNeighbor_pickSubsequentColor,
+                'hasVisibleColorNeighbor_pickRed': hasVisibleColorNeighbor_pickRed,
+                'noVisibleColorNeighbor_pickInitColor': noVisibleColorNeighbor_pickInitColor,
+                'noVisibleColorNeighbor_pickSubsequentColor': noVisibleColorNeighbor_pickSubsequentColor,  
+                'noVisibleColorNeighbor_pickRed': noVisibleColorNeighbor_pickRed,    
                 'arg_id': cnt
                 })
             cnt += 1
 
-    result = coordinate_descent(args)
+    # result = coordinate_descent(args)
 
-    #pool = Pool(processes=1)
-    #for arg in args:
-    #    arg['regularNodeAmplifier'] = np.asmatrix(np.zeros(8)).reshape(8, 1)
-    #    arg['visibleNodeAmplifier'] = np.asmatrix(np.zeros(8)).reshape(8, 1)
-    #result = simulationFunc(args[0])
-    #result = pool.map(simulationFunc, args)
-    # combineResults(result, 'noAdv_baseline.csv', 'result/baseline')
+    pool = Pool(processes=1)
+    for arg in args:
+       arg['regularNodeAmplifier'] = np.asmatrix(np.zeros(8)).reshape(8, 1)
+       arg['visibleNodeAmplifier'] = np.asmatrix(np.zeros(8)).reshape(8, 1)
+    result = simulationFunc(args[0])
+    # result = pool.map(simulationFunc, args)
+    combineResults(result, 'noAdv_baseline.csv', 'result/baseline')
  
     # with open('result/withAdv_L1Norm_coordinateDescent.p', 'rb') as fid:
     #    param = pickle.load(fid)
