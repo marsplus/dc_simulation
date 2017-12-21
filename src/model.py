@@ -1198,7 +1198,7 @@ if __name__ =="__main__":
     beta = 0
     # experimental parameters
     ################################
-    numSimulation = 15
+    numSimulation = 2000
     gameTime = 60
     # inertia = 0.5
     numRegularPlayers = 20
@@ -1222,9 +1222,9 @@ if __name__ =="__main__":
     args_from_file = readConfigurationFromFile('data/nocomm.csv')
     args = []
     cnt = 0
-    outputPath = 'result/noAdv'
+    outputPath = ''
     for item in args_from_file:
-        if item['numAdversarialNodes'] == 0:
+        if item['numAdversarialNodes'] != 0:
             args.append({
                 'numSimulation': numSimulation,
                 'gameTime': gameTime,
@@ -1253,13 +1253,13 @@ if __name__ =="__main__":
 
     # result = coordinate_descent(args)
 
-    pool = Pool(processes=1)
+    pool = Pool(processes=70)
     for arg in args:
        arg['regularNodeAmplifier'] = np.asmatrix(np.zeros(8)).reshape(8, 1)
        arg['visibleNodeAmplifier'] = np.asmatrix(np.zeros(8)).reshape(8, 1)
-    result = simulationFunc(args[0])
-    # result = pool.map(simulationFunc, args)
-    combineResults(result, 'noAdv_baseline.csv', 'result/baseline')
+    #result = simulationFunc(args[0])
+    result = pool.map(simulationFunc, args)
+    combineResults(result, 'withAdv_baseline.csv', 'result/baseline')
  
     # with open('result/withAdv_L1Norm_coordinateDescent.p', 'rb') as fid:
     #    param = pickle.load(fid)
