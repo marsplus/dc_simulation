@@ -352,9 +352,9 @@ class GameAgent(Agent):
                 w = self.game.hasVisibleColorNeighbor_pickSubsequentColor['regularNode']
                 assert(len(w) == numFeatures)
                 w = np.asmatrix(w).reshape(numFeatures, 1)
-                # amplifier certain weights in the logistic regression
-                assert(len(self.game.regularNodeAmplifier) == numFeatures)
-                w += self.game.regularNodeAmplifier
+                # amplify certain weights in the logistic regression
+                assert(len(self.game.regularNodeAmplifier_hasVisibleColorNeighbor) == numFeatures)
+                w += self.game.regularNodeAmplifier_hasVisibleColorNeighbor
                 y = w.T * feature_vector
                 y = y[0, 0]
                 prob_of_change = float(1) / float(1 + math.exp(-y))
@@ -367,8 +367,8 @@ class GameAgent(Agent):
                 assert(len(w) == numFeatures)
                 w = np.asmatrix(w).reshape(numFeatures, 1)
                 # amplifier certain weights in the logistic regression
-                assert(len(self.game.regularNodeAmplifier) == numFeatures)
-                w += self.game.regularNodeAmplifier
+                assert(len(self.game.regularNodeAmplifier_noVisibleColorNeighbor) == numFeatures)
+                w += self.game.regularNodeAmplifier_noVisibleColorNeighbor
                 y = w.T * feature_vector
                 y = y[0, 0]
                 prob_of_change = float(1) / float(1 + math.exp(-y))
@@ -385,6 +385,9 @@ class GameAgent(Agent):
                     w = self.game.hasVisibleColorNeighbor_pickSubsequentColor['visibleNode']
                     assert(len(w) == numFeatures)
                     w = np.asmatrix(w).reshape(numFeatures, 1)
+                    # amplify certain weights in the logistic regression
+                    assert(len(self.game.visibleNodeAmplifier_hasVisibleColorNeighbor) == numFeatures)
+                    w += self.game.visibleNodeAmplifier_hasVisibleColorNeighbor
                     y = w.T * feature_vector
                     y = y[0, 0]
                     prob_of_change = float(1) / float(1 + math.exp(-y))
@@ -396,6 +399,9 @@ class GameAgent(Agent):
                     w = self.game.noVisibleColorNeighbor_pickSubsequentColor['visibleNode']
                     assert(len(w) == numFeatures)
                     w = np.asmatrix(w).reshape(numFeatures, 1)
+                    # amplify certain weights in the logistic regression
+                    assert(len(self.game.visibleNodeAmplifier_noVisibleColorNeighbor) == numFeatures)
+                    w += self.game.visibleNodeAmplifier_noVisibleColorNeighbor
                     y = w.T * feature_vector
                     y = y[0, 0]
                     prob_of_change = float(1) / float(1 + math.exp(-y))
@@ -552,8 +558,13 @@ class DCGame(Model):
         self.graph = G
 
         # tune some parameters of the logistic regression
-        self.regularNodeAmplifier = None
-        self.visibleNodeAmplifier = None
+        # we only tune 2x2=4 models' parameters (regular: with/without visible color neighbor),
+        # and (visible: with/without color neighbor) in pickSubsequentColor phrase
+        self.regularNodeAmplifier_hasVisibleColorNeighbor = None
+        self.regularNodeAmplifier_noVisibleColorNeighbor = None
+        self.visibleNodeAmplifier_hasVisibleColorNeighbor = None
+        self.visibleNodeAmplifier_noVisibleColorNeighbor = None
+        
 
         # players' coefficients
         self.hasVisibleColorNeighbor_pickInitColor = dict()
@@ -808,11 +819,17 @@ class DCGame(Model):
                 tline = ["1" if item else "0" for item in line]
                 fid.write(' '.join(tline) + '\n') 
 
-    def setRegularNodeAmplifier(self, amplifier):
-        self.regularNodeAmplifier = amplifier
+    def setRegularNodeAmplifier_hasVisibleColorNeighbor(self, amplifier):
+        self.regularNodeAmplifier_hasVisibleColorNeighbor = amplifier
 
-    def setVisibleNodeAmplifier(self, amplifier):
-        self.visibleNodeAmplifier = amplifier    
+    def setRegularNodeAmplifier_noVisibleColorNeighbor(self, amplifier):
+        self.regularNodeAmplifier_noVisibleColorNeighbor = amplifier
+
+    def setVisibleNodeAmplifier_hasVisibleColorNeighbor(self, amplifier):
+        self.visibleNodeAmplifier_hasVisibleColorNeighbor = amplifier  
+
+    def setVisibleNodeAmplifier_noVisibleColorNeighbor(self, amplifier):
+        self.visibleNodeAmplifier_noVisibleColorNeighbor = amplifier   
 
     def set_hasVisibleNeighbor_pickInitColor(self, coeff):
         self.hasVisibleColorNeighbor_pickInitColor = coeff
@@ -1006,8 +1023,10 @@ def simulationFunc(args):
     inertia = args['inertia']
     beta = args['beta']
     delay = args['delay']
-    regularNodeAmplifier = args['regularNodeAmplifier']
-    visibleNodeAmplifier = args['visibleNodeAmplifier']
+    regularNodeAmplifier_hasVisibleColorNeighbor = args['regularNodeAmplifier_hasVisibleColorNeighbor']
+    regularNodeAmplifier_noVisibleColorNeighbor = args['regularNodeAmplifier_noVisibleColorNeighbor']
+    visibleNodeAmplifier_hasVisibleColorNeighbor = args['visibleNodeAmplifier_hasVisibleColorNeighbor']
+    visibleNodeAmplifier_noVisibleColorNeighbor = args['visibleNodeAmplifier_noVisibleColorNeighbor']
     network = args['network']
     adjMat = args['adjMat']
     G = args['G']
@@ -1046,8 +1065,10 @@ def simulationFunc(args):
 
 
         # set amplifier
-        model.setRegularNodeAmplifier(regularNodeAmplifier)
-        model.setVisibleNodeAmplifier(visibleNodeAmplifier)
+        model.setRegularNodeAmplifier_hasVisibleColorNeighbor(regularNodeAmplifier_hasVisibleColorNeighbor)
+        model.setRegularNodeAmplifier_noVisibleColorNeighbor(regularNodeAmplifier_noVisibleColorNeighbor)
+        model.setVisibleNodeAmplifier_hasVisibleColorNeighbor(visibleNodeAmplifier_hasVisibleColorNeighbor)
+        model.setVisibleNodeAmplifier_noVisibleColorNeighbor(visibleNodeAmplifier_noVisibleColorNeighbor)
 
         simulatedResult, isRegWhite = model.simulate(gameTime)
         ret.append(simulatedResult)
@@ -1060,16 +1081,16 @@ def simulationFunc(args):
         ###
         model.outputAdjMat('result/adjMat.txt')
 
-    # the collected data is actually an object
-    result = BatchResult(ret, retOnGameLevel, args)
-    return result
-
-    # # calculate and return consensus ratio
+    ## the collected data is actually an object
     # result = BatchResult(ret, retOnGameLevel, args)
-    # result.generateResult()
-    # result = result.getConsensusResult()
-    # consensus_ratio = result['consensus'].mean()
-    # return consensus_ratio
+    # return result
+
+    # calculate and return consensus ratio
+    result = BatchResult(ret, retOnGameLevel, args)
+    result.generateResult()
+    result = result.getConsensusResult()
+    consensus_ratio = result['consensus'].mean()
+    return consensus_ratio
     
 
 
@@ -1112,67 +1133,45 @@ def coordinate_descent(args):
 
     # coordinate descent
     result = []
-    numFeatures = 8
+    numFeatures = 6
     coord_iter = 3
+    totalNumFeatures = 4 * numFeatures
     pool = Pool(processes=71)
-    regularNodeAmplifier = np.asmatrix(np.zeros(numFeatures)).reshape(numFeatures, 1)
-    visibleNodeAmplifier = np.asmatrix(np.zeros(numFeatures)).reshape(numFeatures, 1)
-    for item in train_args:
-        item['regularNodeAmplifier'] = regularNodeAmplifier
-        item['visibleNodeAmplifier'] = visibleNodeAmplifier
-    baseline_consensus_ratio = pool.map(simulationFunc, train_args)
-    train_consensus_ratio = np.mean(baseline_consensus_ratio)
-    average_baseline_consensus_ratio = np.mean(baseline_consensus_ratio)
+
+    def dispatchCoeffVec(coeff_vec, train_args):
+        for item in train_args:
+            item['regularNodeAmplifier_hasVisibleColorNeighbor'] = coeff_vec[:numFeatures]
+            item['regularNodeAmplifier_noVisibleColorNeighbor'] = coeff_vec[numFeatures:2*numFeatures]
+            item['visibleNodeAmplifier_hasVisibleColorNeighbor'] = coeff_vec[2*numFeatures:3*numFeatures]
+            item['visibleNodeAmplifier_noVisibleColorNeighbor'] = coeff_vec[3*numFeatures:]
+
+    coeff_vec = np.asmatrix(np.zeros(totalNumFeatures)).reshape(totalNumFeatures, 1)
+    # initialize all amplifiers to zero
+    dispatchCoeffVec(coeff_vec, train_args)
+
+    baseline_ret = pool.map(simulationFunc, train_args)
+    train_consensus_ratio = np.mean(baseline_ret)
+    baseline_consensus_ratio = np.mean(baseline_ret)
 
     for budget in np.arange(0.1, 0.6, 0.1):
         search_space = np.linspace(-budget, budget, int(budget * 100) + 1)
         for j in range(coord_iter):
-            # used_budget = 0
-            for i in range(numFeatures):
+            for i in range(totalNumFeatures):
                 print("Current #feature: %i" % i)
                 for delta_i in search_space:
-                    tmp_amplifier = regularNodeAmplifier.copy()
-                    tmp_amplifier[i] = delta_i
-                    # if LA.norm(tmp_amplifier, 1) > budget:
-                    #     continue
-                    # else:
-                    for item in train_args:
-                        item['regularNodeAmplifier'] = tmp_amplifier
-                        item['visibleNodeAmplifier'] = visibleNodeAmplifier
-                    ratio = pool.map(simulationFunc, train_args)
-                    if np.mean(ratio) > train_consensus_ratio:
-                        train_consensus_ratio = np.mean(ratio)
-                        regularNodeAmplifier[i] = delta_i
-                        print("regular nodes        budget: %.2f        #feature: %i        ratio: %.5f" % (budget, i, train_consensus_ratio) )
-            
-            # used_budget += LA.norm(regularNodeAmplifier, 1)
+                    tmp_coeff = coeff_vec.copy()
+                    tmp_coeff[i] = delta_i
 
-            # left_budget = budget - used_budget
-            for i in range(numFeatures):
-                print("Current #feature: %i" % i)
-                for delta_i in search_space:
-                    tmp_amplifier = visibleNodeAmplifier.copy()
-                    tmp_amplifier[i] = delta_i
-                    # if LA.norm(tmp_amplifier, 1) > left_budget:
-                    #     continue
-                    # else:
-                    for item in train_args:
-                        item['regularNodeAmplifier'] = regularNodeAmplifier
-                        item['visibleNodeAmplifier'] = tmp_amplifier
-                    ratio = pool.map(simulationFunc, train_args)
-                    if np.mean(ratio) > train_consensus_ratio:
-                        train_consensus_ratio = np.mean(ratio)
-                        visibleNodeAmplifier[i] = delta_i
-                        print("visible nodes        budget: %.2f        #feature: %i        ratio: %.5f" % (budget, i, train_consensus_ratio) )           
+                    # propagate tuned coefficients to all models
+                    dispatchCoeffVec(tmp_coeff, train_args)
+                    sim_ret = pool.map(simulationFunc, train_args)
+                    sim_ratio = np.mean(sim_ret)
+                    if sim_ratio > train_consensus_ratio:
+                        train_consensus_ratio = sim_ratio
+                        coeff_vec[i] = delta_i
+                        print("%i-th: %.2f        ratio: %.2f        budget: %.2f" % (i, sim_ratio, budget) )
 
-        # test the optimal amplifier
-        for item in test_args:
-            item['regularNodeAmplifier'] = regularNodeAmplifier
-            item['visibleNodeAmplifier'] = visibleNodeAmplifier
-        test_ratio = pool.map(simulationFunc, test_args)
-        test_consensus_ratio = np.mean(test_ratio)
-
-        result.append((budget, average_baseline_consensus_ratio, train_consensus_ratio, test_consensus_ratio, regularNodeAmplifier.copy(), visibleNodeAmplifier.copy()))
+        result.append((budget, baseline_consensus_ratio, train_consensus_ratio, coeff_vec.copy()))
     pool.close()
     pool.join()
     return result
@@ -1204,7 +1203,7 @@ if __name__ =="__main__":
     beta = 0
     # experimental parameters
     ################################
-    numSimulation = 5000
+    numSimulation = 10
     gameTime = 60
     # inertia = 0.5
     numRegularPlayers = 20
@@ -1258,18 +1257,18 @@ if __name__ =="__main__":
                 })
         cnt += 1
 
-    # result = coordinate_descent(args)
+    result = coordinate_descent(args)
+    with open('result/withAdv_L_infinity_coordinateDescent.p', 'w') as fid:
+       pickle.dump(result, fid)
 
-    pool = Pool(processes=70)
-    for arg in args:
-       arg['regularNodeAmplifier'] = np.asmatrix(np.zeros(7)).reshape(7, 1)
-       arg['visibleNodeAmplifier'] = np.asmatrix(np.zeros(7)).reshape(7, 1)
-    #result = simulationFunc(args[0])
-    result = pool.map(simulationFunc, args)
-    combineResults(result, 'withAdv_bothOpt_chenCoeff.csv', 'result/placement')
+    # pool = Pool(processes=70)
+    # for arg in args:
+    #    arg['regularNodeAmplifier'] = np.asmatrix(np.zeros(7)).reshape(7, 1)
+    #    arg['visibleNodeAmplifier'] = np.asmatrix(np.zeros(7)).reshape(7, 1)
+    # #result = simulationFunc(args[0])
+    # result = pool.map(simulationFunc, args)
+    # combineResults(result, 'withAdv_bothOpt_chenCoeff.csv', 'result/placement')
  
-    # with open('result/withAdv_L1Norm_coordinateDescent.p', 'rb') as fid:
-    #    param = pickle.load(fid)
 
     # pool = Pool(processes=70)
     # for item in param:
