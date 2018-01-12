@@ -1,0 +1,7 @@
+intercept,green_local_inv,green_local_vis,red_local_inv,red_local_vis,hasVisibleNeighbor
+-0.003,-4.95,0,5.11,0,0
+-0.08,-2.88,-2.07,3.41,1.76,1
+0.01,-4.32,0,4.32,0,0
+0.14,-3.86,-1.6,2.63,2.41,1
+-0.15,1.07,0,-0.69,0,0
+-0.37,0,0.83,0,0,1

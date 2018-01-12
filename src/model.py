@@ -166,11 +166,13 @@ class GameAgent(Agent):
         diff_inv = abs(red_local_inv - green_local_inv)
         diff_reg = abs(red_local_reg - green_local_reg)
 
-        features_pickInitColor = [1, self.game.time, diff_inv, diff_vis, neighbors_inv, neighbors_vis]
+        #features_pickInitColor = [1, self.game.time, diff_inv, diff_vis, neighbors_inv, neighbors_vis]
+        features_pickInitColor = [1, diff_inv, diff_vis, neighbors_inv, neighbors_vis]
         numFeatures_pickInitColor = len(features_pickInitColor)
         features_pickInitColor = np.asmatrix(features_pickInitColor).reshape(numFeatures_pickInitColor, 1)
 
-        features_pickRed = [1, self.game.time, green_local_inv, green_local_vis, red_local_inv, red_local_vis]
+        #features_pickRed = [1, self.game.time, green_local_inv, green_local_vis, red_local_inv, red_local_vis]
+        features_pickRed = [1, green_local_inv, green_local_vis, red_local_inv, red_local_vis]
         numFeatures_pickRed = len(features_pickRed)
         features_pickRed = np.asmatrix(features_pickRed).reshape(numFeatures_pickRed, 1)
 
@@ -243,7 +245,7 @@ class GameAgent(Agent):
             else:
                 w = self.game.noVisibleColorNeighbor_pickInitColor['visibleNode']
                 assert(len(w) == numFeatures_pickInitColor)
-                w = np.asmatrix(w).reshape(numFeatures_pickRed, 1)
+                w = np.asmatrix(w).reshape(numFeatures_pickInitColor, 1)
                 y = w.T * features_pickInitColor
                 y = y[0, 0]
                 prob_of_choose = float(1) / float(1 + math.exp(-y))
@@ -339,7 +341,7 @@ class GameAgent(Agent):
             opposite_local_reg = 0
             current_local_reg = 0
 
-        features = [1, self.game.time, opposite_local_inv, opposite_local_vis, current_local_inv, current_local_vis, neighbors_inv, neighbors_vis]
+        features = [1, opposite_local_inv, opposite_local_vis, current_local_inv, current_local_vis, neighbors_inv, neighbors_vis]
         numFeatures = len(features)
         feature_vector = np.asmatrix(features).reshape(numFeatures, 1)
 
@@ -355,7 +357,6 @@ class GameAgent(Agent):
                 w += self.game.regularNodeAmplifier
                 y = w.T * feature_vector
                 y = y[0, 0]
-                # y = -3.75 + 1.12 * opposite_local_inv + 1.4 * opposite_local_vis - 0.85 * current_local_inv    
                 prob_of_change = float(1) / float(1 + math.exp(-y))
                 if random.random() < prob_of_change:
                     return "red" if self.color == "green" else "green"
@@ -370,7 +371,6 @@ class GameAgent(Agent):
                 w += self.game.regularNodeAmplifier
                 y = w.T * feature_vector
                 y = y[0, 0]
-                # y = -3.94 + 0.004 * self.game.time + 2.47 * opposite_local_inv - 0.51 * current_local_inv   #trained on all games (time only)
                 prob_of_change = float(1) / float(1 + math.exp(-y))
                 if random.random() < prob_of_change:
                     return "red" if self.color == "green" else "green"
@@ -387,7 +387,6 @@ class GameAgent(Agent):
                     w = np.asmatrix(w).reshape(numFeatures, 1)
                     y = w.T * feature_vector
                     y = y[0, 0]
-                    # y = -4.06 + 1.36 * opposite_local_inv + 1.55 * opposite_local_vis - 0.07 * neighbors_inv    #trained on all games (time only)
                     prob_of_change = float(1) / float(1 + math.exp(-y))
                     if random.random() < prob_of_change:
                         return "red" if self.color == "green" else "green"
@@ -399,7 +398,6 @@ class GameAgent(Agent):
                     w = np.asmatrix(w).reshape(numFeatures, 1)
                     y = w.T * feature_vector
                     y = y[0, 0]
-                    # y = -4.31 + 2.85 * opposite_local_inv   #trained on all games (time only)
                     prob_of_change = float(1) / float(1 + math.exp(-y))
                     if random.random() < prob_of_change:
                         return "red" if self.color == "green" else "green"
@@ -413,7 +411,6 @@ class GameAgent(Agent):
                     w = np.asmatrix(w).reshape(numFeatures, 1)
                     y = w.T * feature_vector
                     y = y[0, 0]
-                    # y = -3.08 + 0.9 * current_local_vis - 0.15 * neighbors_vis    #trained on all games (time only)
                     prob_of_change = float(1) / float(1 + math.exp(-y))
                     if random.random() < prob_of_change:
                         return "red" if self.color == "green" else "green"
@@ -425,7 +422,6 @@ class GameAgent(Agent):
                     w = np.asmatrix(w).reshape(numFeatures, 1)
                     y = w.T * feature_vector
                     y = y[0, 0]
-                    # y = -2.79 - 1.1 * opposite_local_inv + 1.21 * current_local_inv     #trained on al games (time only)
                     prob_of_change = float(1) / float(1 + math.exp(-y))
                     if random.random() < prob_of_change:
                         return "red" if self.color == "green" else "green"
@@ -641,21 +637,29 @@ class DCGame(Model):
         node_deg = [(idx, count(adjMat[idx])) for idx in range(self.numAgents)]
         node_deg.sort(key=lambda x : x[1], reverse=True)       #highest degree nodes first
         availableNodes = [item[0] for item in node_deg]
+        random.shuffle(availableNodes)
         
-        # availableNodes.sort(key=lambda x : x)
-        # self.visibleColorNodes = getSubsetWithMaxDistinctNeighbors(availableNodes, G, numVisibleColorNodes)
-        # self.visibleColorNodes = [item for item in availableNodes[:self.numVisibleColorNodes]]
-        # tmpVisibleNode = availableNodes[0]
-        # getRecursiveConnectedNeighborhood(tmpVisibleNode, 0)
-        self.visibleColorNodes = visibles
+        self.visibleColorNodes = getSubsetWithMaxDistinctNeighbors(availableNodes, G, numVisibleColorNodes)
         for visibleNode in self.visibleColorNodes:
             availableNodes.remove(visibleNode)
+        random.shuffle(availableNodes)
+
+
+        #random.shuffle(availableNodes)
+        #self.visibleColorNodes = availableNodes[:self.numVisibleColorNodes]
+        #for visibleNode in self.visibleColorNodes:
+        #    availableNodes.remove(visibleNode)
+
+        #self.visibleColorNodes = visibles
+        #for visibleNode in self.visibleColorNodes:
+        #    availableNodes.remove(visibleNode)
 
         ############# designate adversarial ###############
-        #self.adversarialNodes = getSubsetWithMaxDistinctNeighbors(availableNodes, G, numAdversarialNodes)
+        self.adversarialNodes = getSubsetWithMaxDistinctNeighbors(availableNodes, G, numAdversarialNodes)
+        
         #random.shuffle(availableNodes)
-        # self.adversarialNodes = [item for item in availableNodes[:self.numAdversarialNodes]]
-        self.adversarialNodes = adversaries
+        #self.adversarialNodes = [item for item in availableNodes[:self.numAdversarialNodes]]
+        #self.adversarialNodes = adversaries
 
 
         # ================ prev version: designate adversarial and visible nodes ===========
@@ -698,7 +702,7 @@ class DCGame(Model):
 
         self.regularNodes = [n for n in range(self.numAgents) if n not in self.adversarialNodes]
         # make sure we have 20 regular nodes
-        # assert len(self.regularNodes) ==20
+        assert len(self.regularNodes) == 20
 
         # adversarial nodes and regular nodes should not overlap
         assert set(self.adversarialNodes) & set(self.regularNodes) == set()
@@ -1084,6 +1088,8 @@ def combineResults(result, outputName, folder=None):
     consensus_ret.columns = result[0].getColumnNames()
     p = os.path.join(folder, outputName)
     consensus_ret.to_csv(p, index=None)
+    #ratio = consensus_ret['consensus'].mean()
+    #return ratio
 
 
     # time_ret = pd.concat([item.getTimeResult() for item in result])
@@ -1198,7 +1204,7 @@ if __name__ =="__main__":
     beta = 0
     # experimental parameters
     ################################
-    numSimulation = 2000
+    numSimulation = 5000
     gameTime = 60
     # inertia = 0.5
     numRegularPlayers = 20
@@ -1214,9 +1220,9 @@ if __name__ =="__main__":
     ER_edges = [25 + 5 * i for i in range(15)]
 
 
-    hasVisibleColorNeighbor_pickInitColor, noVisibleColorNeighbor_pickInitColor = readCoeffFile('data/coeff_pickInitColor.txt')
-    hasVisibleColorNeighbor_pickSubsequentColor, noVisibleColorNeighbor_pickSubsequentColor = readCoeffFile('data/coeff_pickSubsequentColor.txt')
-    hasVisibleColorNeighbor_pickRed, noVisibleColorNeighbor_pickRed = readCoeffFile('data/coeff_pickRed.txt')
+    hasVisibleColorNeighbor_pickInitColor, noVisibleColorNeighbor_pickInitColor = readCoeffFile('data/coeff_pickInitColor_fromChen.txt')
+    hasVisibleColorNeighbor_pickSubsequentColor, noVisibleColorNeighbor_pickSubsequentColor = readCoeffFile('data/coeff_pickSubsequentColor_fromChen.txt')
+    hasVisibleColorNeighbor_pickRed, noVisibleColorNeighbor_pickRed = readCoeffFile('data/coeff_pickRed_fromChen.txt')
 
 
     args_from_file = readConfigurationFromFile('data/nocomm.csv')
@@ -1224,6 +1230,7 @@ if __name__ =="__main__":
     cnt = 0
     outputPath = ''
     for item in args_from_file:
+        #if item['numAdversarialNodes'] == 0 and item['numVisibleNodes'] == 0 and item['network'] == "Erdos-Renyi-dense":
         if item['numAdversarialNodes'] != 0:
             args.append({
                 'numSimulation': numSimulation,
@@ -1249,17 +1256,17 @@ if __name__ =="__main__":
                 'noVisibleColorNeighbor_pickRed': noVisibleColorNeighbor_pickRed,    
                 'arg_id': cnt
                 })
-            cnt += 1
+        cnt += 1
 
     # result = coordinate_descent(args)
 
     pool = Pool(processes=70)
     for arg in args:
-       arg['regularNodeAmplifier'] = np.asmatrix(np.zeros(8)).reshape(8, 1)
-       arg['visibleNodeAmplifier'] = np.asmatrix(np.zeros(8)).reshape(8, 1)
+       arg['regularNodeAmplifier'] = np.asmatrix(np.zeros(7)).reshape(7, 1)
+       arg['visibleNodeAmplifier'] = np.asmatrix(np.zeros(7)).reshape(7, 1)
     #result = simulationFunc(args[0])
     result = pool.map(simulationFunc, args)
-    combineResults(result, 'withAdv_baseline.csv', 'result/baseline')
+    combineResults(result, 'withAdv_bothOpt_chenCoeff.csv', 'result/placement')
  
     # with open('result/withAdv_L1Norm_coordinateDescent.p', 'rb') as fid:
     #    param = pickle.load(fid)
