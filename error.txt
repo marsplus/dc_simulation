@@ -1,0 +1,41 @@
+multiprocessing.pool.RemoteTraceback: 
+"""
+Traceback (most recent call last):
+  File "src/model.py", line 362, in pickSubsequentColor
+    prob_of_change = float(1) / float(1 + math.exp(-y))
+OverflowError: math range error
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3.5/multiprocessing/pool.py", line 119, in worker
+    result = (True, func(*args, **kwds))
+  File "/usr/lib/python3.5/multiprocessing/pool.py", line 44, in mapstar
+    return list(map(*args))
+  File "src/model.py", line 1079, in simulationFunc
+    simulatedResult, isRegWhite = model.simulate(gameTime)
+  File "src/model.py", line 789, in simulate
+    terminate = self.step()
+  File "src/model.py", line 782, in step
+    self.schedule.step()
+  File "/home/yus10/simulation/lib/python3.5/site-packages/mesa/time.py", line 159, in step
+    agent.step()
+  File "src/model.py", line 453, in step
+    decision_color = self.pickSubsequentColor()
+  File "src/model.py", line 366, in pickSubsequentColor
+    raise OverflowError("error")
+OverflowError: error
+"""
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "src/model.py", line 1268, in <module>
+    result = coordinate_descent(args)
+  File "src/model.py", line 1174, in coordinate_descent
+    sim_ret = pool.map(simulationFunc, train_args)
+  File "/usr/lib/python3.5/multiprocessing/pool.py", line 260, in map
+    return self._map_async(func, iterable, mapstar, chunksize).get()
+  File "/usr/lib/python3.5/multiprocessing/pool.py", line 608, in get
+    raise self._value
+OverflowError: error

@@ -352,9 +352,11 @@ class GameAgent(Agent):
                 w = self.game.hasVisibleColorNeighbor_pickSubsequentColor['regularNode']
                 assert(len(w) == numFeatures)
                 w = np.asmatrix(w).reshape(numFeatures, 1)
+                
                 # amplify certain weights in the logistic regression
-                assert(len(self.game.regularNodeAmplifier_hasVisibleColorNeighbor) == numFeatures)
-                w += self.game.regularNodeAmplifier_hasVisibleColorNeighbor
+                # Notice: we don't modify intercept
+                assert(len(self.game.regularNodeAmplifier_hasVisibleColorNeighbor) == numFeatures - 1)
+                w[1:, :] += np.asmatrix(self.game.regularNodeAmplifier_hasVisibleColorNeighbor).reshape(numFeatures-1, 1)
                 y = w.T * feature_vector
                 y = y[0, 0]
                 prob_of_change = float(1) / float(1 + math.exp(-y))
@@ -366,9 +368,10 @@ class GameAgent(Agent):
                 w = self.game.noVisibleColorNeighbor_pickSubsequentColor['regularNode']
                 assert(len(w) == numFeatures)
                 w = np.asmatrix(w).reshape(numFeatures, 1)
+                
                 # amplifier certain weights in the logistic regression
-                assert(len(self.game.regularNodeAmplifier_noVisibleColorNeighbor) == numFeatures)
-                w += self.game.regularNodeAmplifier_noVisibleColorNeighbor
+                assert(len(self.game.regularNodeAmplifier_noVisibleColorNeighbor) == numFeatures - 1)
+                w[1:, :] += np.asmatrix(self.game.regularNodeAmplifier_noVisibleColorNeighbor).reshape(numFeatures-1, 1)
                 y = w.T * feature_vector
                 y = y[0, 0]
                 prob_of_change = float(1) / float(1 + math.exp(-y))
@@ -385,9 +388,10 @@ class GameAgent(Agent):
                     w = self.game.hasVisibleColorNeighbor_pickSubsequentColor['visibleNode']
                     assert(len(w) == numFeatures)
                     w = np.asmatrix(w).reshape(numFeatures, 1)
+                    
                     # amplify certain weights in the logistic regression
-                    assert(len(self.game.visibleNodeAmplifier_hasVisibleColorNeighbor) == numFeatures)
-                    w += self.game.visibleNodeAmplifier_hasVisibleColorNeighbor
+                    assert(len(self.game.visibleNodeAmplifier_hasVisibleColorNeighbor) == numFeatures - 1)
+                    w[1:, :] += np.asmatrix(self.game.visibleNodeAmplifier_hasVisibleColorNeighbor).reshape(numFeatures-1, 1) 
                     y = w.T * feature_vector
                     y = y[0, 0]
                     prob_of_change = float(1) / float(1 + math.exp(-y))
@@ -399,9 +403,10 @@ class GameAgent(Agent):
                     w = self.game.noVisibleColorNeighbor_pickSubsequentColor['visibleNode']
                     assert(len(w) == numFeatures)
                     w = np.asmatrix(w).reshape(numFeatures, 1)
+                    
                     # amplify certain weights in the logistic regression
-                    assert(len(self.game.visibleNodeAmplifier_noVisibleColorNeighbor) == numFeatures)
-                    w += self.game.visibleNodeAmplifier_noVisibleColorNeighbor
+                    assert(len(self.game.visibleNodeAmplifier_noVisibleColorNeighbor) == numFeatures - 1)
+                    w[1:, :] += np.asmatrix(self.game.visibleNodeAmplifier_noVisibleColorNeighbor).reshape(numFeatures-1, 1)
                     y = w.T * feature_vector
                     y = y[0, 0]
                     prob_of_change = float(1) / float(1 + math.exp(-y))
@@ -1048,8 +1053,8 @@ def simulationFunc(args):
     retOnGameLevel = defaultdict(list)
 
     for j in range(numSimulation):
-        if j % 100 == 0:
-           print("Current number of simulations: ", j)
+        #if j % 100 == 0:
+        #   print("Current number of simulations: ", j)
 
         model = DCGame(adjMat, G, numVisibleNodes, numAdversarialNodes, inertia, beta, \
                 delay, visibleNodes, adversarialNodes)
@@ -1131,6 +1136,7 @@ def coordinate_descent(args):
     test_args = args[np.int(np.floor(len(args) * train_test_ratio)):]
     assert(len(train_args) + len(test_args) == len(args))
 
+
     # coordinate descent
     result = []
     numFeatures = 6
@@ -1145,7 +1151,7 @@ def coordinate_descent(args):
             item['visibleNodeAmplifier_hasVisibleColorNeighbor'] = coeff_vec[2*numFeatures:3*numFeatures]
             item['visibleNodeAmplifier_noVisibleColorNeighbor'] = coeff_vec[3*numFeatures:]
 
-    coeff_vec = np.asmatrix(np.zeros(totalNumFeatures)).reshape(totalNumFeatures, 1)
+    coeff_vec = np.zeros(totalNumFeatures)
     # initialize all amplifiers to zero
     dispatchCoeffVec(coeff_vec, train_args)
 
@@ -1169,12 +1175,13 @@ def coordinate_descent(args):
                     if sim_ratio > train_consensus_ratio:
                         train_consensus_ratio = sim_ratio
                         coeff_vec[i] = delta_i
-                        print("%i-th: %.2f        ratio: %.2f        budget: %.2f" % (i, sim_ratio, budget) )
+                        print("feature: %i        ratio: %.2f        budget: %.2f" % (i, sim_ratio, budget))
 
         result.append((budget, baseline_consensus_ratio, train_consensus_ratio, coeff_vec.copy()))
     pool.close()
     pool.join()
     return result
+    #return baseline_consensus_ratio
 
 
 def readCoeffFile(fPath):
@@ -1258,7 +1265,7 @@ if __name__ =="__main__":
         cnt += 1
 
     result = coordinate_descent(args)
-    with open('result/withAdv_L_infinity_coordinateDescent.p', 'w') as fid:
+    with open('result/withAdv_L_infinity_coordinateDescent.p', 'wb') as fid:
        pickle.dump(result, fid)
 
     # pool = Pool(processes=70)
