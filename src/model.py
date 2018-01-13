@@ -1266,13 +1266,13 @@ if __name__ =="__main__":
     cnt = 0
     outputPath = ''
     
-    hasAdv = False
+    hasAdv = True
     hasVis = False
-    constraintType = 1
+    constraintType = 'infinity'
 
     for item in args_from_file:
-        if item['numAdversarialNodes'] == 0:
-            if item['numVisibleNodes'] == 0:
+        if (item['numAdversarialNodes'] > 0) == hasAdv:
+            if (item['numVisibleNodes'] > 0) == hasVis:
                 args.append({
                     'numSimulation': numSimulation,
                     'gameTime': gameTime,
