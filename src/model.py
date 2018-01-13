@@ -15,8 +15,10 @@ from mesa.time import SimultaneousActivation
 from multiprocessing import Pool
 from collections import defaultdict
 from mesa.datacollection import DataCollector
+from scipy import stats
 import numpy.linalg as LA
 import itertools
+
 
 random.seed(0)
 
@@ -349,7 +351,7 @@ class GameAgent(Agent):
         if not self.isAdversarial and not self.isVisibleNode:
             # regular node
             if self.hasVisibleColorNode():
-                w = self.game.hasVisibleColorNeighbor_pickSubsequentColor['regularNode']
+                w = self.game.hasVisibleColorNeighbor_pickSubsequentColor['regularNode'].copy()
                 assert(len(w) == numFeatures)
                 w = np.asmatrix(w).reshape(numFeatures, 1)
                 
@@ -365,7 +367,7 @@ class GameAgent(Agent):
                 else:
                     return self.color
             else:
-                w = self.game.noVisibleColorNeighbor_pickSubsequentColor['regularNode']
+                w = self.game.noVisibleColorNeighbor_pickSubsequentColor['regularNode'].copy()
                 assert(len(w) == numFeatures)
                 w = np.asmatrix(w).reshape(numFeatures, 1)
                 
@@ -385,7 +387,7 @@ class GameAgent(Agent):
             if self.isVisibleNode:
                 #visible node
                 if self.hasVisibleColorNode():
-                    w = self.game.hasVisibleColorNeighbor_pickSubsequentColor['visibleNode']
+                    w = self.game.hasVisibleColorNeighbor_pickSubsequentColor['visibleNode'].copy()
                     assert(len(w) == numFeatures)
                     w = np.asmatrix(w).reshape(numFeatures, 1)
                     
@@ -400,7 +402,7 @@ class GameAgent(Agent):
                     else:
                         return self.color
                 else:
-                    w = self.game.noVisibleColorNeighbor_pickSubsequentColor['visibleNode']
+                    w = self.game.noVisibleColorNeighbor_pickSubsequentColor['visibleNode'].copy()
                     assert(len(w) == numFeatures)
                     w = np.asmatrix(w).reshape(numFeatures, 1)
                     
@@ -1128,7 +1130,7 @@ def combineResults(result, outputName, folder=None):
     # with open(p, 'wb') as fid:
     #     pickle.dump(dynamics_ret, fid)
 
-def coordinate_descent(args):
+def coordinate_descent(args, flag):
     # split configurations into training and testing 
     train_test_ratio = 0.5
     np.random.shuffle(args)
@@ -1159,29 +1161,57 @@ def coordinate_descent(args):
     train_consensus_ratio = np.mean(baseline_ret)
     baseline_consensus_ratio = np.mean(baseline_ret)
 
-    for budget in np.arange(0.1, 0.6, 0.1):
-        search_space = np.linspace(-budget, budget, int(budget * 100) + 1)
-        for j in range(coord_iter):
-            for i in range(totalNumFeatures):
-                print("Current #feature: %i" % i)
-                for delta_i in search_space:
-                    tmp_coeff = coeff_vec.copy()
-                    tmp_coeff[i] = delta_i
+    if flag == 'infinity':
+        for budget in np.arange(0.1, 0.6, 0.1):
+            search_space = np.linspace(-budget, budget, int(budget * 100) + 1)
+            for j in range(coord_iter):
+                for i in range(totalNumFeatures):
+                    print("Current #feature: %i" % i)
+                    for delta_i in search_space:
+                        tmp_coeff = coeff_vec.copy()
+                        tmp_coeff[i] = delta_i
 
-                    # propagate tuned coefficients to all models
-                    dispatchCoeffVec(tmp_coeff, train_args)
-                    sim_ret = pool.map(simulationFunc, train_args)
-                    sim_ratio = np.mean(sim_ret)
-                    if sim_ratio > train_consensus_ratio:
-                        train_consensus_ratio = sim_ratio
-                        coeff_vec[i] = delta_i
-                        print("feature: %i        ratio: %.2f        budget: %.2f" % (i, sim_ratio, budget))
+                        # propagate tuned coefficients to all models
+                        dispatchCoeffVec(tmp_coeff, train_args)
+                        sim_ret = pool.map(simulationFunc, train_args)
+                        sim_ratio = np.mean(sim_ret)
+                        # use statistical test to see whether a modification
+                        # is useful
+                        test_ret = stats.ttest_ind(sim_ret, baseline_ret)
+                        if test_ret[0] > 0 and test_ret[1] <= 0.01:
+                            train_consensus_ratio = sim_ratio
+                            coeff_vec[i] = delta_i
+                            print("feature: %i        ratio: %.2f        budget: %.2f" % (i, sim_ratio, budget))
+            result.append((budget, baseline_consensus_ratio, train_consensus_ratio, coeff_vec.copy()))
+    else:
+        for budget in np.arange(0.1, 0.6, 0.1):
+            search_space = np.linspace(-budget, budget, int(budget * 100) + 1)
+            for j in range(coord_iter):
+                for i in range(totalNumFeatures):
+                    print("Current #feature: %i" % i)
+                    for delta_i in search_space:
+                        tmp_coeff = coeff_vec.copy()
+                        tmp_coeff[i] = delta_i
 
-        result.append((budget, baseline_consensus_ratio, train_consensus_ratio, coeff_vec.copy()))
+                        if LA.norm(tmp_coeff, 1) > budget:
+                            continue
+                        else:
+                            # propagate tuned coefficients to all models
+                            dispatchCoeffVec(tmp_coeff, train_args)
+                            sim_ret = pool.map(simulationFunc, train_args)
+                            sim_ratio = np.mean(sim_ret)
+                            # use statistical test to see whether a modification
+                            # is useful
+                            test_ret = stats.ttest_ind(sim_ret, baseline_ret)
+                            if test_ret[0] > 0 and test_ret[1] <= 0.01:
+                                train_consensus_ratio = sim_ratio
+                                coeff_vec[i] = delta_i
+                                print("feature: %i        ratio: %.2f        budget: %.2f" % (i, sim_ratio, budget))
+            result.append((budget, baseline_consensus_ratio, train_consensus_ratio, coeff_vec.copy()))
+    
     pool.close()
     pool.join()
     return result
-    #return baseline_consensus_ratio
 
 
 def readCoeffFile(fPath):
@@ -1210,7 +1240,7 @@ if __name__ =="__main__":
     beta = 0
     # experimental parameters
     ################################
-    numSimulation = 10
+    numSimulation = 20
     gameTime = 60
     # inertia = 0.5
     numRegularPlayers = 20
@@ -1263,9 +1293,10 @@ if __name__ =="__main__":
                 'arg_id': cnt
                 })
         cnt += 1
-
-    result = coordinate_descent(args)
-    with open('result/withAdv_L_infinity_coordinateDescent.p', 'wb') as fid:
+    
+    constraintType = '1'
+    result = coordinate_descent(args, constraintType)
+    with open('result/withAdv_L_%s_coordinateDescent.p' % constraintType, 'wb') as fid:
        pickle.dump(result, fid)
 
     # pool = Pool(processes=70)
