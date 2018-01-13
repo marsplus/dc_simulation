@@ -1265,9 +1265,14 @@ if __name__ =="__main__":
     args = []
     cnt = 0
     outputPath = ''
+    
+    hasAdv = False
+    hasVis = False
+    constraintType = 1
+
     for item in args_from_file:
-        if item['numAdversarialNodes'] != 0:
-            if item['numVisibleNodes'] != 0:
+        if item['numAdversarialNodes'] == 0:
+            if item['numVisibleNodes'] == 0:
                 args.append({
                     'numSimulation': numSimulation,
                     'gameTime': gameTime,
@@ -1294,10 +1299,22 @@ if __name__ =="__main__":
                     })
         cnt += 1
     
-    constraintType = '1'
-    result = coordinate_descent(args, constraintType, False)
-    with open('result/withAdv_withVis_L_%i_coordinateDescent.p' % constraintType, 'wb') as fid:
-       pickle.dump(result, fid)
+    result = coordinate_descent(args, constraintType, hasVis)
+
+    if hasAdv and hasVis:
+        with open('result/hasAdv_hasVis_L_%i_coordinateDescent.p' % constraintType, 'wb') as fid:
+           pickle.dump(result, fid)
+    elif hasAdv and not hasVis:
+        with open('result/hasAdv_noVis_L_%i_coordinateDescent.p' % constraintType, 'wb') as fid:
+           pickle.dump(result, fid)
+    elif not hasAdv and hasVis:
+        with open('result/noAdv_hasVis_L_%i_coordinateDescent.p' % constraintType, 'wb') as fid:
+           pickle.dump(result, fid)
+    else:
+        with open('result/noAdv_noVis_L_%i_coordinateDescent.p' % constraintType, 'wb') as fid:
+           pickle.dump(result, fid)
+
+
 
     # pool = Pool(processes=70)
     # for arg in args:
