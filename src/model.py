@@ -1130,7 +1130,7 @@ def combineResults(result, outputName, folder=None):
     # with open(p, 'wb') as fid:
     #     pickle.dump(dynamics_ret, fid)
 
-def coordinate_descent(args, flag):
+def coordinate_descent(args, flag, hasVis):
     # split configurations into training and testing 
     train_test_ratio = 0.5
     np.random.shuffle(args)
@@ -1166,47 +1166,47 @@ def coordinate_descent(args, flag):
             search_space = np.linspace(-budget, budget, int(budget * 100) + 1)
             for j in range(coord_iter):
                 for i in range(totalNumFeatures):
-                    print("Current #feature: %i" % i)
-                    for delta_i in search_space:
-                        tmp_coeff = coeff_vec.copy()
-                        tmp_coeff[i] = delta_i
+                    if not hasVis and i % 2 != 0:
+                        continue
+                    else:
+                        print("Current #feature: %i" % i)
+                        for delta_i in search_space:
+                            tmp_coeff = coeff_vec.copy()
+                            tmp_coeff[i] = delta_i
 
-                        # propagate tuned coefficients to all models
-                        dispatchCoeffVec(tmp_coeff, train_args)
-                        sim_ret = pool.map(simulationFunc, train_args)
-                        sim_ratio = np.mean(sim_ret)
-                        # use statistical test to see whether a modification
-                        # is useful
-                        test_ret = stats.ttest_ind(sim_ret, baseline_ret)
-                        if test_ret[0] > 0 and test_ret[1] <= 0.01:
-                            train_consensus_ratio = sim_ratio
-                            coeff_vec[i] = delta_i
-                            print("feature: %i        ratio: %.2f        budget: %.2f" % (i, sim_ratio, budget))
+                            # propagate tuned coefficients to all models
+                            dispatchCoeffVec(tmp_coeff, train_args)
+                            sim_ret = pool.map(simulationFunc, train_args)
+                            sim_ratio = np.mean(sim_ret)
+                            if sim_ratio > train_consensus_ratio:
+                                train_consensus_ratio = sim_ratio
+                                coeff_vec[i] = delta_i
+                                print("feature: %i        ratio: %.2f        budget: %.2f" % (i, sim_ratio, budget))
             result.append((budget, baseline_consensus_ratio, train_consensus_ratio, coeff_vec.copy()))
     else:
         for budget in np.arange(0.1, 0.6, 0.1):
             search_space = np.linspace(-budget, budget, int(budget * 100) + 1)
             for j in range(coord_iter):
                 for i in range(totalNumFeatures):
-                    print("Current #feature: %i" % i)
-                    for delta_i in search_space:
-                        tmp_coeff = coeff_vec.copy()
-                        tmp_coeff[i] = delta_i
+                    if not hasVis and i % 2 == 0:
+                        continue
+                    else:
+                        print("Current #feature: %i" % i)
+                        for delta_i in search_space:
+                            tmp_coeff = coeff_vec.copy()
+                            tmp_coeff[i] = delta_i
 
-                        if LA.norm(tmp_coeff, 1) > budget:
-                            continue
-                        else:
-                            # propagate tuned coefficients to all models
-                            dispatchCoeffVec(tmp_coeff, train_args)
-                            sim_ret = pool.map(simulationFunc, train_args)
-                            sim_ratio = np.mean(sim_ret)
-                            # use statistical test to see whether a modification
-                            # is useful
-                            test_ret = stats.ttest_ind(sim_ret, baseline_ret)
-                            if test_ret[0] > 0 and test_ret[1] <= 0.01:
-                                train_consensus_ratio = sim_ratio
-                                coeff_vec[i] = delta_i
-                                print("feature: %i        ratio: %.2f        budget: %.2f" % (i, sim_ratio, budget))
+                            if LA.norm(tmp_coeff, 1) > budget:
+                                continue
+                            else:
+                                # propagate tuned coefficients to all models
+                                dispatchCoeffVec(tmp_coeff, train_args)
+                                sim_ret = pool.map(simulationFunc, train_args)
+                                sim_ratio = np.mean(sim_ret)
+                                if sim_ratio > train_consensus_ratio:
+                                    train_consensus_ratio = sim_ratio
+                                    coeff_vec[i] = delta_i
+                                    print("feature: %i        ratio: %.2f        budget: %.2f" % (i, sim_ratio, budget))
             result.append((budget, baseline_consensus_ratio, train_consensus_ratio, coeff_vec.copy()))
     
     pool.close()
@@ -1266,37 +1266,37 @@ if __name__ =="__main__":
     cnt = 0
     outputPath = ''
     for item in args_from_file:
-        #if item['numAdversarialNodes'] == 0 and item['numVisibleNodes'] == 0 and item['network'] == "Erdos-Renyi-dense":
         if item['numAdversarialNodes'] != 0:
-            args.append({
-                'numSimulation': numSimulation,
-                'gameTime': gameTime,
-                'numVisibleNodes': item['numVisibleNodes'],
-                'numAdversarialNodes': item['numAdversarialNodes'],
-                'visibleNodes': item['visibleNodes'],
-                'adversarialNodes': item['adversarialNodes'],
-                'inertia': inertia,
-                'beta': beta,
-                'delay': 0,
-                'network': item['network'],
-                'adjMat': item['adjMat'],
-                'G': item['G'],
-                'expDate': item['expDate'],
-                'expNum': item['expNum'],
-                'outputPath': outputPath,
-                'hasVisibleColorNeighbor_pickInitColor': hasVisibleColorNeighbor_pickInitColor,
-                'hasVisibleColorNeighbor_pickSubsequentColor': hasVisibleColorNeighbor_pickSubsequentColor,
-                'hasVisibleColorNeighbor_pickRed': hasVisibleColorNeighbor_pickRed,
-                'noVisibleColorNeighbor_pickInitColor': noVisibleColorNeighbor_pickInitColor,
-                'noVisibleColorNeighbor_pickSubsequentColor': noVisibleColorNeighbor_pickSubsequentColor,  
-                'noVisibleColorNeighbor_pickRed': noVisibleColorNeighbor_pickRed,    
-                'arg_id': cnt
-                })
+            if item['numVisibleNodes'] != 0:
+                args.append({
+                    'numSimulation': numSimulation,
+                    'gameTime': gameTime,
+                    'numVisibleNodes': item['numVisibleNodes'],
+                    'numAdversarialNodes': item['numAdversarialNodes'],
+                    'visibleNodes': item['visibleNodes'],
+                    'adversarialNodes': item['adversarialNodes'],
+                    'inertia': inertia,
+                    'beta': beta,
+                    'delay': 0,
+                    'network': item['network'],
+                    'adjMat': item['adjMat'],
+                    'G': item['G'],
+                    'expDate': item['expDate'],
+                    'expNum': item['expNum'],
+                    'outputPath': outputPath,
+                    'hasVisibleColorNeighbor_pickInitColor': hasVisibleColorNeighbor_pickInitColor,
+                    'hasVisibleColorNeighbor_pickSubsequentColor': hasVisibleColorNeighbor_pickSubsequentColor,
+                    'hasVisibleColorNeighbor_pickRed': hasVisibleColorNeighbor_pickRed,
+                    'noVisibleColorNeighbor_pickInitColor': noVisibleColorNeighbor_pickInitColor,
+                    'noVisibleColorNeighbor_pickSubsequentColor': noVisibleColorNeighbor_pickSubsequentColor,  
+                    'noVisibleColorNeighbor_pickRed': noVisibleColorNeighbor_pickRed,    
+                    'arg_id': cnt
+                    })
         cnt += 1
     
     constraintType = '1'
-    result = coordinate_descent(args, constraintType)
-    with open('result/withAdv_L_%s_coordinateDescent.p' % constraintType, 'wb') as fid:
+    result = coordinate_descent(args, constraintType, False)
+    with open('result/withAdv_withVis_L_%i_coordinateDescent.p' % constraintType, 'wb') as fid:
        pickle.dump(result, fid)
 
     # pool = Pool(processes=70)
