@@ -1266,7 +1266,7 @@ if __name__ =="__main__":
     cnt = 0
     outputPath = ''
     
-    hasAdv = True
+    hasAdv = False
     hasVis = False
     constraintType = 'infinity'
 
