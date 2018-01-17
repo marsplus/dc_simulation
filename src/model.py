@@ -4,6 +4,7 @@ import pickle
 import time
 import math
 import ast
+import copy
 import pandas as pd
 import numpy as np
 from log import Log
@@ -1096,7 +1097,7 @@ def simulationFunc(args):
     result = BatchResult(ret, retOnGameLevel, args)
     result.generateResult()
     result = result.getConsensusResult()
-    consensus_ratio = result['consensus'].mean()
+    consensus_ratio = result['consensus']
     return consensus_ratio
     
 
@@ -1157,9 +1158,9 @@ def coordinate_descent(args, flag):
     # initialize all amplifiers to zero
     dispatchCoeffVec(coeff_vec, train_args)
 
-    baseline_ret = pool.map(simulationFunc, train_args)
+    baseline_ret = pd.concat([item for item in pool.map(simulationFunc, train_args)])
     train_consensus_ratio = np.mean(baseline_ret)
-    baseline_consensus_ratio = np.mean(baseline_ret)
+    baseline_consensus_ratio = train_consensus_ratio 
 
     if flag == 'infinity':
         for budget in np.arange(0.1, 0.6, 0.1):
@@ -1178,7 +1179,7 @@ def coordinate_descent(args, flag):
 
                             # propagate tuned coefficients to all models
                             dispatchCoeffVec(tmp_coeff, train_args)
-                            sim_ret = pool.map(simulationFunc, train_args)
+                            sim_ret = pd.concat([item for item in pool.map(simulationFunc, train_args)])
                             sim_ratio = np.mean(sim_ret)
                             test_ret = stats.ttest_ind(sim_ret, baseline_ret) 
                             if sim_ratio > train_consensus_ratio and test_ret[1] <= 0.05:
@@ -1206,9 +1207,10 @@ def coordinate_descent(args, flag):
                             else:
                                 # propagate tuned coefficients to all models
                                 dispatchCoeffVec(tmp_coeff, train_args)
-                                sim_ret = pool.map(simulationFunc, train_args)
+                                sim_ret = pd.concat([item for item in pool.map(simulationFunc, train_args)])
                                 sim_ratio = np.mean(sim_ret)
                                 test_ret = stats.ttest_ind(sim_ret, baseline_ret)
+                                print("sim_ratio: %.4f    train_ratio: %.4f    p-value: %.4f" % (sim_ratio, train_consensus_ratio, test_ret[1]))
                                 if sim_ratio > train_consensus_ratio and test_ret[1] <= 0.05:
                                     train_consensus_ratio = sim_ratio
                                     coeff_vec[i] = delta_i
@@ -1246,7 +1248,7 @@ if __name__ =="__main__":
     beta = 0
     # experimental parameters
     ################################
-    numSimulation = 100
+    numSimulation = 200
     gameTime = 60
     # inertia = 0.5
     numRegularPlayers = 20
@@ -1272,8 +1274,8 @@ if __name__ =="__main__":
     cnt = 0
     outputPath = ''
     
-    hasAdv = False
-    constraintType = 'infinity'
+    hasAdv = True
+    constraintType = '1'
 
     for item in args_from_file:
         if (item['numAdversarialNodes'] > 0) == hasAdv:
