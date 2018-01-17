@@ -657,26 +657,26 @@ class DCGame(Model):
         availableNodes = [item[0] for item in node_deg]
         random.shuffle(availableNodes)
         
-        self.visibleColorNodes = getSubsetWithMaxDistinctNeighbors(availableNodes, G, numVisibleColorNodes)
-        for visibleNode in self.visibleColorNodes:
-            availableNodes.remove(visibleNode)
-        random.shuffle(availableNodes)
-
-
-        #random.shuffle(availableNodes)
-        #self.visibleColorNodes = availableNodes[:self.numVisibleColorNodes]
+        #self.visibleColorNodes = getSubsetWithMaxDistinctNeighbors(availableNodes, G, numVisibleColorNodes)
         #for visibleNode in self.visibleColorNodes:
         #    availableNodes.remove(visibleNode)
+        #random.shuffle(availableNodes)
+
+
+        random.shuffle(availableNodes)
+        self.visibleColorNodes = availableNodes[:self.numVisibleColorNodes]
+        for visibleNode in self.visibleColorNodes:
+            availableNodes.remove(visibleNode)
 
         #self.visibleColorNodes = visibles
         #for visibleNode in self.visibleColorNodes:
         #    availableNodes.remove(visibleNode)
 
         ############# designate adversarial ###############
-        self.adversarialNodes = getSubsetWithMaxDistinctNeighbors(availableNodes, G, numAdversarialNodes)
+        #self.adversarialNodes = getSubsetWithMaxDistinctNeighbors(availableNodes, G, numAdversarialNodes)
         
-        #random.shuffle(availableNodes)
-        #self.adversarialNodes = [item for item in availableNodes[:self.numAdversarialNodes]]
+        random.shuffle(availableNodes)
+        self.adversarialNodes = [item for item in availableNodes[:self.numAdversarialNodes]]
         #self.adversarialNodes = adversaries
 
 
@@ -1130,7 +1130,7 @@ def combineResults(result, outputName, folder=None):
     # with open(p, 'wb') as fid:
     #     pickle.dump(dynamics_ret, fid)
 
-def coordinate_descent(args, flag, hasVis):
+def coordinate_descent(args, flag):
     # split configurations into training and testing 
     train_test_ratio = 0.5
     np.random.shuffle(args)
@@ -1166,8 +1166,10 @@ def coordinate_descent(args, flag, hasVis):
             search_space = np.linspace(-budget, budget, int(budget * 100) + 1)
             for j in range(coord_iter):
                 for i in range(totalNumFeatures):
-                    if not hasVis and i % 2 != 0:
-                        continue
+                    #if not hasVis and i % 2 != 0:
+                    #    continue
+                    if False:
+                        pass
                     else:
                         print("Current #feature: %i" % i)
                         for delta_i in search_space:
@@ -1178,7 +1180,8 @@ def coordinate_descent(args, flag, hasVis):
                             dispatchCoeffVec(tmp_coeff, train_args)
                             sim_ret = pool.map(simulationFunc, train_args)
                             sim_ratio = np.mean(sim_ret)
-                            if sim_ratio > train_consensus_ratio:
+                            test_ret = stats.ttest_ind(sim_ret, baseline_ret) 
+                            if sim_ratio > train_consensus_ratio and test_ret[1] <= 0.05:
                                 train_consensus_ratio = sim_ratio
                                 coeff_vec[i] = delta_i
                                 print("feature: %i        ratio: %.2f        budget: %.2f" % (i, sim_ratio, budget))
@@ -1188,8 +1191,10 @@ def coordinate_descent(args, flag, hasVis):
             search_space = np.linspace(-budget, budget, int(budget * 100) + 1)
             for j in range(coord_iter):
                 for i in range(totalNumFeatures):
-                    if not hasVis and i % 2 == 0:
-                        continue
+                    #if not hasVis and i % 2 == 0:
+                    #    continue
+                    if False:
+                        pass
                     else:
                         print("Current #feature: %i" % i)
                         for delta_i in search_space:
@@ -1203,7 +1208,8 @@ def coordinate_descent(args, flag, hasVis):
                                 dispatchCoeffVec(tmp_coeff, train_args)
                                 sim_ret = pool.map(simulationFunc, train_args)
                                 sim_ratio = np.mean(sim_ret)
-                                if sim_ratio > train_consensus_ratio:
+                                test_ret = stats.ttest_ind(sim_ret, baseline_ret)
+                                if sim_ratio > train_consensus_ratio and test_ret[1] <= 0.05:
                                     train_consensus_ratio = sim_ratio
                                     coeff_vec[i] = delta_i
                                     print("feature: %i        ratio: %.2f        budget: %.2f" % (i, sim_ratio, budget))
@@ -1240,7 +1246,7 @@ if __name__ =="__main__":
     beta = 0
     # experimental parameters
     ################################
-    numSimulation = 20
+    numSimulation = 100
     gameTime = 60
     # inertia = 0.5
     numRegularPlayers = 20
@@ -1267,53 +1273,44 @@ if __name__ =="__main__":
     outputPath = ''
     
     hasAdv = False
-    hasVis = False
     constraintType = 'infinity'
 
     for item in args_from_file:
         if (item['numAdversarialNodes'] > 0) == hasAdv:
-            if (item['numVisibleNodes'] > 0) == hasVis:
-                args.append({
-                    'numSimulation': numSimulation,
-                    'gameTime': gameTime,
-                    'numVisibleNodes': item['numVisibleNodes'],
-                    'numAdversarialNodes': item['numAdversarialNodes'],
-                    'visibleNodes': item['visibleNodes'],
-                    'adversarialNodes': item['adversarialNodes'],
-                    'inertia': inertia,
-                    'beta': beta,
-                    'delay': 0,
-                    'network': item['network'],
-                    'adjMat': item['adjMat'],
-                    'G': item['G'],
-                    'expDate': item['expDate'],
-                    'expNum': item['expNum'],
-                    'outputPath': outputPath,
-                    'hasVisibleColorNeighbor_pickInitColor': hasVisibleColorNeighbor_pickInitColor,
-                    'hasVisibleColorNeighbor_pickSubsequentColor': hasVisibleColorNeighbor_pickSubsequentColor,
-                    'hasVisibleColorNeighbor_pickRed': hasVisibleColorNeighbor_pickRed,
-                    'noVisibleColorNeighbor_pickInitColor': noVisibleColorNeighbor_pickInitColor,
-                    'noVisibleColorNeighbor_pickSubsequentColor': noVisibleColorNeighbor_pickSubsequentColor,  
-                    'noVisibleColorNeighbor_pickRed': noVisibleColorNeighbor_pickRed,    
-                    'arg_id': cnt
-                    })
+            args.append({
+                'numSimulation': numSimulation,
+                'gameTime': gameTime,
+                'numVisibleNodes': item['numVisibleNodes'],
+                'numAdversarialNodes': item['numAdversarialNodes'],
+                'visibleNodes': item['visibleNodes'],
+                'adversarialNodes': item['adversarialNodes'],
+                'inertia': inertia,
+                'beta': beta,
+                'delay': 0,
+                'network': item['network'],
+                'adjMat': item['adjMat'],
+                'G': item['G'],
+                'expDate': item['expDate'],
+                'expNum': item['expNum'],
+                'outputPath': outputPath,
+                'hasVisibleColorNeighbor_pickInitColor': hasVisibleColorNeighbor_pickInitColor,
+                'hasVisibleColorNeighbor_pickSubsequentColor': hasVisibleColorNeighbor_pickSubsequentColor,
+                'hasVisibleColorNeighbor_pickRed': hasVisibleColorNeighbor_pickRed,
+                'noVisibleColorNeighbor_pickInitColor': noVisibleColorNeighbor_pickInitColor,
+                'noVisibleColorNeighbor_pickSubsequentColor': noVisibleColorNeighbor_pickSubsequentColor,  
+                'noVisibleColorNeighbor_pickRed': noVisibleColorNeighbor_pickRed,    
+                'arg_id': cnt
+                })
         cnt += 1
     
-    result = coordinate_descent(args, constraintType, hasVis)
+    result = coordinate_descent(args, constraintType)
 
-    if hasAdv and hasVis:
-        with open('result/hasAdv_hasVis_L_%i_coordinateDescent.p' % constraintType, 'wb') as fid:
-           pickle.dump(result, fid)
-    elif hasAdv and not hasVis:
-        with open('result/hasAdv_noVis_L_%i_coordinateDescent.p' % constraintType, 'wb') as fid:
-           pickle.dump(result, fid)
-    elif not hasAdv and hasVis:
-        with open('result/noAdv_hasVis_L_%i_coordinateDescent.p' % constraintType, 'wb') as fid:
+    if hasAdv:
+        with open('result/hasAdv_L_%s_coordinateDescent.p' % constraintType, 'wb') as fid:
            pickle.dump(result, fid)
     else:
-        with open('result/noAdv_noVis_L_%i_coordinateDescent.p' % constraintType, 'wb') as fid:
+        with open('result/noAdv_L_%s_coordinateDescent.p' % constraintType, 'wb') as fid:
            pickle.dump(result, fid)
-
 
 
     # pool = Pool(processes=70)
