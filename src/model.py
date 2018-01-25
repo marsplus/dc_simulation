@@ -1143,7 +1143,7 @@ def coordinate_descent(args, flag):
     # coordinate descent
     result = []
     numFeatures = 6
-    coord_iter = 3
+    coord_iter = 2
     totalNumFeatures = 4 * numFeatures
     pool = Pool(processes=71)
 
@@ -1248,7 +1248,7 @@ if __name__ =="__main__":
     beta = 0
     # experimental parameters
     ################################
-    numSimulation = 200
+    numSimulation = 100
     gameTime = 60
     # inertia = 0.5
     numRegularPlayers = 20
@@ -1275,7 +1275,7 @@ if __name__ =="__main__":
     outputPath = ''
     
     hasAdv = True
-    constraintType = '1'
+    constraintType = 'infinity'
 
     for item in args_from_file:
         if (item['numAdversarialNodes'] > 0) == hasAdv:
