@@ -1143,7 +1143,7 @@ def coordinate_descent(args, flag):
     # coordinate descent
     result = []
     numFeatures = 6
-    coord_iter = 2
+    coord_iter = 5
     totalNumFeatures = 4 * numFeatures
     pool = Pool(processes=71)
 
@@ -1189,6 +1189,7 @@ def coordinate_descent(args, flag):
             result.append((budget, baseline_consensus_ratio, train_consensus_ratio, coeff_vec.copy()))
     else:
         for budget in np.arange(0.1, 0.6, 0.1):
+        #for budget in [0.6]:
             search_space = np.linspace(-budget, budget, int(budget * 100) + 1)
             for j in range(coord_iter):
                 for i in range(totalNumFeatures):
@@ -1248,7 +1249,7 @@ if __name__ =="__main__":
     beta = 0
     # experimental parameters
     ################################
-    numSimulation = 100
+    numSimulation = 300
     gameTime = 60
     # inertia = 0.5
     numRegularPlayers = 20
@@ -1274,8 +1275,8 @@ if __name__ =="__main__":
     cnt = 0
     outputPath = ''
     
-    hasAdv = True
-    constraintType = 'infinity'
+    hasAdv = False
+    constraintType = 'L1'
 
     for item in args_from_file:
         if (item['numAdversarialNodes'] > 0) == hasAdv:
